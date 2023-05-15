@@ -9,6 +9,7 @@
   },
   "permissions": [
     "activeTab",
+    "tabs",
     "https://*.youtube.com/*"
   ],
   "background": {
@@ -25,6 +26,10 @@
         "content.js"
       ]
     }
+  ],
+  "web_accessible_resources": [
+    "settings.html",
+    "settings.js"
   ],
   "browser_action": {
     "default_icon": "icon.png"

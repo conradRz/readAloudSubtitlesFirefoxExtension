@@ -25,14 +25,14 @@ function readSubtitles() {
           readSubtitles();
         } else {
           // If the subtitle has not changed, wait another x milliseconds before checking again
-          setTimeout(checkSubtitle, 300);
+          setTimeout(checkSubtitle, 200);
         }
-      }, 300); // wait for x milliseconds before checking if subtitle has changed
+      }, 200); // wait for x milliseconds before checking if subtitle has changed
     };
 
     speechSynthesis.speak(utterance);
   }
-}
+};
 
 
 // Listen for messages from the background script

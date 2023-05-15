@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Extension Popup</title>
+    <style>
+        body {
+            width: 300px;
+            padding: 10px;
+            font-family: Arial, sans-serif;
+        }
+
+        h1 {
+            margin-top: 0;
+        }
+
+        .slider {
+            width: 100%;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Extension Popup</h1>
+
+    <label for="speedSlider">Speed:</label>
+    <input type="range" id="speedSlider" class="slider" min="0.5" max="2" step="0.1">
+
+    <label for="volumeSlider">Volume:</label>
+    <input type="range" id="volumeSlider" class="slider" min="0" max="100">
+
+    <script src="settings.js"></script>
+</body>
+
+</html>
