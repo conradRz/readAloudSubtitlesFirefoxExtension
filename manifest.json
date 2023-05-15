@@ -10,7 +10,8 @@
   "permissions": [
     "activeTab",
     "tabs",
-    "https://*.youtube.com/*"
+    "https://*.youtube.com/*",
+    "scripting"
   ],
   "background": {
     "scripts": [
@@ -27,11 +28,10 @@
       ]
     }
   ],
-  "web_accessible_resources": [
-    "settings.html",
-    "settings.js"
-  ],
   "browser_action": {
     "default_icon": "icon.png"
-  }
+  },
+  "web_accessible_resources": [
+    "settings.html"
+  ]
 }

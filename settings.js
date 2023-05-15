@@ -7,8 +7,8 @@ document.addEventListener('DOMContentLoaded', () => {
     let volumeSlider = document.getElementById('volumeSlider');
 
     // Add event listeners to the sliders
-    speedSlider.addEventListener('change', handleSpeedChange);
-    volumeSlider.addEventListener('change', handleVolumeChange);
+    speedSlider.addEventListener('input', handleSpeedChange);
+    volumeSlider.addEventListener('input', handleVolumeChange);
 
     // Function to handle speed slider change
     function handleSpeedChange(event) {
