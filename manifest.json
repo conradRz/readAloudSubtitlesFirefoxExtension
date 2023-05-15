@@ -1,0 +1,32 @@
+{
+  "manifest_version": 2,
+  "name": "YouTube Subtitle Reader",
+  "version": "1.0",
+  "description": "A Firefox extension that reads YouTube subtitles out loud using TTS.",
+  "content_security_policy": "script-src 'self' https://www.youtube.com/iframe_api; object-src 'self'",
+  "icons": {
+    "48": "icon.png"
+  },
+  "permissions": [
+    "activeTab",
+    "https://*.youtube.com/*"
+  ],
+  "background": {
+    "scripts": [
+      "background.js"
+    ]
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "*://*.youtube.com/*"
+      ],
+      "js": [
+        "content.js"
+      ]
+    }
+  ],
+  "browser_action": {
+    "default_icon": "icon.png"
+  }
+}
