@@ -1,24 +1,24 @@
+import { speechSettings } from './content.js';
+
+console.log('Before DOMContentLoaded event');
 document.addEventListener('DOMContentLoaded', () => {
-    const speedSlider = document.getElementById('speedSlider');
-    const volumeSlider = document.getElementById('volumeSlider');
+    console.log('Inside DOMContentLoaded event');
+    let speedSlider = document.getElementById('speedSlider');
+    let volumeSlider = document.getElementById('volumeSlider');
 
     // Add event listeners to the sliders
-    speedSlider.addEventListener('input', handleSpeedChange);
-    volumeSlider.addEventListener('input', handleVolumeChange);
+    speedSlider.addEventListener('change', handleSpeedChange);
+    volumeSlider.addEventListener('change', handleVolumeChange);
 
     // Function to handle speed slider change
     function handleSpeedChange(event) {
-        const speedValue = parseFloat(event.target.value);
         // Perform actions with the speed value
-        console.log('New speed value:', speedValue);
-        // Update your extension behavior based on the speed value
+        console.log('Speed value:', event.target.value);
+        speechSettings.speechSpeed = parseFloat(event.target.value);
     }
 
     // Function to handle volume slider change
     function handleVolumeChange(event) {
-        const volumeValue = parseInt(event.target.value);
-        // Perform actions with the volume value
-        console.log('New volume value:', volumeValue);
-        // Update your extension behavior based on the volume value
+        speechSettings.speechVolume = parseFloat(event.target.value);
     }
 });

@@ -1,3 +1,9 @@
+let speechSettings = {
+  speechSpeed: 1.5,
+  speechVolume: 1
+};
+
+
 // This function reads out the subtitles using TTS
 function readSubtitles() {
   let subtitlePart = document.querySelector(".ytp-caption-segment");
@@ -11,7 +17,8 @@ function readSubtitles() {
   // If the subtitle text is not empty, use the built-in TTS engine to read it out
   if (subtitlePart.innerHTML !== '') {
     let utterance = new SpeechSynthesisUtterance(subtitlePart.innerHTML);
-    utterance.rate = 1.5
+    utterance.rate = speechSettings.speechSpeed;
+    utterance.volume = speechSettings.speechVolume;
 
     // Set an event handler for when the TTS engine finishes speaking the subtitle
     utterance.onend = function () {
