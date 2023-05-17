@@ -26,6 +26,10 @@
       ]
     }
   ],
+  "options_ui": {
+    "page": "settings.html",
+    "open_in_tab": true
+  },
   "browser_action": {
     "default_icon": "icon.png"
   }
