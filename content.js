@@ -3,44 +3,51 @@ let speechSettings = {
   speechVolume: 1
 };
 
+let subtitlePart = '';
+let newSubtitlePart = '';
+
+let isSpeechSynthesisInProgress = false;
 
 // This function reads out the subtitles using TTS
 function readSubtitles() {
-  let subtitlePart = document.querySelector(".ytp-caption-segment");
+  let subtitleElement = document.querySelector(".ytp-caption-segment");
 
-  // If no subtitle nodes were found, show an error message and return
-  if (!subtitlePart) {
-    alert('No subtitles found!');
+  if (!subtitleElement) {
+    console.error('No subtitles found!');
+    scheduleNextRead();
     return;
   }
 
-  // If the subtitle text is not empty, use the built-in TTS engine to read it out
-  if (subtitlePart.innerHTML !== '') {
-    let utterance = new SpeechSynthesisUtterance(subtitlePart.innerHTML);
+  newSubtitlePart = subtitleElement.innerHTML;
+
+  if (newSubtitlePart !== subtitlePart) {
+    subtitlePart = newSubtitlePart;
+
+    if (isSpeechSynthesisInProgress) {
+      return;
+    }
+
+    isSpeechSynthesisInProgress = true;
+
+    let utterance = new SpeechSynthesisUtterance(subtitlePart);
     utterance.rate = speechSettings.speechSpeed;
     utterance.volume = speechSettings.speechVolume;
 
-    // Set an event handler for when the TTS engine finishes speaking the subtitle
     utterance.onend = function () {
-      // Set a timeout function to check if the subtitle has changed after 500 milliseconds
-      setTimeout(function checkSubtitle() {
-        // Check if a new subtitle element exists and if its text is different from the current subtitle
-        let newSubtitlePart = document.querySelector(".ytp-caption-segment");
-        if (newSubtitlePart && newSubtitlePart.innerHTML !== subtitlePart.innerHTML) {
-          // If a new subtitle exists and its text is different, update the current subtitle and read it out recursively
-          subtitlePart = newSubtitlePart;
-          readSubtitles();
-        } else {
-          // If the subtitle has not changed, wait another x milliseconds before checking again
-          setTimeout(checkSubtitle, 200);
-        }
-      }, 200); // wait for x milliseconds before checking if subtitle has changed
+      isSpeechSynthesisInProgress = false;
+      scheduleNextRead();
     };
 
     speechSynthesis.speak(utterance);
+  } else {
+    scheduleNextRead();
   }
-};
+}
 
+// Function to schedule the next read after a brief interval
+function scheduleNextRead() {
+  setTimeout(readSubtitles, 200);
+}
 
 // Listen for messages from the background script
 browser.runtime.onMessage.addListener(message => {

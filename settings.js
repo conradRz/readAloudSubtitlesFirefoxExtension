@@ -1,9 +1,6 @@
-console.log('base seetings.js file check');
-console.log(console.log(speechSettings.speechSpeed))
-console.log(console.log(speechSettings.speechVolume))
+//console.log('base seetings.js file check');
 
 document.addEventListener('DOMContentLoaded', () => {
-    console.log('Inside DOMContentLoaded event');
     let speedSlider = document.getElementById('speedSlider');
     let volumeSlider = document.getElementById('volumeSlider');
 
@@ -21,6 +18,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Function to handle volume slider change
     function handleVolumeChange(event) {
         // Perform actions with the volume value
+        console.log('Volume value:', event.target.value);
         speechSettings.speechVolume = parseFloat(event.target.value);
     }
 });
