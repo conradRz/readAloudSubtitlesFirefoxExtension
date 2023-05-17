@@ -9,6 +9,19 @@ document.addEventListener('DOMContentLoaded', () => {
     volumeSlider.addEventListener('input', handleVolumeChange);
 
 
+    // Retrieve the stored speechSettings from extension storage
+    browser.storage.local.get('speechSettings')
+        .then(result => {
+            if (result.speechSettings) {
+                // Set the slider values based on the stored speechSettings
+                speedSlider.value = result.speechSettings.speechSpeed;
+                volumeSlider.value = result.speechSettings.speechVolume;
+            }
+        })
+        .catch(error => {
+            console.error('Error retrieving speechSettings:', error);
+        });
+
     // Function to handle speed slider change
     function handleSpeedChange(event) {
         // Perform actions with the speed value

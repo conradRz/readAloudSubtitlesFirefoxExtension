@@ -17,7 +17,8 @@
   "background": {
     "scripts": [
       "background.js"
-    ]
+    ],
+    "persistent": false
   },
   "content_scripts": [
     {
@@ -26,7 +27,8 @@
       ],
       "js": [
         "content.js"
-      ]
+      ],
+      "run_at": "document_idle"
     }
   ],
   "browser_action": {
