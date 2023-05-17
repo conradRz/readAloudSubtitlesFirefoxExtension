@@ -11,12 +11,12 @@
     "activeTab",
     "tabs",
     "https://*.youtube.com/*",
-    "scripting"
+    "scripting",
+    "storage"
   ],
   "background": {
     "scripts": [
-      "background.js",
-      "content.js"
+      "background.js"
     ]
   },
   "content_scripts": [
@@ -31,6 +31,10 @@
   ],
   "browser_action": {
     "default_icon": "icon.png"
+  },
+  "options_ui": {
+    "page": "settings.html",
+    "open_in_tab": true
   },
   "web_accessible_resources": [
     "settings.html"

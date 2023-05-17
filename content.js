@@ -13,7 +13,7 @@ function readSubtitles() {
   let subtitleElement = document.querySelector(".ytp-caption-segment");
 
   if (!subtitleElement) {
-    console.error('No subtitles found!');
+    //console.error('No subtitles found!');
     scheduleNextRead();
     return;
   }
@@ -30,8 +30,11 @@ function readSubtitles() {
     isSpeechSynthesisInProgress = true;
 
     let utterance = new SpeechSynthesisUtterance(subtitlePart);
+    debugger;
     utterance.rate = speechSettings.speechSpeed;
     utterance.volume = speechSettings.speechVolume;
+
+
 
     utterance.onend = function () {
       isSpeechSynthesisInProgress = false;
@@ -39,6 +42,7 @@ function readSubtitles() {
     };
 
     speechSynthesis.speak(utterance);
+
   } else {
     scheduleNextRead();
   }
@@ -53,5 +57,7 @@ function scheduleNextRead() {
 browser.runtime.onMessage.addListener(message => {
   if (message.action === 'readSubtitles') {
     readSubtitles();
+  } else if (message.action === 'updateSpeechSettings') {
+    speechSettings = message.speechSettings;
   }
 });
