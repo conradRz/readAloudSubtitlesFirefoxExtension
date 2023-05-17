@@ -1,6 +1,7 @@
-import { speechSettings } from './content.js';
+console.log('base seetings.js file check');
+console.log(console.log(speechSettings.speechSpeed))
+console.log(console.log(speechSettings.speechVolume))
 
-console.log('Before DOMContentLoaded event');
 document.addEventListener('DOMContentLoaded', () => {
     console.log('Inside DOMContentLoaded event');
     let speedSlider = document.getElementById('speedSlider');
@@ -19,6 +20,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Function to handle volume slider change
     function handleVolumeChange(event) {
+        // Perform actions with the volume value
         speechSettings.speechVolume = parseFloat(event.target.value);
     }
 });
