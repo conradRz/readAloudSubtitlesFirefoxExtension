@@ -32,8 +32,6 @@ function readSubtitles() {
     utterance.rate = speechSettings.speechSpeed;
     utterance.volume = speechSettings.speechVolume;
 
-
-
     utterance.onend = function () {
       isSpeechSynthesisInProgress = false;
       scheduleNextRead();
@@ -52,7 +50,7 @@ function scheduleNextRead() {
 }
 
 // Listen for messages from the background script
-browser.runtime.onMessage.addListener(message => {
+browser.runtime.onMessage.addListener((message, sender) => {
   if (message.action === 'readSubtitles') {
     readSubtitles();
   } else if (message.action === 'updateSpeechSettings') {

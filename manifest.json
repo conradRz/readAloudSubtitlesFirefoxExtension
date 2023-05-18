@@ -13,7 +13,8 @@
     "*://*.youtube.com/*",
     "scripting",
     "storage",
-    "alarms"
+    "alarms",
+    "idle"
   ],
   "background": {
     "scripts": [
