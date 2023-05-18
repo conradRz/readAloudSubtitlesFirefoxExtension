@@ -10,7 +10,7 @@
   "permissions": [
     "activeTab",
     "tabs",
-    "https://*.youtube.com/*",
+    "*://*.youtube.com/*",
     "scripting",
     "storage",
     "alarms"
@@ -37,9 +37,14 @@
   },
   "options_ui": {
     "page": "settings.html",
-    "open_in_tab": true
+    "open_in_tab": false
   },
   "web_accessible_resources": [
     "settings.html"
-  ]
+  ],
+  "developer": {
+    "name": "Conrad Rzuc",
+    "url": "https://github.com/conradOU/"
+  },
+  "homepage_url": "https://github.com/conradOU/readOutLoudSubtitlesFirefoxExtension"
 }
