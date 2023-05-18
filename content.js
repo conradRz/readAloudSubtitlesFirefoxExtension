@@ -13,7 +13,6 @@ function readSubtitles() {
   let subtitleElement = document.querySelector(".ytp-caption-segment");
 
   if (!subtitleElement) {
-    //console.error('No subtitles found!');
     scheduleNextRead();
     return;
   }
@@ -30,7 +29,6 @@ function readSubtitles() {
     isSpeechSynthesisInProgress = true;
 
     let utterance = new SpeechSynthesisUtterance(subtitlePart);
-    debugger;
     utterance.rate = speechSettings.speechSpeed;
     utterance.volume = speechSettings.speechVolume;
 
