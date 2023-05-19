@@ -89,7 +89,7 @@ const selectCaptionFileForTTS = async track => {
 const buildGui = captionTracks => {
   removeIfAlreadyExists()
 
-  const container = createOutterContainer('Subtitle text file download: ')
+  const container = createOutterContainer('Subtitle file download: ')
   captionTracks.forEach(track => {
     const link = createDownloadLink(track)
     container.appendChild(link)
@@ -153,8 +153,8 @@ const createOutterContainer = text => {
   container.setAttribute('id', CONTAINER_ID)
   container.style.padding = '5px 5px 5px 0'
   container.style.margin = '5px 0'
-  container.style.color = 'blue'
-  container.style.fontSize = '15px'
+  container.style.color = 'darkgrey'
+  container.style.fontSize = '1.4rem'
   container.style.lineHeight = .75
   container.textContent = text
   return container
@@ -176,13 +176,13 @@ const createDownloadLink = track => {
   link.title = 'Please click to download'
 
   // CSS
-  link.style.marginLeft = '10px'
+  link.style.marginLeft = '0px'
   link.style.cursor = 'pointer'
-  link.style.color = 'red'
+  link.style.color = 'pink'
   link.style.textDecoration = 'underline'
   link.style.background = 'transparent'
   link.style.border = 'none'
-  link.style.fontSize = '15px'
+  link.style.fontSize = '1.4rem'
 
   // Click to download
   link.addEventListener('click', () => {
@@ -195,15 +195,15 @@ const createSelectionLink = (track) => {
   const checkbox = document.createElement('input');
   checkbox.type = 'checkbox';
   checkbox.id = `checkbox_${track.name.simpleText.replace(/\s/g, '_')}`;
-  checkbox.style.marginLeft = '10px';
+  checkbox.style.marginLeft = '0px';
 
   const label = document.createElement('label');
   label.textContent = track.name.simpleText;
   label.htmlFor = checkbox.id;
   label.style.cursor = 'pointer';
-  label.style.color = 'red';
+  label.style.color = 'pink';
   label.style.textDecoration = 'underline';
-  label.style.fontSize = '15px';
+  label.style.fontSize = '1.4rem';
 
   const container = document.createElement('div');
   container.style.display = 'flex';
