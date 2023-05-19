@@ -151,11 +151,11 @@ const canInsert = () => {
 const createOutterContainer = text => {
   const container = document.createElement('div')
   container.setAttribute('id', CONTAINER_ID)
-  container.style.padding = '10px 5px 10px 0'
-  container.style.margin = '10px 0'
+  container.style.padding = '5px 5px 5px 0'
+  container.style.margin = '5px 0'
   container.style.color = 'blue'
   container.style.fontSize = '15px'
-  container.style.lineHeight = 1.5
+  container.style.lineHeight = .75
   container.textContent = text
   return container
 }
@@ -228,7 +228,8 @@ const createSelectionLink = (track) => {
 const removeIfAlreadyExists = () => {
   const container = document.getElementById(CONTAINER_ID)
   if (container != null) {
-    container.parentNode.removeChild(container)
+    container.parentNode.removeChild(container);
+    container.parentNode.removeChild(container) //this being twice is not a mistake. If it's once, it will remove only one container
   }
 }
 
