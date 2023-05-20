@@ -43,8 +43,6 @@ const selectCaptionFileForTTS = async track => {
     let matchedText = '';
 
     function matchXmlTextToCurrentTime() {
-      //const startTime = performance.now();
-
       currentTime = document.getElementsByClassName('video-stream')[0].currentTime;
 
       for (let i = 0; i < textElements.length; i++) {
@@ -58,17 +56,9 @@ const selectCaptionFileForTTS = async track => {
         }
       }
 
-      //const endTime = performance.now();
-      //const executionTime = endTime - startTime;
-      //console.log(`Execution time: ${executionTime} milliseconds`); //no need for binary search, as it was between 1-10miliseconds
-
       if (matchedText) {
         newSubtitlePart = matchedText;
         if ((newSubtitlePart !== subtitlePart) && !isSpeechSynthesisInProgress) {
-
-          // if (isSpeechSynthesisInProgress) {
-          //   return;
-          // }
 
           subtitlePart = newSubtitlePart;
 
