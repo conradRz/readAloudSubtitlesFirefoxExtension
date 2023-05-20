@@ -43,6 +43,8 @@ const selectCaptionFileForTTS = async track => {
     let matchedText = '';
 
     function matchXmlTextToCurrentTime() {
+      //const startTime = performance.now();
+
       currentTime = document.getElementsByClassName('video-stream')[0].currentTime;
 
       for (let i = 0; i < textElements.length; i++) {
@@ -56,29 +58,35 @@ const selectCaptionFileForTTS = async track => {
         }
       }
 
+      //const endTime = performance.now();
+      //const executionTime = endTime - startTime;
+      //console.log(`Execution time: ${executionTime} milliseconds`); //no need for binary search, as it was between 1-10miliseconds
+
       if (matchedText) {
         newSubtitlePart = matchedText;
-        if (newSubtitlePart !== subtitlePart) {
+        if ((newSubtitlePart !== subtitlePart) && !isSpeechSynthesisInProgress) {
+
+          // if (isSpeechSynthesisInProgress) {
+          //   return;
+          // }
+
           subtitlePart = newSubtitlePart;
 
-          if (isSpeechSynthesisInProgress) {
-            return;
-          }
           isSpeechSynthesisInProgress = true;
-          let utterance = new SpeechSynthesisUtterance(matchedText.replace(/\n/g, ""));
+          let utterance = new SpeechSynthesisUtterance(unescapeHTML(matchedText.replace(/\n/g, "").replace(/\\"/g, '"').trim().replace(/[,\.]+$/, ''))); //.replace(/[,\.]+$/, '') trims trailing , and . which makes the subtitle playing smoother in my subjective opinion
           utterance.rate = speechSettings.speechSpeed;
           utterance.volume = speechSettings.speechVolume;
 
           utterance.onend = function () {
             isSpeechSynthesisInProgress = false;
-            setTimeout(matchXmlTextToCurrentTime, 200);
+            setTimeout(matchXmlTextToCurrentTime, 100);
           };
 
           speechSynthesis.speak(utterance);
-        } else { setTimeout(matchXmlTextToCurrentTime, 200) }
+        } else { setTimeout(matchXmlTextToCurrentTime, 100) }
       }
     }
-    setInterval(matchXmlTextToCurrentTime, 200);
+    setInterval(matchXmlTextToCurrentTime, 100);
   }
 }
 
