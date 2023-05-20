@@ -30,37 +30,28 @@ const selectCaptionFileForTTS = async track => {
   const xml = await fetch(url).then(resp => resp.text())
 
   if (xml) {
-    const parser = new DOMParser();
-    const xmlDoc = parser.parseFromString(xml, 'text/xml');
+    const xmlDoc = new DOMParser().parseFromString(xml, 'text/xml');
     const textElements = xmlDoc.getElementsByTagName('text');
 
     let currentTime;
     let isSpeechSynthesisInProgress = false;
 
-    let subtitlePart = '';
-    let newSubtitlePart = '';
-    let matchedText = '';
+    let subtitlePart = '', newSubtitlePart = '', matchedText = '';
 
     function matchXmlTextToCurrentTime() {
       currentTime = document.getElementsByClassName('video-stream')[0].currentTime;
 
       /////////////////////////////////////////
-      for (let i = 0; i < textElements.length; i++) {
-        const start = parseFloat(textElements[i].getAttribute('start'));
-        const duration = parseFloat(textElements[i].getAttribute('dur'));
-        const end = start + duration;
+      const matchedElement = Array.from(textElements).find((el) => {
+        const start = parseFloat(el.getAttribute('start'));
+        const end = start + parseFloat(el.getAttribute('dur'));
+        return currentTime >= start && currentTime <= end;
+      });
 
-        if (currentTime >= start && currentTime <= end) {
-          matchedText = textElements[i].textContent.trim();
-          break;
-        }
-      }
-
-      if (matchedText) {
-        newSubtitlePart = matchedText;
-        if ((newSubtitlePart !== subtitlePart) && !isSpeechSynthesisInProgress) {
-
-          subtitlePart = newSubtitlePart;
+      if (matchedElement) {
+        matchedText = matchedElement.textContent.trim();
+        if (matchedText !== subtitlePart && !isSpeechSynthesisInProgress) {
+          subtitlePart = newSubtitlePart = matchedText;
           /////////////////////////////////////////
           isSpeechSynthesisInProgress = true;
           let utterance = new SpeechSynthesisUtterance(unescapeHTML(matchedText.replace(/\n/g, "").replace(/\\"/g, '"').trim().replace(/[,\.]+$/, ''))); //.replace(/[,\.]+$/, '') trims trailing , and . which makes the subtitle playing smoother in my subjective opinion
