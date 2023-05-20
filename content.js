@@ -327,9 +327,9 @@ const checkSubtitle = () => {
   if (currentUrl != newUrl) {
     const videoId = extractVideoId()
     if (videoId) {
-      // Nếu là địa chỉ có video
+      // If it's a video address
       if (canInsert()) {
-        // Nếu có thể thêm
+        // If possible add
         currentUrl = newUrl
         getSubtitleList(videoId)
       } else {
