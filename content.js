@@ -5,13 +5,11 @@ browser.runtime.onMessage.addListener((message, sender) => {
   }
 });
 
-
 // ID of the container
 const CONTAINER_ID = 'captionDownloadContainer'
 
 // Location to add your HTML
 let insertPosition
-
 
 /**
  * Download subtitle files.
@@ -165,7 +163,7 @@ const createDownloadLink = track => {
   link.title = 'Please click to download'
 
   // CSS
-  link.style.marginLeft = '0px'
+  link.style.marginLeft = '5px'
   link.style.cursor = 'pointer'
   link.style.color = 'pink'
   link.style.textDecoration = 'underline'
