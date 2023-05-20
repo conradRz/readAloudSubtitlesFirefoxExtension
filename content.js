@@ -1,4 +1,4 @@
-// Listen for messages from the background script
+// Listen for messages from the background settings.js script. You cannot move it to background.js for a reason
 browser.runtime.onMessage.addListener((message, sender) => {
   if (message.action === 'updateSpeechSettings') {
     speechSettings = message.speechSettings;
