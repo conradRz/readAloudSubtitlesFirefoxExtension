@@ -24,6 +24,8 @@ const downloadCaptionFile = async track => {
   saveTextAsFile(content, fileName)
 }
 
+let intervalId; // Variable to store the interval ID
+
 const selectCaptionFileForTTS = async (track) => {
   const url = track.baseUrl;
   const xml = await fetch(url).then(resp => resp.text());
@@ -77,10 +79,14 @@ const selectCaptionFileForTTS = async (track) => {
         }
       }
     }
-    setInterval(matchXmlTextToCurrentTime, 100);
+
+    clearInterval(intervalId); // Clear previous interval if exists
+    intervalId = setInterval(matchXmlTextToCurrentTime, 100); // Set the new interval
+
+    // Return the matchXmlTextToCurrentTime function so it can be called from outside
+    return matchXmlTextToCurrentTime;
   }
 };
-
 
 /**
  * Displays a list of subtitles that the video has.
@@ -214,7 +220,9 @@ const createSelectionLink = (track) => {
   // Click event listener for the checkbox
   checkbox.addEventListener('change', () => {
     if (checkbox.checked) {
-      selectCaptionFileForTTS(track);
+      const matchXmlTextToCurrentTime = selectCaptionFileForTTS(track);
+      clearInterval(intervalId); // Clear the current interval
+      intervalId = setInterval(matchXmlTextToCurrentTime, 100); // Start a new interval for the new track
     }
   });
 
