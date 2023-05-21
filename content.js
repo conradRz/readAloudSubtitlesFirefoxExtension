@@ -27,6 +27,8 @@ const selectCaptionFileForTTS = async track => {
   const url = track.baseUrl
   const xml = await fetch(url).then(resp => resp.text())
 
+  const voices = window.speechSynthesis.getVoices();
+
   if (xml) {
     const xmlDoc = new DOMParser().parseFromString(xml, 'text/xml');
     const textElements = xmlDoc.getElementsByTagName('text');
@@ -54,6 +56,15 @@ const selectCaptionFileForTTS = async track => {
           let utterance = new SpeechSynthesisUtterance(unescapeHTML(matchedText.replace(/\n/g, "").replace(/\\"/g, '"').trim().replace(/[,\.]+$/, ''))); //.replace(/[,\.]+$/, '') trims trailing , and . which makes the subtitle playing smoother in my subjective opinion
           utterance.rate = speechSettings.speechSpeed;
           utterance.volume = speechSettings.speechVolume;
+
+          //only assign utterance.voice if speechSettings.speechVoice is not empty, that is other voice than the environment default had been selected
+          if (speechSettings.speechVoice !== null) {
+            for (let i = 0; i < voices.length; i++) {
+              if (voices[i].voiceURI === speechSettings.speechVoice) {
+                utterance.voice = voices[i];
+              }
+            }
+          }
 
           utterance.onend = function () {
             isSpeechSynthesisInProgress = false;
@@ -290,7 +301,8 @@ const unescapeHTML = inputText => {
 
 let speechSettings = {
   speechSpeed: 1.5,
-  speechVolume: 1
+  speechVolume: 1,
+  speechVoice: null
 };
 
 let currentUrl = ''

@@ -1,11 +1,14 @@
 document.addEventListener('DOMContentLoaded', () => {
     let speedSlider = document.getElementById('speedSlider');
     let volumeSlider = document.getElementById('volumeSlider');
+    let selectTTS = document.getElementById('engineSelect');
 
     // Add event listeners to the sliders
     speedSlider.addEventListener('input', handleSpeedChange);
     volumeSlider.addEventListener('input', handleVolumeChange);
 
+    // Add event listener to the TTS engine change
+    selectTTS.addEventListener('change', handleEngineChange);
 
     // Retrieve the stored speechSettings from extension storage
     browser.storage.local.get('speechSettings')
@@ -14,6 +17,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 // Set the slider values based on the stored speechSettings
                 speedSlider.value = result.speechSettings.speechSpeed;
                 volumeSlider.value = result.speechSettings.speechVolume;
+                selectTTS.value = result.speechSettings.speechVoice
             }
         })
         .catch(error => {
@@ -50,6 +54,40 @@ document.addEventListener('DOMContentLoaded', () => {
                 });
             });
     }
+
+    function handleEngineChange(event) {
+        //const selectedEngine = event.target.value;
+        speechSettings.speechVoice = event.target.value;
+        //speechSettings.speechVoice = parseFloat(event.target.value);
+        saveSpeechSettings();
+        sendMessageToContentScript();
+    }
+
+    // Function to populate the TTS engines dropdown
+    function populateTTSEngines() {
+        const select = document.getElementById('engineSelect');
+        select.innerHTML = '';
+
+        if ('speechSynthesis' in window) {
+            const synth = window.speechSynthesis;
+            const voices = synth.getVoices();
+
+            voices.forEach(voice => {
+                const option = document.createElement('option');
+                option.text = voice.name;
+                option.value = voice.voiceURI;
+                select.add(option);
+            });
+        } else {
+            const option = document.createElement('option');
+            option.text = 'TTS not supported';
+            option.disabled = true;
+            select.add(option);
+        }
+    }
+
+    // Call the function to populate the TTS engines dropdown
+    populateTTSEngines();
 });
 
 // Retrieve the speech settings from extension storage on startup
