@@ -39,7 +39,6 @@ const selectCaptionFileForTTS = async track => {
     function matchXmlTextToCurrentTime() {
       currentTime = document.getElementsByClassName('video-stream')[0].currentTime;
 
-      /////////////////////////////////////////
       const matchedElement = Array.from(textElements).find((el) => {
         const start = parseFloat(el.getAttribute('start'));
         const end = start + parseFloat(el.getAttribute('dur'));
@@ -50,7 +49,7 @@ const selectCaptionFileForTTS = async track => {
         matchedText = matchedElement.textContent.trim();
         if (matchedText !== subtitlePart && !isSpeechSynthesisInProgress) {
           subtitlePart = newSubtitlePart = matchedText;
-          /////////////////////////////////////////
+
           isSpeechSynthesisInProgress = true;
           let utterance = new SpeechSynthesisUtterance(unescapeHTML(matchedText.replace(/\n/g, "").replace(/\\"/g, '"').trim().replace(/[,\.]+$/, ''))); //.replace(/[,\.]+$/, '') trims trailing , and . which makes the subtitle playing smoother in my subjective opinion
           utterance.rate = speechSettings.speechSpeed;
