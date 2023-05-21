@@ -60,6 +60,7 @@ const selectCaptionFileForTTS = async (track) => {
 
           isSpeechSynthesisInProgress = true;
           let utterance = new SpeechSynthesisUtterance(unescapeHTML(matchedText.replace(/\n/g, "").replace(/\\"/g, '"').trim().replace(/[,\.]+$/, '').replace(/\r/g, ""))); //.replace(/[,\.]+$/, '') trims trailing , and . which makes the subtitle playing smoother in my subjective opinion
+
           utterance.rate = speechSettings.speechSpeed;
           utterance.volume = speechSettings.speechVolume;
 
@@ -82,7 +83,7 @@ const selectCaptionFileForTTS = async (track) => {
     }
 
     clearInterval(intervalId); // Clear previous interval if exists
-    intervalId = setInterval(matchXmlTextToCurrentTime, 100); // Set the new interval
+    intervalId = setInterval(matchXmlTextToCurrentTime, 200); // Set the new interval
 
     currentTrack = track; // Update the current track
 
@@ -235,7 +236,7 @@ const createSelectionLink = (track) => {
       if (currentTrack !== track) {
         clearInterval(intervalId); // Clear the current interval if the track is different
         const matchXmlTextToCurrentTime = selectCaptionFileForTTS(track);
-        intervalId = setInterval(matchXmlTextToCurrentTime, 100); // Start a new interval for the new track
+        intervalId = setInterval(matchXmlTextToCurrentTime, 200); // Start a new interval for the new track
       }
     }
   });
