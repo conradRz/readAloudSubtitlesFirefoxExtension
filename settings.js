@@ -17,6 +17,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 // Set the slider values based on the stored speechSettings
                 speedSlider.value = result.speechSettings.speechSpeed;
                 volumeSlider.value = result.speechSettings.speechVolume;
+                // 
                 selectTTS.value = result.speechSettings.speechVoice
             }
         })

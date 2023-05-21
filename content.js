@@ -220,7 +220,7 @@ const createSelectionLink = (track) => {
 
 
 /**
- * Check if the container already exists (show we don't have to process again).
+ * Check if the container already exists (so we don't have to process again).
  */
 const removeIfAlreadyExists = () => {
   const container = document.getElementById(CONTAINER_ID)
