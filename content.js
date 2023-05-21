@@ -24,9 +24,9 @@ const downloadCaptionFile = async track => {
   saveTextAsFile(content, fileName)
 }
 
-const selectCaptionFileForTTS = async track => {
-  const url = track.baseUrl
-  const xml = await fetch(url).then(resp => resp.text())
+const selectCaptionFileForTTS = async (track) => {
+  const url = track.baseUrl;
+  const xml = await fetch(url).then(resp => resp.text());
 
   const voices = window.speechSynthesis.getVoices();
 
@@ -37,10 +37,11 @@ const selectCaptionFileForTTS = async track => {
     let currentTime;
     let isSpeechSynthesisInProgress = false;
 
-    let subtitlePart = '', newSubtitlePart = '', matchedText = '';
+    let subtitlePart = '';
+    let newSubtitlePart = '';
+    let matchedText = '';
 
     function matchXmlTextToCurrentTime() {
-
       currentTime = document.getElementsByClassName('video-stream')[0].currentTime;
 
       const matchedElement = Array.from(textElements).find((el) => {
@@ -70,16 +71,16 @@ const selectCaptionFileForTTS = async track => {
 
           utterance.onend = function () {
             isSpeechSynthesisInProgress = false;
-            setTimeout(matchXmlTextToCurrentTime, 100);
           };
 
           speechSynthesis.speak(utterance);
-        } else { setTimeout(matchXmlTextToCurrentTime, 100) }
+        }
       }
     }
     setInterval(matchXmlTextToCurrentTime, 100);
   }
-}
+};
+
 
 /**
  * Displays a list of subtitles that the video has.
