@@ -76,7 +76,6 @@ const selectCaptionFileForTTS = async (track) => {
           utterance.onend = function () {
             isSpeechSynthesisInProgress = false;
           };
-
           speechSynthesis.speak(utterance);
         }
       }
@@ -98,8 +97,16 @@ const handleVideoChange = () => {
   currentTrack = null; // Reset the current track
 };
 
-// Add event listener for video change
-document.getElementsByClassName('video-stream')[0].addEventListener('loadeddata', handleVideoChange);
+const elements = document.getElementsByClassName('video-stream');
+
+if (elements.length > 0) {
+  // Add event listener for video change
+  document.getElementsByClassName('video-stream')[0].addEventListener('loadeddata', handleVideoChange);
+} else {
+  // Handle the case when no elements are found
+  console.log('No elements found with the specified class name');
+}
+
 
 /**
  * Displays a list of subtitles that the video has.
@@ -236,6 +243,7 @@ const createSelectionLink = (track) => {
       if (currentTrack !== track) {
         clearInterval(intervalId); // Clear the current interval if the track is different
         const matchXmlTextToCurrentTime = selectCaptionFileForTTS(track);
+
         intervalId = setInterval(matchXmlTextToCurrentTime, 200); // Start a new interval for the new track
       }
     }
@@ -329,7 +337,7 @@ const unescapeHTML = inputText => {
 }
 
 let speechSettings = {
-  speechSpeed: 1.5,
+  speechSpeed: 1.6,
   speechVolume: 1,
   speechVoice: null
 };
