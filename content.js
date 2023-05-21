@@ -5,8 +5,9 @@ browser.runtime.onMessage.addListener((message, sender) => {
   }
 });
 
-// ID of the container
+// IDs of the containers
 const CONTAINER_ID = 'captionDownloadContainer'
+const CONTAINER_ID2 = 'captionDownloadContainer2'
 
 // Location to add your HTML
 let insertPosition
@@ -39,6 +40,7 @@ const selectCaptionFileForTTS = async track => {
     let subtitlePart = '', newSubtitlePart = '', matchedText = '';
 
     function matchXmlTextToCurrentTime() {
+
       currentTime = document.getElementsByClassName('video-stream')[0].currentTime;
 
       const matchedElement = Array.from(textElements).find((el) => {
@@ -53,7 +55,7 @@ const selectCaptionFileForTTS = async track => {
           subtitlePart = newSubtitlePart = matchedText;
 
           isSpeechSynthesisInProgress = true;
-          let utterance = new SpeechSynthesisUtterance(unescapeHTML(matchedText.replace(/\n/g, "").replace(/\\"/g, '"').trim().replace(/[,\.]+$/, ''))); //.replace(/[,\.]+$/, '') trims trailing , and . which makes the subtitle playing smoother in my subjective opinion
+          let utterance = new SpeechSynthesisUtterance(unescapeHTML(matchedText.replace(/\n/g, "").replace(/\\"/g, '"').trim().replace(/[,\.]+$/, '').replace(/\r/g, ""))); //.replace(/[,\.]+$/, '') trims trailing , and . which makes the subtitle playing smoother in my subjective opinion
           utterance.rate = speechSettings.speechSpeed;
           utterance.volume = speechSettings.speechVolume;
 
@@ -86,13 +88,13 @@ const selectCaptionFileForTTS = async track => {
 const buildGui = captionTracks => {
   removeIfAlreadyExists()
 
-  const container = createOutterContainer('Subtitle file download: ')
+  const container = createOutterContainer('Subtitle file download: ', CONTAINER_ID)
   captionTracks.forEach(track => {
     const link = createDownloadLink(track)
     container.appendChild(link)
   })
 
-  const container2 = createOutterContainer('Tick subtitle for speech for when video plays: ')
+  const container2 = createOutterContainer('Tick subtitle for speech for when video plays: ', CONTAINER_ID2)
   captionTracks.forEach(track => {
     const link = createSelectionLink(track)
     container2.appendChild(link)
@@ -145,9 +147,9 @@ const canInsert = () => {
  * @param {String} text String of display labels
  * @return {HTMLDivElement}
  */
-const createOutterContainer = text => {
+const createOutterContainer = (text, id) => {
   const container = document.createElement('div')
-  container.setAttribute('id', CONTAINER_ID)
+  container.setAttribute('id', id)
   container.style.padding = '5px 5px 5px 0'
   container.style.margin = '5px 0'
   container.style.color = 'darkgrey'
@@ -226,7 +228,10 @@ const removeIfAlreadyExists = () => {
   const container = document.getElementById(CONTAINER_ID)
   if (container != null) {
     container.parentNode.removeChild(container);
-    container.parentNode.removeChild(container) //this being twice is not a mistake. If it's once, it will remove only one container
+  }
+  const container2 = document.getElementById(CONTAINER_ID2)
+  if (container2 != null) {
+    container2.parentNode.removeChild(container2);
   }
 }
 
@@ -236,7 +241,7 @@ const removeIfAlreadyExists = () => {
  */
 const notifyNotFound = () => {
   removeIfAlreadyExists()
-  const container = createOutterContainer('No subtitle')
+  const container = createOutterContainer('No subtitle', CONTAINER_ID)
   addToCurrentPage(container)
 }
 
