@@ -83,7 +83,7 @@ const selectCaptionFileForTTS = async (track) => {
     }
 
     clearInterval(intervalId); // Clear previous interval if exists
-    intervalId = setInterval(matchXmlTextToCurrentTime, 200); // Set the new interval
+    intervalId = setInterval(matchXmlTextToCurrentTime, 250); // Set the new interval
 
     currentTrack = track; // Update the current track
 
@@ -245,7 +245,7 @@ const createSelectionLink = (track) => {
         clearInterval(intervalId); // Clear the current interval if the track is different
         const matchXmlTextToCurrentTime = selectCaptionFileForTTS(track);
 
-        intervalId = setInterval(matchXmlTextToCurrentTime, 200); // Start a new interval for the new track
+        intervalId = setInterval(matchXmlTextToCurrentTime, 250); // Start a new interval for the new track
       }
     }
   });
