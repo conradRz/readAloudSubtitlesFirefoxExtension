@@ -244,8 +244,6 @@ const createSelectionLink = (track) => {
       if (currentTrack !== track) {
         clearInterval(intervalId); // Clear the current interval if the track is different
         const matchXmlTextToCurrentTime = selectCaptionFileForTTS(track);
-
-        intervalId = setInterval(matchXmlTextToCurrentTime, 250); // Start a new interval for the new track
       }
     }
   });
