@@ -67,10 +67,9 @@ const selectCaptionFileForTTS = async (track) => {
 
           //only assign utterance.voice if speechSettings.speechVoice is not empty, that is other voice than the environment default had been selected
           if (speechSettings.speechVoice !== null) {
-            for (let i = 0; i < voices.length; i++) {
-              if (voices[i].voiceURI === speechSettings.speechVoice) {
-                utterance.voice = voices[i];
-              }
+            const voice = voices.find((voice) => voice.voiceURI === speechSettings.speechVoice);
+            if (voice) {
+              utterance.voice = voice;
             }
           }
 
