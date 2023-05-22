@@ -432,7 +432,6 @@ const convertFromTimedToSrtFormat = xml => {
     // use text.childNodes[0].nodeValue not
     // const orginalText = text.textContent
     const orginalText = (text.childNodes && text.childNodes.length) ? text.childNodes[0].nodeValue : ''
-    // console.log(startTime, duration, orginalText)
 
     const endTime = startTime + duration
     const normalizedText = orginalText
