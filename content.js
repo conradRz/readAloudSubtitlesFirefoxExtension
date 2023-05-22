@@ -31,6 +31,7 @@ const selectCaptionFileForTTS = async (track) => {
   const url = track.baseUrl;
   const xml = await fetch(url).then(resp => resp.text());
 
+  // better not to place the below in a more global scope, where it will get executed only once, in case the user installs new TTS voices
   const voices = window.speechSynthesis.getVoices();
 
   if (xml) {
