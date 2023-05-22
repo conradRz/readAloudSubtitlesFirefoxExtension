@@ -1,8 +1,8 @@
 {
   "manifest_version": 2,
   "name": "Youtube Subtitle Downloader",
-  "version": "3.4.0",
-  "description": "Download subtitle (Closed Caption) from YouTube",
+  "version": "0.1",
+  "description": "Download subtitles from YouTube",
   "icons": {
     "48": "icon.png"
   },
