@@ -233,10 +233,10 @@ const createSelectionLink = (track) => {
 
   // Click event listener for the checkbox
   checkbox.addEventListener('change', () => {
-    if (checkbox.checked && currentTrack !== track) {
+    if (checkbox.checked) {
       clearInterval(intervalId);
       selectCaptionFileForTTS(track);
-    }
+    } else if (!checkbox.checked) clearInterval(intervalId);
   });
 
   return container;
