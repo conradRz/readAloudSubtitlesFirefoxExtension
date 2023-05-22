@@ -324,11 +324,26 @@ const unescapeHTML = inputText => {
   return inputText
 }
 
-let speechSettings = {
-  speechSpeed: 1.6,
-  speechVolume: 1,
-  speechVoice: null
-};
+let speechSettings;
+
+browser.storage.local.get('speechSettings')
+  .then(result => {
+    if (result.speechSettings) {
+      speechSettings = result.speechSettings;
+    } else {
+      speechSettings = {
+        speechSpeed: 1.6,
+        speechVolume: 1,
+        speechVoice: null
+      };
+    }
+
+    // Use the speechSettings object here or perform additional operations
+  })
+  .catch(error => {
+    console.error('Error retrieving speech settings:', error);
+    // Handle the error case here
+  });
 
 let currentUrl = ''
 
