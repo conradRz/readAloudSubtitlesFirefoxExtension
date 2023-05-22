@@ -86,9 +86,6 @@ const selectCaptionFileForTTS = async (track) => {
     intervalId = setInterval(matchXmlTextToCurrentTime, 250); // Set the new interval
 
     currentTrack = track; // Update the current track
-
-    // Return the matchXmlTextToCurrentTime function so it can be called from outside
-    return matchXmlTextToCurrentTime;
   }
 };
 
