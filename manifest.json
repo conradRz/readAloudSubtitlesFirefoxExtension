@@ -1,8 +1,8 @@
 {
   "manifest_version": 2,
-  "name": "Youtube Subtitle Downloader",
+  "name": "YouTube Subtitle Reader",
   "version": "0.1",
-  "description": "Download subtitles from YouTube",
+  "description": "A Firefox extension that reads YouTube subtitles out loud using TTS.",
   "icons": {
     "48": "icon.png"
   },
@@ -31,5 +31,10 @@
   "web_accessible_resources": [
     "settings.html",
     "content.js"
-  ]
+  ],
+  "developer": {
+    "name": "Conrad Rzuc",
+    "url": "https://github.com/conradOU/"
+  },
+  "homepage_url": "https://github.com/conradOU/readOutLoudSubtitlesFirefoxExtension"
 }
