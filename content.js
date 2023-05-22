@@ -31,7 +31,7 @@ const selectCaptionFileForTTS = async (track) => {
   const url = track.baseUrl;
   const xml = await fetch(url).then(resp => resp.text());
 
-  // better not to place the below in a more global scope, where it will get executed only once, in case the user installs new TTS voices
+  // better not to place the below in a more global scope, where it will get executed only once, in case the user installs new TTS voices. Here, just loading another video, will give him access to newly installed voices.
   const voices = window.speechSynthesis.getVoices();
 
   if (xml) {
@@ -237,11 +237,9 @@ const createSelectionLink = (track) => {
 
   // Click event listener for the checkbox
   checkbox.addEventListener('change', () => {
-    if (checkbox.checked) {
-      if (currentTrack !== track) {
-        clearInterval(intervalId); // Clear the current interval if the track is different
-        selectCaptionFileForTTS(track);
-      }
+    if (checkbox.checked && currentTrack !== track) {
+      clearInterval(intervalId);
+      selectCaptionFileForTTS(track);
     }
   });
 
@@ -347,20 +345,16 @@ let currentUrl = ''
   */
 const checkSubtitle = () => {
   const newUrl = location.href
-  if (currentUrl != newUrl) {
-    const videoId = extractVideoId()
-    if (videoId) {
-      // If it's a video address
-      if (canInsert()) {
-        // If possible add
-        currentUrl = newUrl
-        getSubtitleList(videoId)
-      } else {
-        console.log('Cannot insert (yet)')
-      }
+  if (currentUrl !== newUrl) {
+    const videoId = extractVideoId();
+    if (videoId && canInsert()) {
+      currentUrl = newUrl;
+      getSubtitleList(videoId);
+    } else if (videoId && !canInsert()) {
+      console.log('Cannot insert (yet)');
     } else {
       // If it's an address but not a viewing, there's no video, stop it
-      currentUrl = newUrl
+      currentUrl = newUrl;
     }
   }
 
@@ -390,12 +384,7 @@ const getSubtitleList = async videoId => {
   const html = await fetch(url).then(resp => resp.text())
   const regex = /\{"captionTracks":(\[.*?\]),/g
   const arr = regex.exec(html)
-  if (arr == null) {
-    notifyNotFound()
-  } else {
-    const captionTracks = JSON.parse(arr[1])
-    buildGui(captionTracks)
-  }
+  arr == null ? notifyNotFound() : buildGui(JSON.parse(arr[1]));
 }
 
 
@@ -429,16 +418,11 @@ const convertFromTimedToSrtFormat = xml => {
     const orginalText = (text.childNodes && text.childNodes.length) ? text.childNodes[0].nodeValue : ''
 
     const endTime = startTime + duration
-    const normalizedText = orginalText
-      .replace(/\\n/g, '\n')
-      .replace(/\\"/g, '"')
-      .trim()
+    const normalizedText = orginalText.replace(/\\n/g, '\n').replace(/\\"/g, '"').trim()
 
     if (normalizedText) {
-      content += count + '\n'
-        + formatTime(startTime) + ' --> ' + formatTime(endTime) + '\n'
-        + normalizedText + '\n\n'
-      count++
+      content += `${count}\n${formatTime(startTime)} --> ${formatTime(endTime)}\n${normalizedText}\n\n`;
+      count++;
     }
   })
   return unescapeHTML(content)
