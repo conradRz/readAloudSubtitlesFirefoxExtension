@@ -81,7 +81,7 @@ const selectCaptionFileForTTS = async (track) => {
       }
     }
 
-    clearInterval(intervalId); // Clear previous interval if exists
+    clearInterval(intervalId); // Clear previous interval if exists. In order to update the interval, you need to clear the previous interval using clearInterval before setting the new interval. Simply overriding the intervalId variable without clearing the previous interval can lead to multiple intervals running simultaneously, which is likely not the desired behavior.
     intervalId = setInterval(matchXmlTextToCurrentTime, 250); // Set the new interval
 
     currentTrack = track; // Update the current track
@@ -99,9 +99,6 @@ const elements = document.getElementsByClassName('video-stream');
 if (elements.length > 0) {
   // Add event listener for video change
   document.getElementsByClassName('video-stream')[0].addEventListener('loadeddata', handleVideoChange);
-} else {
-  // Handle the case when no elements are found
-  console.log('No elements found with the specified class name');
 }
 
 
@@ -250,14 +247,12 @@ const createSelectionLink = (track) => {
  * Check if the container already exists (so we don't have to process again).
  */
 const removeIfAlreadyExists = () => {
+
   const container = document.getElementById(CONTAINER_ID)
-  if (container != null) {
-    container.parentNode.removeChild(container);
-  }
+  if (container != null) container.parentNode.removeChild(container);
+
   const container2 = document.getElementById(CONTAINER_ID2)
-  if (container2 != null) {
-    container2.parentNode.removeChild(container2);
-  }
+  if (container2 != null) container2.parentNode.removeChild(container2);
 }
 
 
