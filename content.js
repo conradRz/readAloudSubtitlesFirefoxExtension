@@ -243,7 +243,7 @@ const createSelectionLink = (track) => {
     if (checkbox.checked) {
       if (currentTrack !== track) {
         clearInterval(intervalId); // Clear the current interval if the track is different
-        const matchXmlTextToCurrentTime = selectCaptionFileForTTS(track);
+        selectCaptionFileForTTS(track);
       }
     }
   });
