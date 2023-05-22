@@ -342,7 +342,6 @@ browser.storage.local.get('speechSettings')
   })
   .catch(error => {
     console.error('Error retrieving speech settings:', error);
-    // Handle the error case here
   });
 
 let currentUrl = ''
@@ -360,7 +359,7 @@ const checkSubtitle = () => {
       currentUrl = newUrl;
       getSubtitleList(videoId);
     } else if (videoId && !canInsert()) {
-      console.log('Cannot insert (yet)');
+      //console.log('Cannot insert (yet)');
     } else {
       // If it's an address but not a viewing, there's no video, stop it
       currentUrl = newUrl;
