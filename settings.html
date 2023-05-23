@@ -61,6 +61,15 @@
             background-color: #ffffff;
             cursor: pointer;
         }
+
+        .custom-select {
+            width: 100%;
+            padding: 5px;
+            background-color: #333333;
+            color: #ffffff;
+            border-radius: 5px;
+            border: none;
+        }
     </style>
     <script src="content.js"></script>
     <script src="settings.js"></script>
@@ -77,7 +86,7 @@
     <input type="range" id="volumeSlider" class="slider" min="0" max="1" value="1" step="0.1">
 
     <label for="engineSelect">Voice:</label>
-    <select id="engineSelect" style="width: 100%;"></select>
+    <select id="engineSelect" class="custom-select"></select>
         <!-- Options will be populated dynamically -->
 
     <br><br>
