@@ -85,8 +85,6 @@ const selectCaptionFileForTTS = async (track) => {
             }
           }
 
-
-
           utterance.onend = function () {
             isSpeechSynthesisInProgress = false;
           };
