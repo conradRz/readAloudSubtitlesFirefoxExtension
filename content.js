@@ -1,10 +1,3 @@
-// Listen for messages from the background settings.js script. You cannot move it to background.js for a reason
-browser.runtime.onMessage.addListener((message) => {
-  if (message.action === 'updateSpeechSettings') {
-    speechSettings = message.speechSettings;
-  }
-});
-
 // IDs of the containers
 const CONTAINER_ID = 'captionDownloadContainer'
 const CONTAINER_ID2 = 'captionDownloadContainer2'
@@ -62,6 +55,25 @@ const selectCaptionFileForTTS = async (track) => {
           isSpeechSynthesisInProgress = true;
           let utterance = new SpeechSynthesisUtterance(unescapeHTML(matchedText.replace(/\n/g, "").replace(/\\"/g, '"').trim().replace(/[,\.]+$/, '').replace(/\r/g, ""))); //.replace(/[,\.]+$/, '') trims trailing , and . which makes the subtitle playing smoother in my subjective opinion
 
+          //////////////by code execution logic, it would make more sense to place the below code block in the global scope, and do an event listener in settings.js
+          //////////////But doing it this way removes "tab" permission, which if left might worry some users, as it's described as "Access browser tabs" in permissions.
+          browser.storage.local.get('speechSettings')
+            .then(result => {
+              if (result.speechSettings) {
+                speechSettings = result.speechSettings;
+              } else {
+                speechSettings = {
+                  speechSpeed: 1.6,
+                  speechVolume: 1,
+                  speechVoice: null
+                };
+              }
+            })
+            .catch(error => {
+              console.error('Error retrieving speech settings:', error);
+            });
+          //////////////
+
           utterance.rate = speechSettings.speechSpeed;
           utterance.volume = speechSettings.speechVolume;
 
@@ -72,6 +84,8 @@ const selectCaptionFileForTTS = async (track) => {
               utterance.voice = voice;
             }
           }
+
+
 
           utterance.onend = function () {
             isSpeechSynthesisInProgress = false;
@@ -325,24 +339,6 @@ const unescapeHTML = inputText => {
 }
 
 let speechSettings;
-
-browser.storage.local.get('speechSettings')
-  .then(result => {
-    if (result.speechSettings) {
-      speechSettings = result.speechSettings;
-    } else {
-      speechSettings = {
-        speechSpeed: 1.6,
-        speechVolume: 1,
-        speechVoice: null
-      };
-    }
-
-    // Use the speechSettings object here or perform additional operations
-  })
-  .catch(error => {
-    console.error('Error retrieving speech settings:', error);
-  });
 
 let currentUrl = ''
 

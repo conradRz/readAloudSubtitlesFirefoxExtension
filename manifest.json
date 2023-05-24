@@ -6,8 +6,7 @@
   "icons": {
     "48": "icon.png"
   },
-  "permissions": ["storage", "scripting", "activeTab",
-  "tabs"],
+  "permissions": ["storage", "scripting"],
   "browser_action": {
     "default_popup": "settings.html"
   },

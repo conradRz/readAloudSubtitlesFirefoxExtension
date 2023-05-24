@@ -30,7 +30,6 @@ document.addEventListener('DOMContentLoaded', () => {
         // Perform actions with the speed value
         speechSettings.speechSpeed = parseFloat(event.target.value);
         saveSpeechSettings();
-        sendMessageToContentScript();
     }
 
     // Function to handle volume slider change
@@ -38,7 +37,6 @@ document.addEventListener('DOMContentLoaded', () => {
         // Perform actions with the volume value
         speechSettings.speechVolume = parseFloat(event.target.value);
         saveSpeechSettings();
-        sendMessageToContentScript();
     }
 
     // Function to handle TTS voice change
@@ -46,23 +44,11 @@ document.addEventListener('DOMContentLoaded', () => {
         // Perform actions with the volume value
         speechSettings.speechVoice = event.target.value;
         saveSpeechSettings();
-        sendMessageToContentScript();
     }
 
     // Function to save the speech settings in extension storage
     function saveSpeechSettings() {
         browser.storage.local.set({ speechSettings: speechSettings });
-    }
-
-    // Function to send the updateSpeechSettings message to content.js
-    function sendMessageToContentScript() {
-        browser.tabs.query({ active: true, currentWindow: true })
-            .then(tabs => {
-                browser.tabs.sendMessage(tabs[0].id, {
-                    action: 'updateSpeechSettings',
-                    speechSettings: speechSettings
-                });
-            });
     }
 
     // Function to populate the TTS engines dropdown
