@@ -18,7 +18,6 @@ const downloadCaptionFile = async track => {
 }
 
 let intervalId; // Variable to store the interval ID
-let currentTrack; // Variable to store the currently selected track
 
 const selectCaptionFileForTTS = async (track) => {
   const url = track.baseUrl;
@@ -95,15 +94,12 @@ const selectCaptionFileForTTS = async (track) => {
 
     clearInterval(intervalId); // Clear previous interval if exists. In order to update the interval, you need to clear the previous interval using clearInterval before setting the new interval. Simply overriding the intervalId variable without clearing the previous interval can lead to multiple intervals running simultaneously, which is likely not the desired behavior.
     intervalId = setInterval(matchXmlTextToCurrentTime, 250); // Set the new interval
-
-    currentTrack = track; // Update the current track
   }
 };
 
 // Function to handle video change event
 const handleVideoChange = () => {
   clearInterval(intervalId); // Clear the interval when the video changes
-  currentTrack = null; // Reset the current track
 };
 
 const elements = document.getElementsByClassName('video-stream');
