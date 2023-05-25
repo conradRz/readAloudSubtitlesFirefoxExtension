@@ -54,14 +54,13 @@ const selectCaptionFileForTTS = async (track) => {
     const xmlDoc = new DOMParser().parseFromString(xml, 'text/xml');
     const textElements = xmlDoc.getElementsByTagName('text');
 
-    let currentTime;
     let isSpeechSynthesisInProgress = false;
 
     let subtitlePart = '';
     let previousTime = NaN;
 
     function matchXmlTextToCurrentTime() {
-      currentTime = document.getElementsByClassName('video-stream')[0].currentTime + 0.25;
+      let currentTime = document.getElementsByClassName('video-stream')[0].currentTime + 0.25;
 
       //this will save it computing cycles of iterating over an array when a video is on pause
       if (previousTime === currentTime) return;
@@ -131,7 +130,7 @@ const buildGui = captionTracks => {
     container.appendChild(link)
   })
 
-  const container2 = createOutterContainer('Tick subtitle for speech for when video plays: ', CONTAINER_ID2)
+  const container2 = createOutterContainer('Select speech subtitles to play alongside the video: ', CONTAINER_ID2)
   captionTracks.forEach(track => {
     const link = createSelectionLink(track)
     container2.appendChild(link)
@@ -252,7 +251,17 @@ const createSelectionLink = (track) => {
     if (checkbox.checked) {
       clearInterval(intervalId);
       selectCaptionFileForTTS(track);
-    } else if (!checkbox.checked) clearInterval(intervalId);
+
+      // Deselect other checkboxes
+      const checkboxes = document.querySelectorAll('input[type="checkbox"]');
+      checkboxes.forEach((otherCheckbox) => {
+        if (otherCheckbox !== checkbox) {
+          otherCheckbox.checked = false;
+        }
+      });
+    } else {
+      clearInterval(intervalId);
+    }
   });
 
   return container;
