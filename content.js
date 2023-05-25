@@ -18,6 +18,30 @@ const downloadCaptionFile = async track => {
 }
 
 let intervalId; // Variable to store the interval ID
+let speechSettings;
+
+browser.storage.local.get('speechSettings')
+  .then(result => {
+    if (result.speechSettings) {
+      speechSettings = result.speechSettings;
+    } else {
+      speechSettings = {
+        speechSpeed: 1.6,
+        speechVolume: 1,
+        speechVoice: null
+      };
+    }
+  })
+  .catch(error => {
+    console.error('Error retrieving speech settings:', error);
+  });
+
+browser.storage.onChanged.addListener((changes, area) => {
+  if (area === 'local' && 'speechSettings' in changes) {
+    // Reasign the updated speechSettings array value
+    speechSettings = changes.speechSettings.newValue;
+  }
+});
 
 const selectCaptionFileForTTS = async (track) => {
   const url = track.baseUrl;
@@ -34,11 +58,13 @@ const selectCaptionFileForTTS = async (track) => {
     let isSpeechSynthesisInProgress = false;
 
     let subtitlePart = '';
-    let newSubtitlePart = '';
-    let matchedText = '';
+    let previousTime = NaN;
 
     function matchXmlTextToCurrentTime() {
-      currentTime = document.getElementsByClassName('video-stream')[0].currentTime;
+      currentTime = document.getElementsByClassName('video-stream')[0].currentTime + 0.25;
+
+      //this will save it computing cycles of iterating over an array when a video is on pause
+      if (previousTime === currentTime) return;
 
       const matchedElement = Array.from(textElements).find((el) => {
         const start = parseFloat(el.getAttribute('start'));
@@ -47,34 +73,12 @@ const selectCaptionFileForTTS = async (track) => {
       });
 
       if (matchedElement) {
-        matchedText = matchedElement.textContent.trim();
+        let matchedText = matchedElement.textContent.trim();
         if (matchedText !== subtitlePart && !isSpeechSynthesisInProgress) {
-          subtitlePart = newSubtitlePart = matchedText;
+          subtitlePart = matchedText;
 
           isSpeechSynthesisInProgress = true;
           let utterance = new SpeechSynthesisUtterance(unescapeHTML(matchedText.replace(/\n/g, "").replace(/\\"/g, '"').trim().replace(/[,\.]+$/, '').replace(/\r/g, ""))); //.replace(/[,\.]+$/, '') trims trailing , and . which makes the subtitle playing smoother in my subjective opinion
-
-          //////////////by code execution logic, it would make more sense to place the below code block in the global scope, and do an event listener in settings.js
-          //////////////But doing it this way removes "tab" permission, which if left might worry some users, as it's described as "Access browser tabs" in permissions.
-          browser.storage.local.get('speechSettings')
-            .then(result => {
-              if (result.speechSettings) {
-                speechSettings = result.speechSettings;
-              } else {
-                speechSettings = {
-                  speechSpeed: 1.6,
-                  speechVolume: 1,
-                  speechVoice: null
-                };
-              }
-            })
-            .catch(error => {
-              console.error('Error retrieving speech settings:', error);
-            });
-          //////////////
-
-          utterance.rate = speechSettings.speechSpeed;
-          utterance.volume = speechSettings.speechVolume;
 
           //only assign utterance.voice if speechSettings.speechVoice is not empty, that is other voice than the environment default had been selected
           if (speechSettings.speechVoice !== null) {
@@ -83,13 +87,17 @@ const selectCaptionFileForTTS = async (track) => {
               utterance.voice = voice;
             }
           }
+          utterance.rate = speechSettings.speechSpeed;
+          utterance.volume = speechSettings.speechVolume;
 
           utterance.onend = function () {
             isSpeechSynthesisInProgress = false;
           };
           speechSynthesis.speak(utterance);
+
         }
       }
+      previousTime = currentTime;
     }
 
     clearInterval(intervalId); // Clear previous interval if exists. In order to update the interval, you need to clear the previous interval using clearInterval before setting the new interval. Simply overriding the intervalId variable without clearing the previous interval can lead to multiple intervals running simultaneously, which is likely not the desired behavior.
@@ -331,8 +339,6 @@ const unescapeHTML = inputText => {
   }
   return inputText
 }
-
-let speechSettings;
 
 let currentUrl = ''
 
