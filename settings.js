@@ -17,8 +17,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 // Set the slider values based on the stored speechSettings
                 speedSlider.value = result.speechSettings.speechSpeed;
                 volumeSlider.value = result.speechSettings.speechVolume;
-                // 
-                selectTTS.value = result.speechSettings.speechVoice
+
+                selectTTS.value = result.speechSettings.speechVoice;
             }
         })
         .catch(error => {
@@ -66,6 +66,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 option.value = voice.voiceURI;
                 select.add(option);
             });
+
+            // Set the selected value based on stored speechSettings
+            if (speechSettings && speechSettings.speechVoice) {
+                select.value = speechSettings.speechVoice;
+            }
         } else {
             const option = document.createElement('option');
             option.text = 'TTS not supported';
@@ -83,5 +88,12 @@ browser.storage.local.get('speechSettings')
     .then(result => {
         if (result.speechSettings) {
             speechSettings = result.speechSettings;
+        } else {
+            // Initialize speechSettings if it doesn't exist in storage
+            speechSettings = {
+                speechSpeed: 1.6,
+                speechVolume: 1.0,
+                speechVoice: null
+            };
         }
     });
