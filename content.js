@@ -91,7 +91,6 @@ const selectCaptionFileForTTS = async (track) => {
 
       const matchedElement = binarySearch(textElements, currentTime);
 
-
       if (matchedElement) {
         let matchedText = matchedElement.textContent.trim();
         if (matchedText !== subtitlePart && !isSpeechSynthesisInProgress) {
