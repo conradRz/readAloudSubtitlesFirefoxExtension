@@ -43,6 +43,29 @@ browser.storage.onChanged.addListener((changes, area) => {
   }
 });
 
+function binarySearch(textElements, currentTime) {
+  let start = 0;
+  let end = textElements.length - 1;
+
+  while (start <= end) {
+    const mid = Math.floor((start + end) / 2);
+    const el = textElements[mid];
+    const nextEl = textElements[mid + 1];
+    const elStart = parseFloat(el.getAttribute('start'));
+    const nextElStart = parseFloat(nextEl.getAttribute('start'));
+
+    if (currentTime >= elStart && currentTime <= nextElStart) {
+      return el;
+    } else if (currentTime < elStart) {
+      end = mid - 1;
+    } else {
+      start = mid + 1;
+    }
+  }
+
+  return null;
+}
+
 const selectCaptionFileForTTS = async (track) => {
   const url = track.baseUrl;
   const xml = await fetch(url).then(resp => resp.text());
@@ -65,29 +88,6 @@ const selectCaptionFileForTTS = async (track) => {
 
       //this will save it computing cycles of iterating over an array when a video is on pause
       if (previousTime === currentTime) return;
-
-      function binarySearch(textElements, currentTime) {
-        let start = 0;
-        let end = textElements.length - 1;
-
-        while (start <= end) {
-          const mid = Math.floor((start + end) / 2);
-          const el = textElements[mid];
-          const nextEl = textElements[mid + 1];
-          const elStart = parseFloat(el.getAttribute('start'));
-          const nextElStart = parseFloat(nextEl.getAttribute('start'));
-
-          if (currentTime >= elStart && currentTime <= nextElStart) {
-            return el;
-          } else if (currentTime < elStart) {
-            end = mid - 1;
-          } else {
-            start = mid + 1;
-          }
-        }
-
-        return null;
-      }
 
       const matchedElement = binarySearch(textElements, currentTime);
 
