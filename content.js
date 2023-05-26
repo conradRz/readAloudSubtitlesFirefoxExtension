@@ -51,6 +51,7 @@ const selectCaptionFileForTTS = async (track) => {
   const voices = window.speechSynthesis.getVoices();
 
   if (xml) {
+    debugger;
     const xmlDoc = new DOMParser().parseFromString(xml, 'text/xml');
     const textElements = xmlDoc.getElementsByTagName('text');
 
@@ -60,14 +61,14 @@ const selectCaptionFileForTTS = async (track) => {
     let previousTime = NaN;
 
     function matchXmlTextToCurrentTime() {
-      let currentTime = document.getElementsByClassName('video-stream')[0].currentTime + 0.25;
+      let currentTime = document.getElementsByClassName('video-stream')[0].currentTime;// + 0.25;
 
       //this will save it computing cycles of iterating over an array when a video is on pause
       if (previousTime === currentTime) return;
 
-      const matchedElement = Array.from(textElements).find((el) => {
+      const matchedElement = Array.from(textElements).find((el, index, arr) => {
         const start = parseFloat(el.getAttribute('start'));
-        const end = start + parseFloat(el.getAttribute('dur'));
+        const end = parseFloat(arr[index + 1].getAttribute('start'));
         return currentTime >= start && currentTime <= end;
       });
 
