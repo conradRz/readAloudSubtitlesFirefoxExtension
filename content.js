@@ -30,9 +30,11 @@ browser.storage.local.get('speechSettings')
         speechVolume: 1,
         speechVoice: null
       };
+      browser.storage.local.set({ speechSettings: speechSettings });
     }
   })
   .catch(error => {
+    //this will not fire when there is no such thing in storage; tested
     console.error('Error retrieving speech settings:', error);
   });
 
