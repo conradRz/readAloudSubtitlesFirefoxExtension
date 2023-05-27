@@ -11,7 +11,8 @@ document.addEventListener('DOMContentLoaded', () => {
     selectTTS.addEventListener('change', handleTTSvoiceChange);
 
     // Retrieve the stored speechSettings from extension storage
-    browser.storage.local.get('speechSettings')
+    browser.storage.local
+        .get('speechSettings')
         .then(result => {
             if (result.speechSettings) {
                 // Set the slider values based on the stored speechSettings
@@ -58,18 +59,42 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if ('speechSynthesis' in window) {
             const synth = window.speechSynthesis;
-            const voices = synth.getVoices();
 
-            voices.forEach(voice => {
-                const option = document.createElement('option');
-                option.text = voice.name;
-                option.value = voice.voiceURI;
-                select.add(option);
-            });
+            let voicesReady = false;
 
-            // Set the selected value based on stored speechSettings
-            if (speechSettings && speechSettings.speechVoice) {
-                select.value = speechSettings.speechVoice;
+            // Function to populate the voices when ready
+            function populateVoices() {
+                if (voicesReady) {
+                    const voices = synth.getVoices();
+
+                    voices.forEach(voice => {
+                        const option = document.createElement('option');
+                        option.text = voice.name;
+                        option.value = voice.voiceURI;
+                        select.add(option);
+                    });
+
+                    // Set the selected value based on stored speechSettings
+                    if (speechSettings && speechSettings.speechVoice) {
+                        select.value = speechSettings.speechVoice;
+                    } else {
+                        select.value = null;
+                    }
+                } else {
+                    setTimeout(populateVoices, 100);
+                }
+            }
+
+            // Call populateVoices to start the process
+            populateVoices();
+
+            // Check if voices are ready
+            if (synth.getVoices().length !== 0) {
+                voicesReady = true;
+            } else {
+                synth.addEventListener('voiceschanged', () => {
+                    voicesReady = true;
+                });
             }
         } else {
             const option = document.createElement('option');
@@ -84,7 +109,8 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 // Retrieve the speech settings from extension storage on startup
-browser.storage.local.get('speechSettings')
+browser.storage.local
+    .get('speechSettings')
     .then(result => {
         if (result.speechSettings) {
             speechSettings = result.speechSettings;
