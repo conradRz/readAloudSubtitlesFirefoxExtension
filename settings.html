@@ -2,6 +2,7 @@
 <html>
 
 <head>
+    <meta charset="UTF-8">
     <title>YouTube subtitles-to-speech settings</title>
     <style>
         body {
@@ -77,32 +78,31 @@
             outline: none;
         }
     </style>
+    <script src="localization.js"></script>
     <script src="content.js"></script>
     <script src="settings.js"></script>
 
 </head>
 
 <body>
-    <h1>YouTube subtitles-to-speech settings</h1>
+    <h1 id="settingsTitle"></h1>
 
-    <label for="speedSlider">Speed:</label>
+    <label for="speedSlider" id="speedLabel"></label>
     <input type="range" id="speedSlider" class="slider" min="1.3" max="2.5" value="1.6" step="0.1">
 
-    <label for="volumeSlider">Volume:</label>
+    <label for="volumeSlider" id="volumeLabel"></label>
     <input type="range" id="volumeSlider" class="slider" min="0" max="1" value="1" step="0.1">
 
-    <label for="engineSelect">Voice:</label>
+    <label for="engineSelect" id="voiceLabel"></label>
     <select id="engineSelect" class="custom-select"></select>
         <!-- Options will be populated dynamically -->
 
     <br><br>
     
     <span style="font-size: 100%; display: flex;
-        justify-content: center;">
-        <a href="https://support.microsoft.com/en-gb/topic/download-languages-and-voices-for-immersive-reader-read-mode-and-read-aloud-4c83a8d8-7486-42f7-8e46-2b0fdf753130">Click to learn how to add more voices<br></a>
+        justify-content: center;" id="learnMoreText">
     </span>
-    <span style="font-size: 85%; display: block; text-align: center; font-family: Tahoma, sans-serif;">
-        Select a language with <i>"text-to-speech"</i> &#8594; <br>tick <i>"Speech (xx MB)"</i> &#8594; install &#8594; restart the PC 
+    <span style="font-size: 85%; display: block; text-align: center; font-family: Tahoma, sans-serif;" id="selectLanguageText">
     </span>
 </body>
 
