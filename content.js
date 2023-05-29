@@ -138,6 +138,62 @@ if (elements.length > 0) {
 }
 
 
+const languageTexts = {
+  en: {
+    subtitleFileDownload: 'Subtitle file download: ',
+    selectSpeechSubtitles: 'Select speech subtitles to play alongside the video: ',
+  },
+  fr: {
+    subtitleFileDownload: 'Téléchargement du fichier de sous-titres : ',
+    selectSpeechSubtitles: 'Sélectionnez les sous-titres audio à lire avec la vidéo : ',
+  },
+  ua: {
+    subtitleFileDownload: 'Завантажити файл субтитрів: ',
+    selectSpeechSubtitles: 'Виберіть мову субтитрів для відтворення поряд із відео: ',
+  },
+  ru: {
+    subtitleFileDownload: 'Скачать файл субтитров: ',
+    selectSpeechSubtitles: 'Выберите речевые субтитры для воспроизведения вместе с видео: ',
+  },
+  tr: {
+    subtitleFileDownload: 'Altyazı dosyasını indir: ',
+    selectSpeechSubtitles: 'Videonun yanında oynatılacak konuşma altyazısını seçin: ',
+  },
+  it: {
+    subtitleFileDownload: 'Download file dei sottotitoli: ',
+    selectSpeechSubtitles: 'Seleziona i sottotitoli audio da riprodurre insieme al video: ',
+  },
+  ko: {
+    subtitleFileDownload: '자막 파일 다운로드: ',
+    selectSpeechSubtitles: '비디오와 함께 재생할 음성 자막을 선택하세요: ',
+  },
+  pl: {
+    subtitleFileDownload: 'Pobierz plik napisów: ',
+    selectSpeechSubtitles: 'Wybierz napisy mowy do odtwarzania podczas wideo: ',
+  },
+  pt: {
+    subtitleFileDownload: 'Download do arquivo de legendas: ',
+    selectSpeechSubtitles: 'Selecione as legendas de fala para reproduzir junto com o vídeo: ',
+  },
+  ar: {
+    subtitleFileDownload: 'تحميل ملف الترجمة: ',
+    selectSpeechSubtitles: 'حدد ترجمات الكلام لتشغيلها جنبًا إلى جنب مع الفيديو: ',
+  },
+  hi: {
+    subtitleFileDownload: 'सबटाइटल फ़ाइल डाउनलोड करें: ',
+    selectSpeechSubtitles: 'वीडियो के साथ खेलने के लिए भाषण उपशीर्षक का चयन करें: ',
+  },
+  zh: {
+    subtitleFileDownload: '字幕文件下载：',
+    selectSpeechSubtitles: '选择要与视频一起播放的语音字幕：',
+  },
+  es: {
+    subtitleFileDownload: 'Descargar archivo de subtítulos: ',
+    selectSpeechSubtitles: 'Seleccione los subtítulos de voz para reproducir junto al video: ',
+  },
+};
+
+
 /**
  * Displays a list of subtitles that the video has.
  * @param {Array} captionTracks Subtitles array.
@@ -145,20 +201,23 @@ if (elements.length > 0) {
 const buildGui = captionTracks => {
   removeIfAlreadyExists()
 
-  const container = createOutterContainer('Subtitle file download: ', CONTAINER_ID)
+  const userLanguage = navigator.language.substring(0, 2);
+  const texts = languageTexts[userLanguage] || languageTexts['en']; // Fallback to English if user language is not defined
+
+  const container = createOutterContainer(texts.subtitleFileDownload, CONTAINER_ID);
   captionTracks.forEach(track => {
     const link = createDownloadLink(track)
     container.appendChild(link)
-  })
+  });
 
-  const container2 = createOutterContainer('Select speech subtitles to play alongside the video: ', CONTAINER_ID2)
+  const container2 = createOutterContainer(texts.selectSpeechSubtitles, CONTAINER_ID2);
   captionTracks.forEach(track => {
     const link = createSelectionLink(track)
     container2.appendChild(link)
-  })
+  });
 
-  addToCurrentPage(container)
-  addToCurrentPage(container2)
+  addToCurrentPage(container);
+  addToCurrentPage(container2);
 }
 
 

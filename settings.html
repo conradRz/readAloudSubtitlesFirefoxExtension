@@ -77,6 +77,27 @@
             background-color: #444444;
             outline: none;
         }
+
+        .donate-button {
+        display: flex;
+        justify-content: center;
+        margin-top: 10px;
+        }
+
+        .donate-button a {
+        display: inline-block;
+        padding: 3px 10px; /* Adjusted padding to make the button smaller */
+        background-color: #9c516a;
+        color: #ffffff;
+        text-decoration: none;
+        border-radius: 5px;
+        font-size: small;
+        }
+
+        .donate-button a:hover {
+        background-color: #e5006e;
+        }
+
     </style>
     <script src="localization.js"></script>
     <script src="content.js"></script>
@@ -104,6 +125,8 @@
     </span>
     <span style="font-size: 85%; display: block; text-align: center; font-family: Tahoma, sans-serif;" id="selectLanguageText">
     </span>
+    <div class="donate-button" id="donateButton">
+    </div>
 </body>
 
 </html>
