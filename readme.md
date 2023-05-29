@@ -25,7 +25,7 @@ Research has shown that passive exposure to a language can be beneficial for lan
 
 4. Cultural Understanding: Language audio often contains cultural references, idiomatic expressions, and nuances specific to a particular culture. Passive exposure to language audio can help learners gain insights into the target language's culture, customs, and social norms.
 
-##### Could also be beneficial to blind people.
+### Could also be beneficial to blind people.
 
 This extension, could be in theory, beneficial to blind people. I'll be inquiring in online spaces for blind people for feedback.
 
@@ -56,7 +56,7 @@ This is due to the fact that the Chrome browser belongs to Google, and the voice
 
 This extension is localized to most major languages. The language of extensions settings changes based on default browser's language (the preferred language of the user, usually the language of the browser User Interface). I strive to make the extension accessible to users of different languages, providing a seamless experience regardless of your preferred language.
 
-#### Examples:
+### Examples:
 
 ![](readmePics/enSettings.png) ![](readmePics/arSettings.png) ![](readmePics/cnSettings.png) 
 
