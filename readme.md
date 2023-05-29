@@ -56,8 +56,15 @@ This is due to the fact that the Chrome browser belongs to Google, and the voice
 
 This extension is localized to most major languages. The language of extensions settings changes based on default browser's language (the preferred language of the user, usually the language of the browser User Interface). I strive to make the extension accessible to users of different languages, providing a seamless experience regardless of your preferred language.
 
-#####Examples:
-![](readmePics/enSettings.png) ![](readmePics/arSettings.png) ![](readmePics/cnSettings.png) ![](readmePics/enOptions.png) ![](readmePics/ruOptions.png)
+####Examples:
+
+![](readmePics/enSettings.png) ![](readmePics/arSettings.png) ![](readmePics/cnSettings.png) 
+
+_ _ _
+![](readmePics/enOptions.png)
+_ _ _
+
+![](readmePics/ruOptions.png)
 
 ## License
 
