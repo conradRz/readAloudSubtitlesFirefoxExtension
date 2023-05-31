@@ -17,7 +17,7 @@ Research has shown that passive exposure to a language can be beneficial for lan
 
 - [A study conducted with intermediate Spanish students of English as a foreign language examined the potential learning effects derived from watching subtitled media. The study explored the impact of watching a TV drama with English, Spanish, or no subtitles and its effects on language learning.](https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0158409)
 
-- - -
+---
 
 1. Vocabulary Acquisition: Regular exposure to language audio can help learners acquire new vocabulary naturally. Through repeated exposure, learners can develop familiarity with word usage, pronunciation, and context, leading to improved vocabulary retention.
 
@@ -48,9 +48,11 @@ I am committed to providing an ad-free experience to users. This extension is fr
 If you find this extension useful and would like to support its development and future enhancements, donations are greatly appreciated. Your contributions help motivate me to continue improving the extension and adding new features. You can donate via [PayPal/Card](https://www.paypal.com/donate/?hosted_button_id=2QH26ZA928JNC)
 
 ## Google Translate Voices and Firefox Compatibility
+
 Please note that the Firefox version of the extension does not include Google Translate voices. I might decide to spend hours to implement it on Firefox, in future, although that's not guranteed.
 **All the Google Translate voices work on Chrome browser wersion of this extension.**
-_ _ _
+
+---
 
 This is due to the fact that the Chrome browser belongs to Google, and the voices work seamlessly on Chrome without any additional setup. However, accessing Google voices in Firefox extensions, such as ReadAloud, doesn't use official methods, and could be in breach of terms and conditions. Moreover, the Google voices used in ReadAloud could stop working unexpectedly. Therefore, to ensure a stable and compliant experience, the Firefox version of our extension does not include Google voices.
 
@@ -60,11 +62,13 @@ This extension is localized to most major languages. The language of extensions 
 
 ### Examples:
 
-![](readmePics/enSettings.png) ![](readmePics/arSettings.png) ![](readmePics/cnSettings.png) 
+![](readmePics/enSettings.png) ![](readmePics/arSettings.png) ![](readmePics/cnSettings.png)
 
-_ _ _
+---
+
 ![](readmePics/enOptions.png)
-_ _ _
+
+---
 
 ![](readmePics/ruOptions.png)
 
