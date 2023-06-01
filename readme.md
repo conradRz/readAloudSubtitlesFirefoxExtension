@@ -2,7 +2,7 @@
 
 [![License](https://img.shields.io/badge/license-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0.en.html) [![Paypal donate button](readmePics/PayPal-Donate-Button.png)](https://www.paypal.com/donate/?hosted_button_id=2QH26ZA928JNC)
 
-This is a Firefox extension that allows users to have YouTube subtitles read out loud.
+This is a Firefox extension that allows users to have YouTube subtitles read aloud.
 It's a unique extension that fills a gap in the "market", as at the time of publishing, there is no other software/extensions available that provide this functionality.
 
 ![](readmePics/enSettings.png) ![](readmePics/enOptions.png)
