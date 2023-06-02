@@ -270,7 +270,9 @@ const createOutterContainer = (text, id) => {
   container.style.margin = '5px 0'
   container.style.color = 'darkgrey'
   container.style.fontSize = '1.4rem'
-  container.style.lineHeight = .75
+  container.style.overflowWrap = 'break-word'
+  container.style.whiteSpace = 'break-spaces'
+  container.style.lineHeight = 1
   container.textContent = text
   return container
 }
