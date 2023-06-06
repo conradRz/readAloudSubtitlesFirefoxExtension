@@ -70,7 +70,7 @@ function binarySearch(textElements, currentTime) {
 
 const selectCaptionFileForTTS = async (track, selectedLanguageCode = null) => {
   let url;
-  if (selectedLanguageCode) {
+  if (selectedLanguageCode && selectedLanguageCode !== "Auto translate to") {
     // Code for handling selected language code
     url = track.baseUrl + '&tlang=' + selectedLanguageCode;
   } else {
@@ -505,9 +505,14 @@ const createSelectionLink = (track) => {
 
   // Change event listener for the dropdown
   dropdown.addEventListener('change', () => {
-    selectedLanguageCode = dropdown.value;
+    if (dropdown.value === '') {
+      selectedLanguageCode = null;
+    } else {
+      selectedLanguageCode = dropdown.value;
+    }
 
-    if (checkbox.checked && selectedLanguageCode) {
+    if (checkbox.checked) {
+      clearInterval(intervalId);
       selectCaptionFileForTTS(track, selectedLanguageCode);
     }
   });
