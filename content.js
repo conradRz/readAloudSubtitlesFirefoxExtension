@@ -68,8 +68,16 @@ function binarySearch(textElements, currentTime) {
   return null;
 }
 
-const selectCaptionFileForTTS = async (track) => {
-  const url = track.baseUrl;
+const selectCaptionFileForTTS = async (track, selectedLanguageCode = null) => {
+  let url;
+  if (selectedLanguageCode) {
+    // Code for handling selected language code
+    url = track.baseUrl + '&tlang=' + selectedLanguageCode;
+  } else {
+    // Code for handling default case
+    url = track.baseUrl;
+  }
+
   const xml = await fetch(url).then(resp => resp.text());
 
   // better not to place the below in a more global scope, where it will get executed only once, in case the user installs new TTS voices. Here, just loading another video, will give him access to newly installed voices.
@@ -449,17 +457,39 @@ const createSelectionLink = (track) => {
   label.style.textDecoration = 'underline';
   label.style.fontSize = '1.4rem';
 
+  const dropdown = document.createElement('select');
+  dropdown.id = `dropdown_${track.name.simpleText.replace(/\s/g, '_')}`;
+
+  const defaultOption = document.createElement('option');
+  defaultOption.text = 'Auto translate to';
+  dropdown.add(defaultOption);
+
+  languages.forEach((language) => {
+    const option = document.createElement('option');
+    option.value = language.languageCode;
+    option.text = language.languageName;
+    dropdown.add(option);
+  });
+
   const container = document.createElement('div');
   container.style.display = 'flex';
   container.style.alignItems = 'center';
   container.appendChild(checkbox);
   container.appendChild(label);
+  container.appendChild(dropdown);
+
+  let selectedLanguageCode = null;
 
   // Click event listener for the checkbox
   checkbox.addEventListener('change', () => {
     if (checkbox.checked) {
       clearInterval(intervalId);
-      selectCaptionFileForTTS(track);
+
+      if (selectedLanguageCode) {
+        selectCaptionFileForTTS(track, selectedLanguageCode);
+      } else {
+        selectCaptionFileForTTS(track);
+      }
 
       // Deselect other checkboxes
       const checkboxes = document.querySelectorAll('input[type="checkbox"]');
@@ -473,8 +503,18 @@ const createSelectionLink = (track) => {
     }
   });
 
+  // Change event listener for the dropdown
+  dropdown.addEventListener('change', () => {
+    selectedLanguageCode = dropdown.value;
+
+    if (checkbox.checked && selectedLanguageCode) {
+      selectCaptionFileForTTS(track, selectedLanguageCode);
+    }
+  });
+
   return container;
 };
+
 
 
 /**
