@@ -150,54 +150,67 @@ const languageTexts = {
   en: {
     subtitleFileDownload: 'Subtitle file download: ',
     selectSpeechSubtitles: 'Select speech subtitles to play alongside the video: ',
+    AutoTranslateTo: 'Auto translate to:'
   },
   fr: {
     subtitleFileDownload: 'Téléchargement du fichier de sous-titres : ',
     selectSpeechSubtitles: 'Sélectionnez les sous-titres audio à lire avec la vidéo : ',
+    AutoTranslateTo: 'Traduire automatiquement vers:'
   },
   ua: {
     subtitleFileDownload: 'Завантажити файл субтитрів: ',
     selectSpeechSubtitles: 'Виберіть мову субтитрів для відтворення поряд із відео: ',
+    AutoTranslateTo: 'Автоматичний переклад на:'
   },
   ru: {
     subtitleFileDownload: 'Скачать файл субтитров: ',
     selectSpeechSubtitles: 'Выберите речевые субтитры для воспроизведения вместе с видео: ',
+    AutoTranslateTo: 'Автоматический перевод на:'
   },
   tr: {
     subtitleFileDownload: 'Altyazı dosyasını indir: ',
     selectSpeechSubtitles: 'Videonun yanında oynatılacak konuşma altyazısını seçin: ',
+    AutoTranslateTo: 'Şu dile otomatik çevir:'
   },
   it: {
     subtitleFileDownload: 'Download file dei sottotitoli: ',
     selectSpeechSubtitles: 'Seleziona i sottotitoli audio da riprodurre insieme al video: ',
+    AutoTranslateTo: 'Traduzione automatica in:'
   },
   ko: {
     subtitleFileDownload: '자막 파일 다운로드: ',
     selectSpeechSubtitles: '비디오와 함께 재생할 음성 자막을 선택하세요: ',
+    AutoTranslateTo: '다음으로 자동 번역:'
   },
   pl: {
     subtitleFileDownload: 'Pobierz plik napisów: ',
     selectSpeechSubtitles: 'Wybierz napisy mowy do odtwarzania podczas wideo: ',
+    AutoTranslateTo: 'Automatyczne tłumaczenie na:'
   },
   pt: {
     subtitleFileDownload: 'Download do arquivo de legendas: ',
     selectSpeechSubtitles: 'Selecione as legendas de fala para reproduzir junto com o vídeo: ',
+    AutoTranslateTo: 'Tradução automática para:'
   },
   ar: {
     subtitleFileDownload: 'تحميل ملف الترجمة: ',
     selectSpeechSubtitles: 'حدد ترجمات الكلام لتشغيلها جنبًا إلى جنب مع الفيديو: ',
+    AutoTranslateTo: 'ترجمة تلقائية إلى:'
   },
   hi: {
     subtitleFileDownload: 'सबटाइटल फ़ाइल डाउनलोड करें: ',
     selectSpeechSubtitles: 'वीडियो के साथ खेलने के लिए भाषण उपशीर्षक का चयन करें: ',
+    AutoTranslateTo: 'स्वतः इसका अनुवाद करें:'
   },
   zh: {
     subtitleFileDownload: '字幕文件下载：',
     selectSpeechSubtitles: '选择要与视频一起播放的语音字幕：',
+    AutoTranslateTo: '自动翻译成：'
   },
   es: {
     subtitleFileDownload: 'Descargar archivo de subtítulos: ',
     selectSpeechSubtitles: 'Seleccione los subtítulos de voz para reproducir junto al video: ',
+    AutoTranslateTo: 'Traducir automáticamente a:'
   },
 };
 
@@ -463,9 +476,14 @@ const createSelectionLink = (track) => {
   dropdown.style.color = '#ffffff';
   dropdown.style.border = 'none';
   dropdown.style.cursor = 'pointer';
+  dropdown.style.marginLeft = '5px';
 
   const defaultOption = document.createElement('option');
-  defaultOption.text = 'Auto translate to';
+
+  const userLanguage = navigator.language.substring(0, 2);
+  const texts = languageTexts[userLanguage] || languageTexts['en']; // Fallback to English if user language is not defined
+
+  defaultOption.text = texts.AutoTranslateTo;
   dropdown.add(defaultOption);
 
   languages.forEach((language) => {
@@ -523,8 +541,6 @@ const createSelectionLink = (track) => {
 
   return container;
 };
-
-
 
 /**
  * Check if the container already exists (so we don't have to process again).
