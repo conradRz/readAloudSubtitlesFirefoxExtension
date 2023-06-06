@@ -56,11 +56,11 @@ If you find this extension useful and would like to support its development and 
 ## Google Translate Voices and Firefox Compatibility
 
 Please note that the Firefox version of the extension does not include Google Translate voices. I might decide to spend hours to implement it on Firefox, in future, although that's not guranteed.
-**All the Google Translate voices work on Chrome browser wersion of this extension.**
+**Google Translate voices work on Chrome browser wersion of this extension.**
 
 ---
 
-This is due to the fact that the Chrome browser belongs to Google, and the voices work seamlessly on Chrome without any additional setup. However, accessing Google voices in Firefox extensions, such as ReadAloud, doesn't use official methods, and could be in breach of terms and conditions. Moreover, the Google voices used in ReadAloud could stop working unexpectedly. Therefore, to ensure a stable and compliant experience, the Firefox version of our extension does not include Google voices.
+This is due to the fact that the Chrome browser belongs to Google, and the voices work seamlessly on Chrome without any additional setup. However, accessing Google voices in Firefox extensions, such as ReadAloud, doesn't use official methods, and could be in breach of terms and conditions. Moreover, the Google voices used in ReadAloud could stop working unexpectedly. Therefore, to ensure a stable and compliant experience, the Firefox version of this extension does not include Google voices.
 
 ## Localization
 
