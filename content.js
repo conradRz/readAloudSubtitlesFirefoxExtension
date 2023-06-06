@@ -459,6 +459,10 @@ const createSelectionLink = (track) => {
 
   const dropdown = document.createElement('select');
   dropdown.id = `dropdown_${track.name.simpleText.replace(/\s/g, '_')}`;
+  dropdown.style.backgroundColor = '#333333';
+  dropdown.style.color = '#ffffff';
+  dropdown.style.border = 'none';
+  dropdown.style.cursor = 'pointer';
 
   const defaultOption = document.createElement('option');
   defaultOption.text = 'Auto translate to';
