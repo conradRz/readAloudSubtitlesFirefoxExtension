@@ -68,8 +68,16 @@ function binarySearch(textElements, currentTime) {
   return null;
 }
 
-const selectCaptionFileForTTS = async (track) => {
-  const url = track.baseUrl;
+const selectCaptionFileForTTS = async (track, selectedLanguageCode = null) => {
+  let url;
+  if (selectedLanguageCode && selectedLanguageCode !== "Auto translate to") {
+    // Code for handling selected language code
+    url = track.baseUrl + '&tlang=' + selectedLanguageCode;
+  } else {
+    // Code for handling default case
+    url = track.baseUrl;
+  }
+
   const xml = await fetch(url).then(resp => resp.text());
 
   // better not to place the below in a more global scope, where it will get executed only once, in case the user installs new TTS voices. Here, just loading another video, will give him access to newly installed voices.
@@ -308,6 +316,133 @@ const createDownloadLink = track => {
   return link
 }
 
+const languages = [
+  { languageCode: "af", languageName: "Afrikaans" },
+  { languageCode: "ak", languageName: "Akan" },
+  { languageCode: "sq", languageName: "Albanian" },
+  { languageCode: "am", languageName: "Amharic" },
+  { languageCode: "ar", languageName: "Arabic" },
+  { languageCode: "hy", languageName: "Armenian" },
+  { languageCode: "as", languageName: "Assamese" },
+  { languageCode: "ay", languageName: "Aymara" },
+  { languageCode: "az", languageName: "Azerbaijani" },
+  { languageCode: "bn", languageName: "Bangla" },
+  { languageCode: "eu", languageName: "Basque" },
+  { languageCode: "be", languageName: "Belarusian" },
+  { languageCode: "bho", languageName: "Bhojpuri" },
+  { languageCode: "bs", languageName: "Bosnian" },
+  { languageCode: "bg", languageName: "Bulgarian" },
+  { languageCode: "my", languageName: "Burmese" },
+  { languageCode: "ca", languageName: "Catalan" },
+  { languageCode: "ceb", languageName: "Cebuano" },
+  { languageCode: "zh-Hans", languageName: "Chinese (Simplified)" },
+  { languageCode: "zh-Hant", languageName: "Chinese (Traditional)" },
+  { languageCode: "co", languageName: "Corsican" },
+  { languageCode: "hr", languageName: "Croatian" },
+  { languageCode: "cs", languageName: "Czech" },
+  { languageCode: "da", languageName: "Danish" },
+  { languageCode: "dv", languageName: "Divehi" },
+  { languageCode: "nl", languageName: "Dutch" },
+  { languageCode: "en", languageName: "English" },
+  { languageCode: "eo", languageName: "Esperanto" },
+  { languageCode: "et", languageName: "Estonian" },
+  { languageCode: "ee", languageName: "Ewe" },
+  { languageCode: "fil", languageName: "Filipino" },
+  { languageCode: "fi", languageName: "Finnish" },
+  { languageCode: "fr", languageName: "French" },
+  { languageCode: "gl", languageName: "Galician" },
+  { languageCode: "lg", languageName: "Ganda" },
+  { languageCode: "ka", languageName: "Georgian" },
+  { languageCode: "de", languageName: "German" },
+  { languageCode: "el", languageName: "Greek" },
+  { languageCode: "gn", languageName: "Guarani" },
+  { languageCode: "gu", languageName: "Gujarati" },
+  { languageCode: "ht", languageName: "Haitian Creole" },
+  { languageCode: "ha", languageName: "Hausa" },
+  { languageCode: "haw", languageName: "Hawaiian" },
+  { languageCode: "iw", languageName: "Hebrew" },
+  { languageCode: "hi", languageName: "Hindi" },
+  { languageCode: "hmn", languageName: "Hmong" },
+  { languageCode: "hu", languageName: "Hungarian" },
+  { languageCode: "is", languageName: "Icelandic" },
+  { languageCode: "ig", languageName: "Igbo" },
+  { languageCode: "id", languageName: "Indonesian" },
+  { languageCode: "ga", languageName: "Irish" },
+  { languageCode: "it", languageName: "Italian" },
+  { languageCode: "ja", languageName: "Japanese" },
+  { languageCode: "jv", languageName: "Javanese" },
+  { languageCode: "kn", languageName: "Kannada" },
+  { languageCode: "kk", languageName: "Kazakh" },
+  { languageCode: "km", languageName: "Khmer" },
+  { languageCode: "rw", languageName: "Kinyarwanda" },
+  { languageCode: "ko", languageName: "Korean" },
+  { languageCode: "kri", languageName: "Krio" },
+  { languageCode: "ku", languageName: "Kurdish" },
+  { languageCode: "ky", languageName: "Kyrgyz" },
+  { languageCode: "lo", languageName: "Lao" },
+  { languageCode: "la", languageName: "Latin" },
+  { languageCode: "lv", languageName: "Latvian" },
+  { languageCode: "ln", languageName: "Lingala" },
+  { languageCode: "lt", languageName: "Lithuanian" },
+  { languageCode: "lb", languageName: "Luxembourgish" },
+  { languageCode: "mk", languageName: "Macedonian" },
+  { languageCode: "mg", languageName: "Malagasy" },
+  { languageCode: "ms", languageName: "Malay" },
+  { languageCode: "ml", languageName: "Malayalam" },
+  { languageCode: "mt", languageName: "Maltese" },
+  { languageCode: "mi", languageName: "Māori" },
+  { languageCode: "mr", languageName: "Marathi" },
+  { languageCode: "mn", languageName: "Mongolian" },
+  { languageCode: "ne", languageName: "Nepali" },
+  { languageCode: "nso", languageName: "Northern Sotho" },
+  { languageCode: "no", languageName: "Norwegian" },
+  { languageCode: "ny", languageName: "Nyanja" },
+  { languageCode: "or", languageName: "Odia" },
+  { languageCode: "om", languageName: "Oromo" },
+  { languageCode: "ps", languageName: "Pashto" },
+  { languageCode: "fa", languageName: "Persian" },
+  { languageCode: "pl", languageName: "Polish" },
+  { languageCode: "pt", languageName: "Portuguese" },
+  { languageCode: "pa", languageName: "Punjabi" },
+  { languageCode: "qu", languageName: "Quechua" },
+  { languageCode: "ro", languageName: "Romanian" },
+  { languageCode: "ru", languageName: "Russian" },
+  { languageCode: "sm", languageName: "Samoan" },
+  { languageCode: "sa", languageName: "Sanskrit" },
+  { languageCode: "gd", languageName: "Scottish Gaelic" },
+  { languageCode: "sr", languageName: "Serbian" },
+  { languageCode: "sn", languageName: "Shona" },
+  { languageCode: "sd", languageName: "Sindhi" },
+  { languageCode: "si", languageName: "Sinhala" },
+  { languageCode: "sk", languageName: "Slovak" },
+  { languageCode: "sl", languageName: "Slovenian" },
+  { languageCode: "so", languageName: "Somali" },
+  { languageCode: "st", languageName: "Southern Sotho" },
+  { languageCode: "es", languageName: "Spanish" },
+  { languageCode: "su", languageName: "Sundanese" },
+  { languageCode: "sw", languageName: "Swahili" },
+  { languageCode: "sv", languageName: "Swedish" },
+  { languageCode: "tg", languageName: "Tajik" },
+  { languageCode: "ta", languageName: "Tamil" },
+  { languageCode: "tt", languageName: "Tatar" },
+  { languageCode: "te", languageName: "Telugu" },
+  { languageCode: "th", languageName: "Thai" },
+  { languageCode: "ti", languageName: "Tigrinya" },
+  { languageCode: "ts", languageName: "Tsonga" },
+  { languageCode: "tr", languageName: "Turkish" },
+  { languageCode: "tk", languageName: "Turkmen" },
+  { languageCode: "uk", languageName: "Ukrainian" },
+  { languageCode: "ur", languageName: "Urdu" },
+  { languageCode: "ug", languageName: "Uyghur" },
+  { languageCode: "uz", languageName: "Uzbek" },
+  { languageCode: "vi", languageName: "Vietnamese" },
+  { languageCode: "cy", languageName: "Welsh" },
+  { languageCode: "fy", languageName: "Western Frisian" },
+  { languageCode: "xh", languageName: "Xhosa" },
+  { languageCode: "yi", languageName: "Yiddish" },
+  { languageCode: "yo", languageName: "Yoruba" },
+  { languageCode: "zu", languageName: "Zulu" }]
+
 const createSelectionLink = (track) => {
   const checkbox = document.createElement('input');
   checkbox.type = 'checkbox';
@@ -322,17 +457,43 @@ const createSelectionLink = (track) => {
   label.style.textDecoration = 'underline';
   label.style.fontSize = '1.4rem';
 
+  const dropdown = document.createElement('select');
+  dropdown.id = `dropdown_${track.name.simpleText.replace(/\s/g, '_')}`;
+  dropdown.style.backgroundColor = '#333333';
+  dropdown.style.color = '#ffffff';
+  dropdown.style.border = 'none';
+  dropdown.style.cursor = 'pointer';
+
+  const defaultOption = document.createElement('option');
+  defaultOption.text = 'Auto translate to';
+  dropdown.add(defaultOption);
+
+  languages.forEach((language) => {
+    const option = document.createElement('option');
+    option.value = language.languageCode;
+    option.text = language.languageName;
+    dropdown.add(option);
+  });
+
   const container = document.createElement('div');
   container.style.display = 'flex';
   container.style.alignItems = 'center';
   container.appendChild(checkbox);
   container.appendChild(label);
+  container.appendChild(dropdown);
+
+  let selectedLanguageCode = null;
 
   // Click event listener for the checkbox
   checkbox.addEventListener('change', () => {
     if (checkbox.checked) {
       clearInterval(intervalId);
-      selectCaptionFileForTTS(track);
+
+      if (selectedLanguageCode) {
+        selectCaptionFileForTTS(track, selectedLanguageCode);
+      } else {
+        selectCaptionFileForTTS(track);
+      }
 
       // Deselect other checkboxes
       const checkboxes = document.querySelectorAll('input[type="checkbox"]');
@@ -346,8 +507,23 @@ const createSelectionLink = (track) => {
     }
   });
 
+  // Change event listener for the dropdown
+  dropdown.addEventListener('change', () => {
+    if (dropdown.value === '') {
+      selectedLanguageCode = null;
+    } else {
+      selectedLanguageCode = dropdown.value;
+    }
+
+    if (checkbox.checked) {
+      clearInterval(intervalId);
+      selectCaptionFileForTTS(track, selectedLanguageCode);
+    }
+  });
+
   return container;
 };
+
 
 
 /**
