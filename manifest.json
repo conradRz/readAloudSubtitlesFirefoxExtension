@@ -3,7 +3,7 @@
   "name": "__MSG_appName__",
   "description": "__MSG_appDesc__",
   "default_locale": "en",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "icons": {
     "48": "icon.png"
   },
@@ -13,20 +13,13 @@
   },
   "content_scripts": [
     {
-      "matches": [
-        "*://*.youtube.com/*"
-      ],
+      "matches": ["*://*.youtube.com/*"],
       "all_frames": false,
       "run_at": "document_end",
-      "js": [
-        "content.js"
-      ]
+      "js": ["content.js"]
     }
   ],
-  "web_accessible_resources": [
-    "settings.html",
-    "content.js"
-  ],
+  "web_accessible_resources": ["settings.html", "content.js"],
   "options_ui": {
     "page": "settings.html",
     "browser_style": false
