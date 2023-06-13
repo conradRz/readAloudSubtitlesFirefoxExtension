@@ -79,7 +79,6 @@ function getParameterByName(name, url) {
 }
 
 const selectCaptionFileForTTS = async (track, selectedLanguageCode = null) => {
-  debugger;
   let url;
 
   // Extract the current language code from the track.baseUrl
