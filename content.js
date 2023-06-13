@@ -68,16 +68,32 @@ function binarySearch(textElements, currentTime) {
   return null;
 }
 
+// Function to extract a parameter value from a URL
+function getParameterByName(name, url) {
+  name = name.replace(/[\[\]]/g, '\\$&');
+  const regex = new RegExp('[?&]' + name + '(=([^&#]*)|&|#|$)');
+  const results = regex.exec(url);
+  if (!results) return null;
+  if (!results[2]) return '';
+  return decodeURIComponent(results[2].replace(/\+/g, ' '));
+}
+
 const selectCaptionFileForTTS = async (track, selectedLanguageCode = null) => {
   debugger;
   let url;
 
+  // Extract the current language code from the track.baseUrl
+  const urlLanguageCode = getParameterByName('lang', track.baseUrl);
+
+  if (selectedLanguageCode && urlLanguageCode === selectedLanguageCode) {
+    url = track.baseUrl;
+  }
   // The selectedLanguageCode does not contain the ":" character, which would never be a language code, but an EN or translated version of "Auto translate to:"
-  if (selectedLanguageCode && selectedLanguageCode.indexOf(":") === -1) {
+  else if (selectedLanguageCode && selectedLanguageCode.indexOf(":") === -1) {
     // Code for handling selected language code
     url = track.baseUrl + '&tlang=' + selectedLanguageCode;
   } else {
-    // Code for handling default case
+    // Code for handling the default case
     url = track.baseUrl;
   }
 
