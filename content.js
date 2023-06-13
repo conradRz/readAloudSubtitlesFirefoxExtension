@@ -28,7 +28,8 @@ browser.storage.local.get('speechSettings')
       speechSettings = {
         speechSpeed: 1.6,
         speechVolume: 1,
-        speechVoice: null
+        speechVoice: null,
+        rememberUserLastSelectedAutoTranslateToLanguageCode: null
       };
       browser.storage.local.set({ speechSettings: speechSettings });
     }
@@ -79,7 +80,6 @@ function getParameterByName(name, url) {
 }
 
 const selectCaptionFileForTTS = async (track, selectedLanguageCode = null) => {
-  debugger;
   let url;
 
   // Extract the current language code from the track.baseUrl
@@ -500,9 +500,18 @@ const createSelectionLink = (track) => {
   const defaultOption = document.createElement('option');
 
   const userLanguage = navigator.language.substring(0, 2);
-  const texts = languageTexts[userLanguage] || languageTexts['en']; // Fallback to English if user language is not defined
+  const texts = languageTexts[userLanguage] || languageTexts['en']; // Fallback to English if user language is not define
 
-  defaultOption.text = texts.AutoTranslateTo;
+  if (speechSettings.rememberUserLastSelectedAutoTranslateToLanguageCode != null) {
+    for (const language of languages) {
+      if (language.languageCode == speechSettings.rememberUserLastSelectedAutoTranslateToLanguageCode) {
+        defaultOption.value = language.languageCode;
+        defaultOption.text = language.languageName;
+        break;
+      }
+    }
+  } else { defaultOption.text = texts.AutoTranslateTo; }
+
   dropdown.add(defaultOption);
 
   languages.forEach((language) => {
@@ -528,7 +537,10 @@ const createSelectionLink = (track) => {
 
       if (selectedLanguageCode) {
         selectCaptionFileForTTS(track, selectedLanguageCode);
-      } else {
+      } else if (speechSettings.rememberUserLastSelectedAutoTranslateToLanguageCode != null) {
+        selectCaptionFileForTTS(track, speechSettings.rememberUserLastSelectedAutoTranslateToLanguageCode);
+      }
+      else {
         selectCaptionFileForTTS(track);
       }
 
@@ -551,6 +563,8 @@ const createSelectionLink = (track) => {
     } else {
       selectedLanguageCode = dropdown.value;
     }
+    speechSettings.rememberUserLastSelectedAutoTranslateToLanguageCode = selectedLanguageCode;
+    browser.storage.local.set({ speechSettings: speechSettings });
 
     checkbox.checked = true;
 
