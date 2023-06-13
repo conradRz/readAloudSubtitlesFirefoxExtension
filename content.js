@@ -28,7 +28,8 @@ browser.storage.local.get('speechSettings')
       speechSettings = {
         speechSpeed: 1.6,
         speechVolume: 1,
-        speechVoice: null
+        speechVoice: null,
+        rememberUserLastSelectedAutoTranslateToLanguage: null
       };
       browser.storage.local.set({ speechSettings: speechSettings });
     }
@@ -500,8 +501,12 @@ const createSelectionLink = (track) => {
 
   const userLanguage = navigator.language.substring(0, 2);
   const texts = languageTexts[userLanguage] || languageTexts['en']; // Fallback to English if user language is not defined
+  debugger;
+  if (speechSettings.rememberUserLastSelectedAutoTranslateToLanguage != null) {
+    defaultOption.value = speechSettings.rememberUserLastSelectedAutoTranslateToLanguage;
+    defaultOption.text = speechSettings.rememberUserLastSelectedAutoTranslateToLanguage;
+  } else { defaultOption.text = texts.AutoTranslateTo; }
 
-  defaultOption.text = texts.AutoTranslateTo;
   dropdown.add(defaultOption);
 
   languages.forEach((language) => {
@@ -550,6 +555,8 @@ const createSelectionLink = (track) => {
     } else {
       selectedLanguageCode = dropdown.value;
     }
+    speechSettings.rememberUserLastSelectedAutoTranslateToLanguage = selectedLanguageCode;
+    browser.storage.local.set({ speechSettings: speechSettings });
 
     checkbox.checked = true;
 
