@@ -71,7 +71,9 @@ function binarySearch(textElements, currentTime) {
 const selectCaptionFileForTTS = async (track, selectedLanguageCode = null) => {
   debugger;
   let url;
-  if (selectedLanguageCode && selectedLanguageCode !== "Auto translate to:") {
+
+  // The selectedLanguageCode does not contain the ":" character, which would never be a language code, but an EN or translated version of "Auto translate to:"
+  if (selectedLanguageCode && selectedLanguageCode.indexOf(":") === -1) {
     // Code for handling selected language code
     url = track.baseUrl + '&tlang=' + selectedLanguageCode;
   } else {
