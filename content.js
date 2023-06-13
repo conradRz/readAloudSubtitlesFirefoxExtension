@@ -69,8 +69,9 @@ function binarySearch(textElements, currentTime) {
 }
 
 const selectCaptionFileForTTS = async (track, selectedLanguageCode = null) => {
+  debugger;
   let url;
-  if (selectedLanguageCode && selectedLanguageCode !== "Auto translate to") {
+  if (selectedLanguageCode && selectedLanguageCode !== "Auto translate to:") {
     // Code for handling selected language code
     url = track.baseUrl + '&tlang=' + selectedLanguageCode;
   } else {
@@ -533,10 +534,12 @@ const createSelectionLink = (track) => {
       selectedLanguageCode = dropdown.value;
     }
 
-    if (checkbox.checked) {
-      clearInterval(intervalId);
-      selectCaptionFileForTTS(track, selectedLanguageCode);
-    }
+    checkbox.checked = true;
+
+    //below is important, as `checkbox.checked = true` doesn't trigger even listener for some reason
+    clearInterval(intervalId);
+    selectCaptionFileForTTS(track, selectedLanguageCode);
+
   });
 
   return container;
