@@ -532,7 +532,10 @@ const createSelectionLink = (track) => {
 
       if (selectedLanguageCode) {
         selectCaptionFileForTTS(track, selectedLanguageCode);
-      } else {
+      } else if (speechSettings.rememberUserLastSelectedAutoTranslateToLanguage != null) {
+        selectCaptionFileForTTS(track, speechSettings.rememberUserLastSelectedAutoTranslateToLanguage);
+      }
+      else {
         selectCaptionFileForTTS(track);
       }
 
