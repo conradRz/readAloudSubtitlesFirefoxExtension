@@ -46,6 +46,10 @@ browser.storage.onChanged.addListener((changes, area) => {
   }
 });
 
+let voices;
+
+voices = window.speechSynthesis.getVoices();
+
 function binarySearch(textElements, currentTime) {
   let start = 0;
   let end = textElements.length - 1;
@@ -99,9 +103,6 @@ const selectCaptionFileForTTS = async (track, selectedLanguageCode = null) => {
 
   const xml = await fetch(url).then(resp => resp.text());
 
-  // better not to place the below in a more global scope, where it will get executed only once, in case the user installs new TTS voices. Here, just loading another video, will give him access to newly installed voices.
-  const voices = window.speechSynthesis.getVoices();
-
   if (xml) {
     const xmlDoc = new DOMParser().parseFromString(xml, 'text/xml');
     const textElements = xmlDoc.getElementsByTagName('text');
@@ -128,10 +129,31 @@ const selectCaptionFileForTTS = async (track, selectedLanguageCode = null) => {
           let utterance = new SpeechSynthesisUtterance(unescapeHTML(matchedText.replace(/\n/g, "").replace(/\\"/g, '"').trim().replace(/[,\.]+$/, '').replace(/\r/g, ""))); //.replace(/[,\.]+$/, '') trims trailing , and . which makes the subtitle playing smoother in my subjective opinion
 
           //only assign utterance.voice if speechSettings.speechVoice is not empty, that is other voice than the environment default had been selected
-          if (speechSettings.speechVoice !== null) {
-            const voice = voices.find((voice) => voice.voiceURI === speechSettings.speechVoice);
-            if (voice) {
-              utterance.voice = voice;
+          // && voices && voices.length > 0 checks as once a youtube ad caused "Uncaught TypeError: Cannot read properties of undefined (reading 'find')"
+          debugger;
+          if (voices && voices.length > 0) {
+            let voice;
+            if (speechSettings.speechVoice !== null) { //there was some selection
+              //check if selected voice matches play through voice language?
+              voice = voices.find((voice) => voice.voiceURI === speechSettings.speechVoice);
+              if (voice && voice.lang.substring(0, 2) === speechSettings.rememberUserLastSelectedAutoTranslateToLanguageCode) {
+                utterance.voice = voice;
+              } else { //now if it doesn't match the language, try to find one which does
+                if (speechSettings.rememberUserLastSelectedAutoTranslateToLanguageCode != null) {
+                  voice = voices.find(
+                    (voice) =>
+                      voice.lang.substring(0, 2) === speechSettings.rememberUserLastSelectedAutoTranslateToLanguageCode.substring(0, 2)
+                  )
+                }
+                if (voice) {
+                  utterance.voice = voice;
+                  speechSettings.speechVoice = voice.voiceURI;
+                  browser.storage.local.set({ speechSettings: speechSettings });
+                }
+              }
+
+              //if a voice with a matching language is unavailable
+              //here it would make sense to pop up some information message to the user, as otherwise it just tries to read it with English voice, but the underlying text is non-english
             }
           }
           utterance.rate = speechSettings.speechSpeed;

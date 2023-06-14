@@ -52,20 +52,32 @@ document.addEventListener('DOMContentLoaded', () => {
         browser.storage.local.set({ speechSettings: speechSettings });
     }
 
+    function fetchVoices() {
+        return new Promise((resolve, reject) => {
+            const speechSynthesis = window.speechSynthesis;
+
+            // Check if voices are already available
+            if (speechSynthesis.getVoices().length > 0) {
+                resolve(speechSynthesis.getVoices());
+            } else {
+                // Wait for voices to be loaded
+                speechSynthesis.onvoiceschanged = () => {
+                    resolve(speechSynthesis.getVoices());
+                };
+            }
+        });
+    }
+
     // Function to populate the TTS engines dropdown
     function populateTTSEngines() {
         const select = document.getElementById('engineSelect');
         select.innerHTML = '';
 
         if ('speechSynthesis' in window) {
-            const synth = window.speechSynthesis;
-
-            let voicesReady = false;
-
-            // Function to populate the voices when ready
-            function populateVoices() {
-                if (voicesReady) {
-                    const voices = synth.getVoices();
+            fetchVoices()
+                .then(voices => {
+                    // Clear the existing options
+                    select.innerHTML = '';
 
                     voices.forEach(voice => {
                         const option = document.createElement('option');
@@ -74,28 +86,13 @@ document.addEventListener('DOMContentLoaded', () => {
                         select.add(option);
                     });
 
-                    // Set the selected value based on stored speechSettings
-                    if (speechSettings && speechSettings.speechVoice) {
-                        select.value = speechSettings.speechVoice;
-                    } else {
-                        select.value = null;
-                    }
-                } else {
-                    setTimeout(populateVoices, 100);
-                }
-            }
-
-            // Call populateVoices to start the process
-            populateVoices();
-
-            // Check if voices are ready
-            if (synth.getVoices().length !== 0) {
-                voicesReady = true;
-            } else {
-                synth.addEventListener('voiceschanged', () => {
-                    voicesReady = true;
-                });
-            }
+                    // Retrieve the stored speechSettings from extension storage
+                    browser.storage.local.get('speechSettings', result => {
+                        if (result.speechSettings && result.speechSettings.speechVoice) {
+                            select.value = result.speechSettings.speechVoice;
+                        }
+                    });
+                })
         } else {
             const option = document.createElement('option');
             option.text = 'TTS not supported';
@@ -103,7 +100,6 @@ document.addEventListener('DOMContentLoaded', () => {
             select.add(option);
         }
     }
-
     // Call the function to populate the TTS engines dropdown
     populateTTSEngines();
 });
