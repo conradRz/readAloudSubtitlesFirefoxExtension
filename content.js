@@ -139,7 +139,7 @@ const selectCaptionFileForTTS = async (track, selectedLanguageCode = null) => {
               if (voice && voice.lang.substring(0, 2) === speechSettings.rememberUserLastSelectedAutoTranslateToLanguageCode) {
                 utterance.voice = voice;
               } else { //now if it doesn't match the language, try to find one which does
-                if (speechSettings.rememberUserLastSelectedAutoTranslateToLanguageCode != null) {
+                if (speechSettings.rememberUserLastSelectedAutoTranslateToLanguageCode !== null) {
                   voice = voices.find(
                     (voice) =>
                       voice.lang.substring(0, 2) === speechSettings.rememberUserLastSelectedAutoTranslateToLanguageCode.substring(0, 2)
@@ -524,7 +524,7 @@ const createSelectionLink = (track) => {
   const userLanguage = navigator.language.substring(0, 2);
   const texts = languageTexts[userLanguage] || languageTexts['en']; // Fallback to English if user language is not define
 
-  if (speechSettings.rememberUserLastSelectedAutoTranslateToLanguageCode != null) {
+  if (speechSettings.rememberUserLastSelectedAutoTranslateToLanguageCode !== null) {
     for (const language of languages) {
       if (language.languageCode == speechSettings.rememberUserLastSelectedAutoTranslateToLanguageCode) {
         defaultOption.value = language.languageCode;
@@ -559,7 +559,7 @@ const createSelectionLink = (track) => {
 
       if (selectedLanguageCode) {
         selectCaptionFileForTTS(track, selectedLanguageCode);
-      } else if (speechSettings.rememberUserLastSelectedAutoTranslateToLanguageCode != null) {
+      } else if (speechSettings.rememberUserLastSelectedAutoTranslateToLanguageCode !== null) {
         selectCaptionFileForTTS(track, speechSettings.rememberUserLastSelectedAutoTranslateToLanguageCode);
       }
       else {
