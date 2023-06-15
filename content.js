@@ -48,7 +48,28 @@ browser.storage.onChanged.addListener((changes, area) => {
 
 let voices;
 
-voices = window.speechSynthesis.getVoices();
+function getVoicesWithRetry(retryCount, interval) {
+  voices = window.speechSynthesis.getVoices();
+
+  if (voices && voices.length > 0) {
+    return;
+  }
+
+  if (retryCount <= 0) {
+    console.log('Unable to retrieve voices.');
+    return;
+  }
+
+  setTimeout(() => {
+    getVoicesWithRetry(retryCount - 1, interval);
+  }, interval);
+}
+
+const retryCount = 5;
+const retryInterval = 250;
+
+getVoicesWithRetry(retryCount, retryInterval);
+
 
 function binarySearch(textElements, currentTime) {
   let start = 0;
