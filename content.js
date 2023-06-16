@@ -134,15 +134,18 @@ const selectCaptionFileForTTS = async (track, selectedLanguageCode = null) => {
     let previousTime = NaN;
 
     const matchXmlTextToCurrentTime = () => {
-      let currentTime = document.getElementsByClassName('video-stream')[0].currentTime + 0.25;
+      // save resources if the previous subtitle is being spoken. Trying to control the flow by clearInterval would not be a good idea, due to other parts of code also setting the interval; for a reason - tested; better to just return;
+      if (isSpeechSynthesisInProgress) return;
 
-      //this will save computing cycles of iterating over an array when a video is on pause, or when the previous subtitle is being spoken
-      if (previousTime === currentTime || isSpeechSynthesisInProgress) return;
+      const currentTime = document.getElementsByClassName('video-stream')[0].currentTime + 0.25;
+
+      //this will save computing cycles of iterating over an array when a video is on pause
+      if (previousTime === currentTime) return;
 
       const matchedElement = binarySearch(textElements, currentTime);
 
       if (matchedElement) {
-        let matchedText = matchedElement.textContent.trim();
+        const matchedText = matchedElement.textContent.trim();
         if (matchedText !== subtitlePart) {
           subtitlePart = matchedText;
 
