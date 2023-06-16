@@ -48,7 +48,7 @@ browser.storage.onChanged.addListener((changes, area) => {
 
 let voices;
 
-function getVoicesWithRetry(retryCount, interval) {
+const getVoicesWithRetry = (retryCount, interval) => {
   voices = window.speechSynthesis.getVoices();
 
   if (voices && voices.length > 0) {
@@ -71,7 +71,7 @@ const retryInterval = 250;
 getVoicesWithRetry(retryCount, retryInterval);
 
 
-function binarySearch(textElements, currentTime) {
+const binarySearch = (textElements, currentTime) => {
   let start = 0;
   let end = textElements.length - 1;
 
@@ -95,7 +95,7 @@ function binarySearch(textElements, currentTime) {
 }
 
 // Function to extract a parameter value from a URL
-function getParameterByName(name, url) {
+const getParameterByName = (name, url) => {
   name = name.replace(/[\[\]]/g, '\\$&');
   const regex = new RegExp('[?&]' + name + '(=([^&#]*)|&|#|$)');
   const results = regex.exec(url);
@@ -133,17 +133,17 @@ const selectCaptionFileForTTS = async (track, selectedLanguageCode = null) => {
     let subtitlePart = '';
     let previousTime = NaN;
 
-    function matchXmlTextToCurrentTime() {
+    const matchXmlTextToCurrentTime = () => {
       let currentTime = document.getElementsByClassName('video-stream')[0].currentTime + 0.25;
 
       //this will save it computing cycles of iterating over an array when a video is on pause
-      if (previousTime === currentTime) return;
+      if (previousTime === currentTime || isSpeechSynthesisInProgress) return;
 
       const matchedElement = binarySearch(textElements, currentTime);
 
       if (matchedElement) {
         let matchedText = matchedElement.textContent.trim();
-        if (matchedText !== subtitlePart && !isSpeechSynthesisInProgress) {
+        if (matchedText !== subtitlePart) {
           subtitlePart = matchedText;
 
           isSpeechSynthesisInProgress = true;
@@ -179,7 +179,7 @@ const selectCaptionFileForTTS = async (track, selectedLanguageCode = null) => {
           utterance.rate = speechSettings.speechSpeed;
           utterance.volume = speechSettings.speechVolume;
 
-          utterance.onend = function () {
+          utterance.onend = () => {
             isSpeechSynthesisInProgress = false;
           };
           speechSynthesis.speak(utterance);
@@ -194,7 +194,7 @@ const selectCaptionFileForTTS = async (track, selectedLanguageCode = null) => {
   }
 };
 
-// Function to handle video change event
+// handle video change event
 const handleVideoChange = () => {
   clearInterval(intervalId); // Clear the interval when the video changes
 };
@@ -206,81 +206,79 @@ if (elements.length > 0) {
   document.getElementsByClassName('video-stream')[0].addEventListener('loadeddata', handleVideoChange);
 }
 
-
-const languageTexts = {
-  en: {
-    subtitleFileDownload: 'Subtitle file download: ',
-    selectSpeechSubtitles: 'Select speech subtitles to play alongside the video: ',
-    AutoTranslateTo: 'Auto translate to:'
-  },
-  fr: {
-    subtitleFileDownload: 'Téléchargement du fichier de sous-titres : ',
-    selectSpeechSubtitles: 'Sélectionnez les sous-titres audio à lire avec la vidéo : ',
-    AutoTranslateTo: 'Traduire automatiquement vers:'
-  },
-  ua: {
-    subtitleFileDownload: 'Завантажити файл субтитрів: ',
-    selectSpeechSubtitles: 'Виберіть мову субтитрів для відтворення поряд із відео: ',
-    AutoTranslateTo: 'Автоматичний переклад на:'
-  },
-  ru: {
-    subtitleFileDownload: 'Скачать файл субтитров: ',
-    selectSpeechSubtitles: 'Выберите речевые субтитры для воспроизведения вместе с видео: ',
-    AutoTranslateTo: 'Автоматический перевод на:'
-  },
-  tr: {
-    subtitleFileDownload: 'Altyazı dosyasını indir: ',
-    selectSpeechSubtitles: 'Videonun yanında oynatılacak konuşma altyazısını seçin: ',
-    AutoTranslateTo: 'Şu dile otomatik çevir:'
-  },
-  it: {
-    subtitleFileDownload: 'Download file dei sottotitoli: ',
-    selectSpeechSubtitles: 'Seleziona i sottotitoli audio da riprodurre insieme al video: ',
-    AutoTranslateTo: 'Traduzione automatica in:'
-  },
-  ko: {
-    subtitleFileDownload: '자막 파일 다운로드: ',
-    selectSpeechSubtitles: '비디오와 함께 재생할 음성 자막을 선택하세요: ',
-    AutoTranslateTo: '다음으로 자동 번역:'
-  },
-  pl: {
-    subtitleFileDownload: 'Pobierz plik napisów: ',
-    selectSpeechSubtitles: 'Wybierz napisy mowy do odtwarzania podczas wideo: ',
-    AutoTranslateTo: 'Automatyczne tłumaczenie na:'
-  },
-  pt: {
-    subtitleFileDownload: 'Download do arquivo de legendas: ',
-    selectSpeechSubtitles: 'Selecione as legendas de fala para reproduzir junto com o vídeo: ',
-    AutoTranslateTo: 'Tradução automática para:'
-  },
-  ar: {
-    subtitleFileDownload: 'تحميل ملف الترجمة: ',
-    selectSpeechSubtitles: 'حدد ترجمات الكلام لتشغيلها جنبًا إلى جنب مع الفيديو: ',
-    AutoTranslateTo: 'ترجمة تلقائية إلى:'
-  },
-  hi: {
-    subtitleFileDownload: 'सबटाइटल फ़ाइल डाउनलोड करें: ',
-    selectSpeechSubtitles: 'वीडियो के साथ खेलने के लिए भाषण उपशीर्षक का चयन करें: ',
-    AutoTranslateTo: 'स्वतः इसका अनुवाद करें:'
-  },
-  zh: {
-    subtitleFileDownload: '字幕文件下载：',
-    selectSpeechSubtitles: '选择要与视频一起播放的语音字幕：',
-    AutoTranslateTo: '自动翻译成：'
-  },
-  es: {
-    subtitleFileDownload: 'Descargar archivo de subtítulos: ',
-    selectSpeechSubtitles: 'Seleccione los subtítulos de voz para reproducir junto al video: ',
-    AutoTranslateTo: 'Traducir automáticamente a:'
-  },
-};
-
-
 /**
  * Displays a list of subtitles that the video has.
  * @param {Array} captionTracks Subtitles array.
  */
 const buildGui = captionTracks => {
+  const languageTexts = {
+    en: {
+      subtitleFileDownload: 'Subtitle file download: ',
+      selectSpeechSubtitles: 'Select speech subtitles to play alongside the video: ',
+      AutoTranslateTo: 'Auto translate to:'
+    },
+    fr: {
+      subtitleFileDownload: 'Téléchargement du fichier de sous-titres : ',
+      selectSpeechSubtitles: 'Sélectionnez les sous-titres audio à lire avec la vidéo : ',
+      AutoTranslateTo: 'Traduire automatiquement vers:'
+    },
+    ua: {
+      subtitleFileDownload: 'Завантажити файл субтитрів: ',
+      selectSpeechSubtitles: 'Виберіть мову субтитрів для відтворення поряд із відео: ',
+      AutoTranslateTo: 'Автоматичний переклад на:'
+    },
+    ru: {
+      subtitleFileDownload: 'Скачать файл субтитров: ',
+      selectSpeechSubtitles: 'Выберите речевые субтитры для воспроизведения вместе с видео: ',
+      AutoTranslateTo: 'Автоматический перевод на:'
+    },
+    tr: {
+      subtitleFileDownload: 'Altyazı dosyasını indir: ',
+      selectSpeechSubtitles: 'Videonun yanında oynatılacak konuşma altyazısını seçin: ',
+      AutoTranslateTo: 'Şu dile otomatik çevir:'
+    },
+    it: {
+      subtitleFileDownload: 'Download file dei sottotitoli: ',
+      selectSpeechSubtitles: 'Seleziona i sottotitoli audio da riprodurre insieme al video: ',
+      AutoTranslateTo: 'Traduzione automatica in:'
+    },
+    ko: {
+      subtitleFileDownload: '자막 파일 다운로드: ',
+      selectSpeechSubtitles: '비디오와 함께 재생할 음성 자막을 선택하세요: ',
+      AutoTranslateTo: '다음으로 자동 번역:'
+    },
+    pl: {
+      subtitleFileDownload: 'Pobierz plik napisów: ',
+      selectSpeechSubtitles: 'Wybierz napisy mowy do odtwarzania podczas wideo: ',
+      AutoTranslateTo: 'Automatyczne tłumaczenie na:'
+    },
+    pt: {
+      subtitleFileDownload: 'Download do arquivo de legendas: ',
+      selectSpeechSubtitles: 'Selecione as legendas de fala para reproduzir junto com o vídeo: ',
+      AutoTranslateTo: 'Tradução automática para:'
+    },
+    ar: {
+      subtitleFileDownload: 'تحميل ملف الترجمة: ',
+      selectSpeechSubtitles: 'حدد ترجمات الكلام لتشغيلها جنبًا إلى جنب مع الفيديو: ',
+      AutoTranslateTo: 'ترجمة تلقائية إلى:'
+    },
+    hi: {
+      subtitleFileDownload: 'सबटाइटल फ़ाइल डाउनलोड करें: ',
+      selectSpeechSubtitles: 'वीडियो के साथ खेलने के लिए भाषण उपशीर्षक का चयन करें: ',
+      AutoTranslateTo: 'स्वतः इसका अनुवाद करें:'
+    },
+    zh: {
+      subtitleFileDownload: '字幕文件下载：',
+      selectSpeechSubtitles: '选择要与视频一起播放的语音字幕：',
+      AutoTranslateTo: '自动翻译成：'
+    },
+    es: {
+      subtitleFileDownload: 'Descargar archivo de subtítulos: ',
+      selectSpeechSubtitles: 'Seleccione los subtítulos de voz para reproducir junto al video: ',
+      AutoTranslateTo: 'Traducir automáticamente a:'
+    },
+  };
+
   removeIfAlreadyExists()
 
   const userLanguage = navigator.language.substring(0, 2);
@@ -288,13 +286,13 @@ const buildGui = captionTracks => {
 
   const container = createOutterContainer(texts.subtitleFileDownload, CONTAINER_ID);
   captionTracks.forEach(track => {
-    const link = createDownloadLink(track)
+    const link = createDownloadLink(track, languageTexts)
     container.appendChild(link)
   });
 
   const container2 = createOutterContainer(texts.selectSpeechSubtitles, CONTAINER_ID2);
   captionTracks.forEach(track => {
-    const link = createSelectionLink(track)
+    const link = createSelectionLink(track, languageTexts)
     container2.appendChild(link)
   });
 
@@ -390,134 +388,134 @@ const createDownloadLink = track => {
   return link
 }
 
-const languages = [
-  { languageCode: "af", languageName: "Afrikaans" },
-  { languageCode: "ak", languageName: "Akan" },
-  { languageCode: "sq", languageName: "Albanian" },
-  { languageCode: "am", languageName: "Amharic" },
-  { languageCode: "ar", languageName: "Arabic" },
-  { languageCode: "hy", languageName: "Armenian" },
-  { languageCode: "as", languageName: "Assamese" },
-  { languageCode: "ay", languageName: "Aymara" },
-  { languageCode: "az", languageName: "Azerbaijani" },
-  { languageCode: "bn", languageName: "Bangla" },
-  { languageCode: "eu", languageName: "Basque" },
-  { languageCode: "be", languageName: "Belarusian" },
-  { languageCode: "bho", languageName: "Bhojpuri" },
-  { languageCode: "bs", languageName: "Bosnian" },
-  { languageCode: "bg", languageName: "Bulgarian" },
-  { languageCode: "my", languageName: "Burmese" },
-  { languageCode: "ca", languageName: "Catalan" },
-  { languageCode: "ceb", languageName: "Cebuano" },
-  { languageCode: "zh-Hans", languageName: "Chinese (Simplified)" },
-  { languageCode: "zh-Hant", languageName: "Chinese (Traditional)" },
-  { languageCode: "co", languageName: "Corsican" },
-  { languageCode: "hr", languageName: "Croatian" },
-  { languageCode: "cs", languageName: "Czech" },
-  { languageCode: "da", languageName: "Danish" },
-  { languageCode: "dv", languageName: "Divehi" },
-  { languageCode: "nl", languageName: "Dutch" },
-  { languageCode: "en", languageName: "English" },
-  { languageCode: "eo", languageName: "Esperanto" },
-  { languageCode: "et", languageName: "Estonian" },
-  { languageCode: "ee", languageName: "Ewe" },
-  { languageCode: "fil", languageName: "Filipino" },
-  { languageCode: "fi", languageName: "Finnish" },
-  { languageCode: "fr", languageName: "French" },
-  { languageCode: "gl", languageName: "Galician" },
-  { languageCode: "lg", languageName: "Ganda" },
-  { languageCode: "ka", languageName: "Georgian" },
-  { languageCode: "de", languageName: "German" },
-  { languageCode: "el", languageName: "Greek" },
-  { languageCode: "gn", languageName: "Guarani" },
-  { languageCode: "gu", languageName: "Gujarati" },
-  { languageCode: "ht", languageName: "Haitian Creole" },
-  { languageCode: "ha", languageName: "Hausa" },
-  { languageCode: "haw", languageName: "Hawaiian" },
-  { languageCode: "iw", languageName: "Hebrew" },
-  { languageCode: "hi", languageName: "Hindi" },
-  { languageCode: "hmn", languageName: "Hmong" },
-  { languageCode: "hu", languageName: "Hungarian" },
-  { languageCode: "is", languageName: "Icelandic" },
-  { languageCode: "ig", languageName: "Igbo" },
-  { languageCode: "id", languageName: "Indonesian" },
-  { languageCode: "ga", languageName: "Irish" },
-  { languageCode: "it", languageName: "Italian" },
-  { languageCode: "ja", languageName: "Japanese" },
-  { languageCode: "jv", languageName: "Javanese" },
-  { languageCode: "kn", languageName: "Kannada" },
-  { languageCode: "kk", languageName: "Kazakh" },
-  { languageCode: "km", languageName: "Khmer" },
-  { languageCode: "rw", languageName: "Kinyarwanda" },
-  { languageCode: "ko", languageName: "Korean" },
-  { languageCode: "kri", languageName: "Krio" },
-  { languageCode: "ku", languageName: "Kurdish" },
-  { languageCode: "ky", languageName: "Kyrgyz" },
-  { languageCode: "lo", languageName: "Lao" },
-  { languageCode: "la", languageName: "Latin" },
-  { languageCode: "lv", languageName: "Latvian" },
-  { languageCode: "ln", languageName: "Lingala" },
-  { languageCode: "lt", languageName: "Lithuanian" },
-  { languageCode: "lb", languageName: "Luxembourgish" },
-  { languageCode: "mk", languageName: "Macedonian" },
-  { languageCode: "mg", languageName: "Malagasy" },
-  { languageCode: "ms", languageName: "Malay" },
-  { languageCode: "ml", languageName: "Malayalam" },
-  { languageCode: "mt", languageName: "Maltese" },
-  { languageCode: "mi", languageName: "Māori" },
-  { languageCode: "mr", languageName: "Marathi" },
-  { languageCode: "mn", languageName: "Mongolian" },
-  { languageCode: "ne", languageName: "Nepali" },
-  { languageCode: "nso", languageName: "Northern Sotho" },
-  { languageCode: "no", languageName: "Norwegian" },
-  { languageCode: "ny", languageName: "Nyanja" },
-  { languageCode: "or", languageName: "Odia" },
-  { languageCode: "om", languageName: "Oromo" },
-  { languageCode: "ps", languageName: "Pashto" },
-  { languageCode: "fa", languageName: "Persian" },
-  { languageCode: "pl", languageName: "Polish" },
-  { languageCode: "pt", languageName: "Portuguese" },
-  { languageCode: "pa", languageName: "Punjabi" },
-  { languageCode: "qu", languageName: "Quechua" },
-  { languageCode: "ro", languageName: "Romanian" },
-  { languageCode: "ru", languageName: "Russian" },
-  { languageCode: "sm", languageName: "Samoan" },
-  { languageCode: "sa", languageName: "Sanskrit" },
-  { languageCode: "gd", languageName: "Scottish Gaelic" },
-  { languageCode: "sr", languageName: "Serbian" },
-  { languageCode: "sn", languageName: "Shona" },
-  { languageCode: "sd", languageName: "Sindhi" },
-  { languageCode: "si", languageName: "Sinhala" },
-  { languageCode: "sk", languageName: "Slovak" },
-  { languageCode: "sl", languageName: "Slovenian" },
-  { languageCode: "so", languageName: "Somali" },
-  { languageCode: "st", languageName: "Southern Sotho" },
-  { languageCode: "es", languageName: "Spanish" },
-  { languageCode: "su", languageName: "Sundanese" },
-  { languageCode: "sw", languageName: "Swahili" },
-  { languageCode: "sv", languageName: "Swedish" },
-  { languageCode: "tg", languageName: "Tajik" },
-  { languageCode: "ta", languageName: "Tamil" },
-  { languageCode: "tt", languageName: "Tatar" },
-  { languageCode: "te", languageName: "Telugu" },
-  { languageCode: "th", languageName: "Thai" },
-  { languageCode: "ti", languageName: "Tigrinya" },
-  { languageCode: "ts", languageName: "Tsonga" },
-  { languageCode: "tr", languageName: "Turkish" },
-  { languageCode: "tk", languageName: "Turkmen" },
-  { languageCode: "uk", languageName: "Ukrainian" },
-  { languageCode: "ur", languageName: "Urdu" },
-  { languageCode: "ug", languageName: "Uyghur" },
-  { languageCode: "uz", languageName: "Uzbek" },
-  { languageCode: "vi", languageName: "Vietnamese" },
-  { languageCode: "cy", languageName: "Welsh" },
-  { languageCode: "fy", languageName: "Western Frisian" },
-  { languageCode: "xh", languageName: "Xhosa" },
-  { languageCode: "yi", languageName: "Yiddish" },
-  { languageCode: "yo", languageName: "Yoruba" },
-  { languageCode: "zu", languageName: "Zulu" }]
+const createSelectionLink = (track, languageTexts) => {
+  const languages = [
+    { languageCode: "af", languageName: "Afrikaans" },
+    { languageCode: "ak", languageName: "Akan" },
+    { languageCode: "sq", languageName: "Albanian" },
+    { languageCode: "am", languageName: "Amharic" },
+    { languageCode: "ar", languageName: "Arabic" },
+    { languageCode: "hy", languageName: "Armenian" },
+    { languageCode: "as", languageName: "Assamese" },
+    { languageCode: "ay", languageName: "Aymara" },
+    { languageCode: "az", languageName: "Azerbaijani" },
+    { languageCode: "bn", languageName: "Bangla" },
+    { languageCode: "eu", languageName: "Basque" },
+    { languageCode: "be", languageName: "Belarusian" },
+    { languageCode: "bho", languageName: "Bhojpuri" },
+    { languageCode: "bs", languageName: "Bosnian" },
+    { languageCode: "bg", languageName: "Bulgarian" },
+    { languageCode: "my", languageName: "Burmese" },
+    { languageCode: "ca", languageName: "Catalan" },
+    { languageCode: "ceb", languageName: "Cebuano" },
+    { languageCode: "zh-Hans", languageName: "Chinese (Simplified)" },
+    { languageCode: "zh-Hant", languageName: "Chinese (Traditional)" },
+    { languageCode: "co", languageName: "Corsican" },
+    { languageCode: "hr", languageName: "Croatian" },
+    { languageCode: "cs", languageName: "Czech" },
+    { languageCode: "da", languageName: "Danish" },
+    { languageCode: "dv", languageName: "Divehi" },
+    { languageCode: "nl", languageName: "Dutch" },
+    { languageCode: "en", languageName: "English" },
+    { languageCode: "eo", languageName: "Esperanto" },
+    { languageCode: "et", languageName: "Estonian" },
+    { languageCode: "ee", languageName: "Ewe" },
+    { languageCode: "fil", languageName: "Filipino" },
+    { languageCode: "fi", languageName: "Finnish" },
+    { languageCode: "fr", languageName: "French" },
+    { languageCode: "gl", languageName: "Galician" },
+    { languageCode: "lg", languageName: "Ganda" },
+    { languageCode: "ka", languageName: "Georgian" },
+    { languageCode: "de", languageName: "German" },
+    { languageCode: "el", languageName: "Greek" },
+    { languageCode: "gn", languageName: "Guarani" },
+    { languageCode: "gu", languageName: "Gujarati" },
+    { languageCode: "ht", languageName: "Haitian Creole" },
+    { languageCode: "ha", languageName: "Hausa" },
+    { languageCode: "haw", languageName: "Hawaiian" },
+    { languageCode: "iw", languageName: "Hebrew" },
+    { languageCode: "hi", languageName: "Hindi" },
+    { languageCode: "hmn", languageName: "Hmong" },
+    { languageCode: "hu", languageName: "Hungarian" },
+    { languageCode: "is", languageName: "Icelandic" },
+    { languageCode: "ig", languageName: "Igbo" },
+    { languageCode: "id", languageName: "Indonesian" },
+    { languageCode: "ga", languageName: "Irish" },
+    { languageCode: "it", languageName: "Italian" },
+    { languageCode: "ja", languageName: "Japanese" },
+    { languageCode: "jv", languageName: "Javanese" },
+    { languageCode: "kn", languageName: "Kannada" },
+    { languageCode: "kk", languageName: "Kazakh" },
+    { languageCode: "km", languageName: "Khmer" },
+    { languageCode: "rw", languageName: "Kinyarwanda" },
+    { languageCode: "ko", languageName: "Korean" },
+    { languageCode: "kri", languageName: "Krio" },
+    { languageCode: "ku", languageName: "Kurdish" },
+    { languageCode: "ky", languageName: "Kyrgyz" },
+    { languageCode: "lo", languageName: "Lao" },
+    { languageCode: "la", languageName: "Latin" },
+    { languageCode: "lv", languageName: "Latvian" },
+    { languageCode: "ln", languageName: "Lingala" },
+    { languageCode: "lt", languageName: "Lithuanian" },
+    { languageCode: "lb", languageName: "Luxembourgish" },
+    { languageCode: "mk", languageName: "Macedonian" },
+    { languageCode: "mg", languageName: "Malagasy" },
+    { languageCode: "ms", languageName: "Malay" },
+    { languageCode: "ml", languageName: "Malayalam" },
+    { languageCode: "mt", languageName: "Maltese" },
+    { languageCode: "mi", languageName: "Māori" },
+    { languageCode: "mr", languageName: "Marathi" },
+    { languageCode: "mn", languageName: "Mongolian" },
+    { languageCode: "ne", languageName: "Nepali" },
+    { languageCode: "nso", languageName: "Northern Sotho" },
+    { languageCode: "no", languageName: "Norwegian" },
+    { languageCode: "ny", languageName: "Nyanja" },
+    { languageCode: "or", languageName: "Odia" },
+    { languageCode: "om", languageName: "Oromo" },
+    { languageCode: "ps", languageName: "Pashto" },
+    { languageCode: "fa", languageName: "Persian" },
+    { languageCode: "pl", languageName: "Polish" },
+    { languageCode: "pt", languageName: "Portuguese" },
+    { languageCode: "pa", languageName: "Punjabi" },
+    { languageCode: "qu", languageName: "Quechua" },
+    { languageCode: "ro", languageName: "Romanian" },
+    { languageCode: "ru", languageName: "Russian" },
+    { languageCode: "sm", languageName: "Samoan" },
+    { languageCode: "sa", languageName: "Sanskrit" },
+    { languageCode: "gd", languageName: "Scottish Gaelic" },
+    { languageCode: "sr", languageName: "Serbian" },
+    { languageCode: "sn", languageName: "Shona" },
+    { languageCode: "sd", languageName: "Sindhi" },
+    { languageCode: "si", languageName: "Sinhala" },
+    { languageCode: "sk", languageName: "Slovak" },
+    { languageCode: "sl", languageName: "Slovenian" },
+    { languageCode: "so", languageName: "Somali" },
+    { languageCode: "st", languageName: "Southern Sotho" },
+    { languageCode: "es", languageName: "Spanish" },
+    { languageCode: "su", languageName: "Sundanese" },
+    { languageCode: "sw", languageName: "Swahili" },
+    { languageCode: "sv", languageName: "Swedish" },
+    { languageCode: "tg", languageName: "Tajik" },
+    { languageCode: "ta", languageName: "Tamil" },
+    { languageCode: "tt", languageName: "Tatar" },
+    { languageCode: "te", languageName: "Telugu" },
+    { languageCode: "th", languageName: "Thai" },
+    { languageCode: "ti", languageName: "Tigrinya" },
+    { languageCode: "ts", languageName: "Tsonga" },
+    { languageCode: "tr", languageName: "Turkish" },
+    { languageCode: "tk", languageName: "Turkmen" },
+    { languageCode: "uk", languageName: "Ukrainian" },
+    { languageCode: "ur", languageName: "Urdu" },
+    { languageCode: "ug", languageName: "Uyghur" },
+    { languageCode: "uz", languageName: "Uzbek" },
+    { languageCode: "vi", languageName: "Vietnamese" },
+    { languageCode: "cy", languageName: "Welsh" },
+    { languageCode: "fy", languageName: "Western Frisian" },
+    { languageCode: "xh", languageName: "Xhosa" },
+    { languageCode: "yi", languageName: "Yiddish" },
+    { languageCode: "yo", languageName: "Yoruba" },
+    { languageCode: "zu", languageName: "Zulu" }]
 
-const createSelectionLink = (track) => {
   const checkbox = document.createElement('input');
   checkbox.type = 'checkbox';
   checkbox.id = `checkbox_${track.name.simpleText.replace(/\s/g, '_')}`;
