@@ -136,7 +136,7 @@ const selectCaptionFileForTTS = async (track, selectedLanguageCode = null) => {
     const matchXmlTextToCurrentTime = () => {
       let currentTime = document.getElementsByClassName('video-stream')[0].currentTime + 0.25;
 
-      //this will save it computing cycles of iterating over an array when a video is on pause
+      //this will save computing cycles of iterating over an array when a video is on pause, or when the previous subtitle is being spoken
       if (previousTime === currentTime || isSpeechSynthesisInProgress) return;
 
       const matchedElement = binarySearch(textElements, currentTime);
