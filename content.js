@@ -48,7 +48,28 @@ browser.storage.onChanged.addListener((changes, area) => {
 
 let voices;
 
-voices = window.speechSynthesis.getVoices();
+function getVoicesWithRetry(retryCount, interval) {
+  voices = window.speechSynthesis.getVoices();
+
+  if (voices && voices.length > 0) {
+    return;
+  }
+
+  if (retryCount <= 0) {
+    console.log('Unable to retrieve voices.');
+    return;
+  }
+
+  setTimeout(() => {
+    getVoicesWithRetry(retryCount - 1, interval);
+  }, interval);
+}
+
+const retryCount = 5;
+const retryInterval = 250;
+
+getVoicesWithRetry(retryCount, retryInterval);
+
 
 function binarySearch(textElements, currentTime) {
   let start = 0;
@@ -130,12 +151,10 @@ const selectCaptionFileForTTS = async (track, selectedLanguageCode = null) => {
 
           //only assign utterance.voice if speechSettings.speechVoice is not empty, that is other voice than the environment default had been selected
           // && voices && voices.length > 0 checks as once a youtube ad caused "Uncaught TypeError: Cannot read properties of undefined (reading 'find')"
-          debugger;
           if (voices && voices.length > 0) {
-            let voice;
             if (speechSettings.speechVoice !== null) { //there was some selection
               //check if selected voice matches play through voice language?
-              voice = voices.find((voice) => voice.voiceURI === speechSettings.speechVoice);
+              let voice = voices.find((voice) => voice.voiceURI === speechSettings.speechVoice);
               if (voice && voice.lang.substring(0, 2) === speechSettings.rememberUserLastSelectedAutoTranslateToLanguageCode) {
                 utterance.voice = voice;
               } else { //now if it doesn't match the language, try to find one which does
@@ -156,6 +175,7 @@ const selectCaptionFileForTTS = async (track, selectedLanguageCode = null) => {
               //here it would make sense to pop up some information message to the user, as otherwise it just tries to read it with English voice, but the underlying text is non-english
             }
           }
+
           utterance.rate = speechSettings.speechSpeed;
           utterance.volume = speechSettings.speechVolume;
 
