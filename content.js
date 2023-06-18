@@ -197,17 +197,6 @@ const selectCaptionFileForTTS = async (track, selectedLanguageCode = null) => {
   }
 };
 
-// handle video change event
-const handleVideoChange = () => {
-  clearInterval(intervalId); // Clear the interval when the video changes
-};
-
-const elements = document.getElementsByClassName('video-stream');
-
-if (elements.length > 0) {
-  // Add event listener for video change
-  document.getElementsByClassName('video-stream')[0].addEventListener('loadeddata', handleVideoChange);
-}
 
 /**
  * Displays a list of subtitles that the video has.
@@ -711,6 +700,7 @@ let currentUrl = ''
 const checkSubtitle = () => {
   const newUrl = location.href
   if (currentUrl !== newUrl) {
+    clearInterval(intervalId);
     const videoId = extractVideoId();
     if (videoId && canInsert()) {
       currentUrl = newUrl;
@@ -827,3 +817,51 @@ const fillZero = (num, len) => {
   }
   return result
 }
+
+/**
+ * Ads were breaking up my extension experience to end users. If they have an ad blocker installed, then that wasn't even an issue, but for the ones without an ad blocker, it was a problem. Therefore, the solution is to remove YouTube ads.
+ */
+setInterval(function () {
+  if (document.getElementsByClassName("video-stream html5-main-video")[0] !== undefined) {
+    let ad = document.getElementsByClassName("video-ads ytp-ad-module")[0];
+    let vid = document.getElementsByClassName("video-stream html5-main-video")[0];
+
+    let closeAble = document.getElementsByClassName("ytp-ad-overlay-close-button");
+    for (let i = 0; i < closeAble.length; i++) {
+      closeAble[i].click();
+      //console.log("ad banner closed!")
+    }
+    if (document.getElementsByClassName("style-scope ytd-watch-next-secondary-results-renderer sparkles-light-cta GoogleActiveViewElement")[0] !== undefined) {
+      let sideAd = document.getElementsByClassName("style-scope ytd-watch-next-secondary-results-renderer sparkles-light-cta GoogleActiveViewElement")[0];
+      sideAd.style.display = "none";
+      //console.log("side ad removed!")
+    }
+    if (document.getElementsByClassName("style-scope ytd-item-section-renderer sparkles-light-cta")[0] !== undefined) {
+      let sideAd_ = document.getElementsByClassName("style-scope ytd-item-section-renderer sparkles-light-cta")[0];
+      sideAd_.style.display = "none";
+      //console.log("side ad removed!")
+    }
+    if (document.getElementsByClassName("ytp-ad-text ytp-ad-skip-button-text")[0] !== undefined) {
+      let skipBtn = document.getElementsByClassName("ytp-ad-text ytp-ad-skip-button-text")[0];
+      skipBtn.click();
+      //console.log("skippable ad skipped!")
+    }
+    if (document.getElementsByClassName("ytp-ad-message-container")[0] !== undefined) {
+      let incomingAd = document.getElementsByClassName("ytp-ad-message-container")[0];
+      incomingAd.style.display = "none";
+      //console.log("removed incoming ad alert!")
+    }
+    if (document.getElementsByClassName("style-scope ytd-companion-slot-renderer")[0] !== undefined) {
+      document.getElementsByClassName("style-scope ytd-companion-slot-renderer")[0].remove();
+      //console.log("side ad removed!")
+    }
+    if (ad !== undefined) {
+      if (ad.children.length > 0) {
+        if (document.getElementsByClassName("ytp-ad-text ytp-ad-preview-text")[0] !== undefined) {
+          vid.playbackRate = 16;
+          //console.log("Incrementally skipped unskippable ad!")
+        }
+      }
+    }
+  }
+}, 200)
