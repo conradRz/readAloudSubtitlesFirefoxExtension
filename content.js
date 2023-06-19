@@ -175,7 +175,9 @@ const selectCaptionFileForTTS = async (track, selectedLanguageCode = null) => {
                 // Send the message to the background script
                 browser.runtime.sendMessage(message);
 
-                // here it would be necessery to somehow set up isSpeechSynthesisInProgress = true, with the right timing, perhaps as as a message from the background script
+                // here it would be necessery to somehow set up isSpeechSynthesisInProgress = false, with the right timing, perhaps as as a message from the background script, for now the below is just a placeholder for testing
+                isSpeechSynthesisInProgress = false;
+                previousTime = currentTime;
                 return;
 
 
