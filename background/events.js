@@ -93,22 +93,6 @@ if (browser.commands)
     execCommand(command)
   })
 
-
-/**
- * chrome.ttsEngine handlers
- */
-if (browser.ttsEngine) (function () {
-  browser.ttsEngine.onSpeak.addListener(function (utterance, options, onEvent) {
-    options = Object.assign({}, options, { voice: { voiceName: options.voiceName } });
-    remoteTtsEngine.speak(utterance, options, onEvent);
-  });
-  browser.ttsEngine.onStop.addListener(remoteTtsEngine.stop);
-  browser.ttsEngine.onPause.addListener(remoteTtsEngine.pause);
-  browser.ttsEngine.onResume.addListener(remoteTtsEngine.resume);
-})()
-
-
-
 /**
  * METHODS
  */
