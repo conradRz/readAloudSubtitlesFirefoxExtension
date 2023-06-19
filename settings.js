@@ -87,7 +87,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     });
 
                     // add google translate voices
-                    var voices1 = [
+                    const voices1 = [
                         { "voice_name": "GoogleTranslate Afrikaans", "lang": "af" },
                         { "voice_name": "GoogleTranslate Albanian", "lang": "sq" },
                         { "voice_name": "GoogleTranslate Arabic", "lang": "ar" },
