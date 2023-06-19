@@ -70,29 +70,6 @@ browser.runtime.onMessage.addListener((message) => {
 
 });
 
-
-/**
- * Shortcut keys handlers
- */
-function execCommand(command) {
-  if (command == "play") {
-    getPlaybackState()
-      .then(function (state) {
-        if (state == "PLAYING") return pause();
-        else if (state == "STOPPED" || state == "PAUSED") return playTab()
-      })
-      .catch(console.error)
-  }
-  else if (command == "stop") stop();
-  else if (command == "forward") forward();
-  else if (command == "rewind") rewind();
-}
-
-if (browser.commands)
-  browser.commands.onCommand.addListener(function (command) {
-    execCommand(command)
-  })
-
 /**
  * METHODS
  */

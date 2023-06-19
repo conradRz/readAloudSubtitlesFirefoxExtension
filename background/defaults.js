@@ -609,14 +609,6 @@ function getBrowser() {
   return 'chrome';
 }
 
-function getHotkeySettingsUrl() {
-  switch (getBrowser()) {
-    case 'opera': return 'opera://settings/configureCommands';
-    case 'chrome': return 'chrome://extensions/configureCommands';
-    default: return browser.runtime.getURL("shortcuts.html");
-  }
-}
-
 function StateMachine(states) {
   if (!states.IDLE) throw new Error("Missing IDLE state");
   var currentStateName = "IDLE";
