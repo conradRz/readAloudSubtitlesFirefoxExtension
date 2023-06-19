@@ -7,7 +7,16 @@
   "icons": {
     "48": "icon.png"
   },
-  "permissions": ["storage"],
+  "permissions": [
+    "activeTab",
+    "menus",
+    "identity",
+    "storage",
+    "https://translate.google.com/",
+    "webRequest",
+    "webRequestBlocking",
+    "webNavigation"
+  ],
   "browser_action": {
     "default_popup": "settings.html"
   },
@@ -19,6 +28,18 @@
       "js": ["content.js"]
     }
   ],
+  "background": {
+    "scripts": [
+      "background/defaults.js",
+      "background/messaging.js",
+      "background/google-translate.js",
+      "background/tts-engines.js",
+      "background/speech.js",
+      "background/document.js",
+      "background/events.js"
+    ],
+    "persistent": true
+  },
   "web_accessible_resources": ["settings.html", "content.js"],
   "options_ui": {
     "page": "settings.html",
