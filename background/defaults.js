@@ -551,31 +551,6 @@ function polyfills() {
   }
 }
 
-
-/**
- * HELPERS
- */
-function domReady() {
-  return new Promise(function (fulfill) {
-    $(fulfill);
-  })
-}
-
-function setI18nText() {
-  $("[data-i18n]").each(function () {
-    var key = $(this).data("i18n");
-    var text = browser.i18n.getMessage(key);
-    if ($(this).is("input")) $(this).val(text);
-    else $(this).text(text);
-  })
-}
-
-function escapeHtml(text) {
-  return text.replace(/[&<>"'`=\/]/g, function (s) {
-    return config.entityMap[s];
-  })
-}
-
 function getUniqueClientId() {
   return getSettings(["uniqueClientId"])
     .then(function (settings) {
@@ -592,27 +567,9 @@ function getUniqueClientId() {
   }
 }
 
-function getBrowser() {
-  if (/Opera|OPR\//.test(navigator.userAgent)) return 'opera';
-  if (/firefox/i.test(navigator.userAgent)) return 'firefox';
-  return 'chrome';
-}
-
-function requestPermissions(perms) {
-  return new Promise(function (fulfill) {
-    browser.permissions.request(perms, fulfill);
-  })
-}
-
 function hasPermissions(perms) {
   return new Promise(function (fulfill) {
     browser.permissions.contains(perms, fulfill);
-  })
-}
-
-function removePermissions(perms) {
-  return new Promise(function (fulfill) {
-    browser.permissions.remove(perms, fulfill);
   })
 }
 
@@ -706,15 +663,6 @@ function promiseTimeout(millis, errorMsg, promise) {
       timedOut = true;
       reject(new Error(errorMsg));
     }
-  })
-}
-
-function bgPageInvoke(method, args) {
-  return new Promise(function (fulfill, reject) {
-    browser.runtime.sendMessage({ method: method, args: args }, function (res) {
-      if (res && res.error) reject(new Error(res.error));
-      else fulfill(res);
-    })
   })
 }
 

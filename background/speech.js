@@ -199,57 +199,6 @@ function Speech(texts, options) {
     })
   }
 
-
-  //text breakers
-
-  function WordBreaker(wordLimit, punctuator) {
-    this.breakText = breakText;
-    function breakText(text) {
-      return punctuator.getParagraphs(text).flatMap(breakParagraph)
-    }
-    function breakParagraph(text) {
-      return punctuator.getSentences(text).flatMap(breakSentence)
-    }
-    function breakSentence(sentence) {
-      return merge(punctuator.getPhrases(sentence), breakPhrase);
-    }
-    function breakPhrase(phrase) {
-      var words = punctuator.getWords(phrase);
-      var splitPoint = Math.min(Math.ceil(words.length / 2), wordLimit);
-      var result = [];
-      while (words.length) {
-        result.push(words.slice(0, splitPoint).join(""));
-        words = words.slice(splitPoint);
-      }
-      return result;
-    }
-    function merge(parts, breakPart) {
-      var result = [];
-      var group = { parts: [], wordCount: 0 };
-      var flush = function () {
-        if (group.parts.length) {
-          result.push(group.parts.join(""));
-          group = { parts: [], wordCount: 0 };
-        }
-      };
-      parts.forEach(function (part) {
-        var wordCount = punctuator.getWords(part).length;
-        if (wordCount > wordLimit) {
-          flush();
-          var subParts = breakPart(part);
-          for (var i = 0; i < subParts.length; i++) result.push(subParts[i]);
-        }
-        else {
-          if (group.wordCount + wordCount > wordLimit) flush();
-          group.parts.push(part);
-          group.wordCount += wordCount;
-        }
-      });
-      flush();
-      return result;
-    }
-  }
-
   function CharBreaker(charLimit, punctuator, paragraphCombineThreshold) {
     this.breakText = breakText;
     function breakText(text) {
