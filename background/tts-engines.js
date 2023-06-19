@@ -1,5 +1,5 @@
 
-var browserTtsEngine = brapi.tts ? new BrowserTtsEngine() : (typeof speechSynthesis != 'undefined' ? new WebSpeechEngine() : new DummyTtsEngine());
+var browserTtsEngine = browser.tts ? new BrowserTtsEngine() : (typeof speechSynthesis != 'undefined' ? new WebSpeechEngine() : new DummyTtsEngine());
 var remoteTtsEngine = new RemoteTtsEngine(config.serviceUrl);
 var googleTranslateTtsEngine = new GoogleTranslateTtsEngine();
 
@@ -36,7 +36,7 @@ interface TtsEngine {
 
 function BrowserTtsEngine() {
   this.speak = function (text, options, onEvent) {
-    brapi.tts.speak(text, {
+    browser.tts.speak(text, {
       voiceName: options.voice.voiceName,
       lang: options.lang,
       rate: options.rate,
@@ -47,13 +47,13 @@ function BrowserTtsEngine() {
       onEvent: onEvent
     })
   }
-  this.stop = brapi.tts.stop;
-  this.pause = brapi.tts.pause;
-  this.resume = brapi.tts.resume;
-  this.isSpeaking = brapi.tts.isSpeaking;
+  this.stop = browser.tts.stop;
+  this.pause = browser.tts.pause;
+  this.resume = browser.tts.resume;
+  this.isSpeaking = browser.tts.isSpeaking;
   this.getVoices = function () {
     return new Promise(function (fulfill) {
-      brapi.tts.getVoices(function (voices) {
+      browser.tts.getVoices(function (voices) {
         fulfill(voices || []);
       })
     })
@@ -144,7 +144,7 @@ function TimeoutTtsEngine(baseEngine, timeoutMillis) {
 
 
 function RemoteTtsEngine(serviceUrl) {
-  var manifest = brapi.runtime.getManifest();
+  var manifest = browser.runtime.getManifest();
   var iOS = !!navigator.platform && /iPad|iPhone|iPod/.test(navigator.platform);
   var audio = document.createElement("AUDIO");
   var isSpeaking = false;

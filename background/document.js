@@ -4,20 +4,20 @@ function SimpleSource(texts, opts) {
   this.ready = Promise.resolve({
     lang: opts.lang,
   })
-  this.isWaiting = function() {
+  this.isWaiting = function () {
     return false;
   }
-  this.getCurrentIndex = function() {
+  this.getCurrentIndex = function () {
     return Promise.resolve(0);
   }
-  this.getTexts = function(index) {
+  this.getTexts = function (index) {
     return Promise.resolve(index == 0 ? texts : null);
   }
-  this.close = function() {
+  this.close = function () {
     return Promise.resolve();
   }
-  this.getUri = function() {
-    var textLen = texts.reduce(function(sum, text) {return sum+text.length}, 0);
+  this.getUri = function () {
+    var textLen = texts.reduce(function (sum, text) { return sum + text.length }, 0);
     return "text-selection:(" + textLen + ")" + encodeURIComponent((texts[0] || "").substr(0, 100));
   }
 }
@@ -27,69 +27,69 @@ function TabSource(tabId) {
   var handlers = [
     // Unsupported Sites --------------------------------------------------------
     {
-      match: function(url) {
-        return config.unsupportedSites.some(function(site) {
+      match: function (url) {
+        return config.unsupportedSites.some(function (site) {
           return (typeof site == "string" && url.startsWith(site)) || (site instanceof RegExp && site.test(url));
         })
       },
-      validate: function() {
-        throw new Error(JSON.stringify({code: "error_page_unreadable"}));
+      validate: function () {
+        throw new Error(JSON.stringify({ code: "error_page_unreadable" }));
       }
     },
 
     // Reader mode --------------------------------------------------------------
     {
-      match: function(url) {
+      match: function (url) {
         return url.startsWith("about:reader?url=");
       },
-      validate: function() {
-        throw new Error(JSON.stringify({code: "error_reader_mode"}));
+      validate: function () {
+        throw new Error(JSON.stringify({ code: "error_reader_mode" }));
       }
     },
 
     // PDF file:// --------------------------------------------------------------
     {
-      match: function(url) {
+      match: function (url) {
         return /\.pdf$/i.test(url.split("?")[0]);
       },
-      validate: function() {
-        throw new Error(JSON.stringify({code: "error_upload_pdf", tabId: tab.id}));
+      validate: function () {
+        throw new Error(JSON.stringify({ code: "error_upload_pdf", tabId: tab.id }));
       }
     },
 
     // file:// ------------------------------------------------------------------
     {
-      match: function(url) {
+      match: function (url) {
         return /^file:/.test(url);
       },
-      validate: function() {
-        return new Promise(function(fulfill) {
-          //brapi.extension.isAllowedFileSchemeAccess(fulfill);
+      validate: function () {
+        return new Promise(function (fulfill) {
+          //browser.extension.isAllowedFileSchemeAccess(fulfill);
           fulfill(true);
         })
-        .then(function(allowed) {
-          if (!allowed) throw new Error(JSON.stringify({code: "error_file_access"}));
-        })
+          .then(function (allowed) {
+            if (!allowed) throw new Error(JSON.stringify({ code: "error_file_access" }));
+          })
       }
     },
 
     // Google Play Books ---------------------------------------------------------
     {
-      match: function(url) {
+      match: function (url) {
         return /^https:\/\/play.google.com\/books\/reader/.test(url) || /^https:\/\/books.google.com\/ebooks\/app#reader/.test(url);
       },
-      validate: function() {
+      validate: function () {
         var perms = {
           permissions: ["webNavigation"],
           origins: ["https://books.googleusercontent.com/"]
         }
         return hasPermissions(perms)
-          .then(function(has) {
-            if (!has) throw new Error(JSON.stringify({code: "error_add_permissions", perms: perms}));
+          .then(function (has) {
+            if (!has) throw new Error(JSON.stringify({ code: "error_add_permissions", perms: perms }));
           })
       },
-      getFrameId: function(frames) {
-        var frame = frames.find(function(frame) {
+      getFrameId: function (frames) {
+        var frame = frames.find(function (frame) {
           return frame.url.startsWith("https://books.googleusercontent.com/");
         })
         return frame && frame.frameId;
@@ -99,21 +99,21 @@ function TabSource(tabId) {
 
     // OneDrive Doc -----------------------------------------------------------
     {
-      match: function(url) {
+      match: function (url) {
         return url.startsWith("https://onedrive.live.com/edit.aspx") && url.includes("docx");
       },
-      validate: function() {
+      validate: function () {
         var perms = {
           permissions: ["webNavigation"],
           origins: ["https://word-edit.officeapps.live.com/"]
         }
         return hasPermissions(perms)
-          .then(function(has) {
-            if (!has) throw new Error(JSON.stringify({code: "error_add_permissions", perms: perms}));
+          .then(function (has) {
+            if (!has) throw new Error(JSON.stringify({ code: "error_add_permissions", perms: perms }));
           })
       },
-      getFrameId: function(frames) {
-        var frame = frames.find(function(frame) {
+      getFrameId: function (frames) {
+        var frame = frames.find(function (frame) {
           return frame.url.startsWith("https://word-edit.officeapps.live.com/");
         })
         return frame && frame.frameId;
@@ -123,21 +123,21 @@ function TabSource(tabId) {
 
     // Chegg NEW --------------------------------------------------------------
     {
-      match: function(url) {
+      match: function (url) {
         return /^https:\/\/www\.chegg\.com\/reader\//.test(url);
       },
-      validate: function() {
+      validate: function () {
         var perms = {
           permissions: ["webNavigation"],
           origins: ["https://ereader-web-viewer.chegg.com/"]
         }
         return hasPermissions(perms)
-          .then(function(has) {
-            if (!has) throw new Error(JSON.stringify({code: "error_add_permissions", perms: perms}));
+          .then(function (has) {
+            if (!has) throw new Error(JSON.stringify({ code: "error_add_permissions", perms: perms }));
           })
       },
-      getFrameId: function(frames) {
-        var frame = frames.find(function(frame) {
+      getFrameId: function (frames) {
+        var frame = frames.find(function (frame) {
           return frame.url.startsWith("https://ereader-web-viewer.chegg.com/");
         })
         return frame && frame.frameId;
@@ -147,33 +147,33 @@ function TabSource(tabId) {
 
     // VitalSource/Chegg ---------------------------------------------------------
     {
-      match: function(url) {
+      match: function (url) {
         return /^https:\/\/\w+\.vitalsource\.com\/(#|reader)\/books\//.test(url) ||
           /^https:\/\/\w+\.chegg\.com\/(#|reader)\/books\//.test(url)
       },
-      validate: function() {
+      validate: function () {
         var perms = {
           permissions: ["webNavigation"],
           origins: ["https://jigsaw.vitalsource.com/", "https://jigsaw.chegg.com/"]
         }
         return hasPermissions(perms)
-          .then(function(has) {
-            if (!has) throw new Error(JSON.stringify({code: "error_add_permissions", perms: perms}));
+          .then(function (has) {
+            if (!has) throw new Error(JSON.stringify({ code: "error_add_permissions", perms: perms }));
           })
       },
-      getTexts: function(tab) {
+      getTexts: function (tab) {
         function tryGetFrame(millis) {
           return getAllFrames(tab.id)
-            .then(function(frames) {
-              return frames.find(function(frame) {return frame.frameId && frame.parentFrameId});
+            .then(function (frames) {
+              return frames.find(function (frame) { return frame.frameId && frame.parentFrameId });
             })
-            .then(function(frame) {
-              if (!frame && millis > 0) return waitMillis(500).then(tryGetFrame.bind(null, millis-500));
+            .then(function (frame) {
+              if (!frame && millis > 0) return waitMillis(500).then(tryGetFrame.bind(null, millis - 500));
               else return frame;
             })
         }
         return tryGetFrame(5000)
-          .then(function(frame) {
+          .then(function (frame) {
             if (frame) return getFrameTexts(tab.id, frame.frameId, ["js/jquery-3.1.1.min.js", "js/messaging.js", "js/content/vitalsource-book.js"]);
             else return null;
           })
@@ -183,21 +183,21 @@ function TabSource(tabId) {
 
     // Liberty University ---------------------------------------------------------
     {
-      match: function(url) {
+      match: function (url) {
         return url.startsWith("https://luoa.instructure.com/courses/")
       },
-      validate: function() {
+      validate: function () {
         var perms = {
           permissions: ["webNavigation"],
           origins: ["https://luoa-content.s3.amazonaws.com/"]
         }
         return hasPermissions(perms)
-          .then(function(has) {
-            if (!has) throw new Error(JSON.stringify({code: "error_add_permissions", perms: perms}))
+          .then(function (has) {
+            if (!has) throw new Error(JSON.stringify({ code: "error_add_permissions", perms: perms }))
           })
       },
-      getFrameId: function(frames) {
-        var frame = frames.find(function(frame) {
+      getFrameId: function (frames) {
+        var frame = frames.find(function (frame) {
           return frame.url && frame.url.startsWith("https://luoa-content.s3.amazonaws.com/")
         })
         return frame && frame.frameId
@@ -206,52 +206,52 @@ function TabSource(tabId) {
 
     // EPUBReader ---------------------------------------------------------------
     {
-      match: function(url) {
+      match: function (url) {
         return /^moz-extension:\/\/.*\/reader.html/.test(url);
       },
-      validate: function() {
+      validate: function () {
       },
-      connect: function() {
+      connect: function () {
         function call(method) {
-          return new Promise(function(fulfill) {
-            brapi.runtime.sendMessage("{5384767E-00D9-40E9-B72F-9CC39D655D6F}", {name: method}, fulfill);
+          return new Promise(function (fulfill) {
+            browser.runtime.sendMessage("{5384767E-00D9-40E9-B72F-9CC39D655D6F}", { name: method }, fulfill);
           })
         }
         function parseXhtml(xml) {
           var dom = new DOMParser().parseFromString(xml, "text/xml");
           var nodes = dom.body.querySelectorAll("h1, h2, h3, h4, h5, h6, p");
           return Array.prototype.slice.call(nodes)
-            .map(function(node) {
+            .map(function (node) {
               return node.innerText && node.innerText.trim().replace(/\r?\n/g, " ");
             })
-            .filter(function(text) {
+            .filter(function (text) {
               return text;
             })
         }
         var currentPage = 0;
         peer = {
-          invoke: function(method, index) {
+          invoke: function (method, index) {
             if (method == "getCurrentIndex") return Promise.resolve(currentPage);
             else if (method == "getTexts") {
-              var promise = Promise.resolve({success: true, paged: true});
-              for (; currentPage<index; currentPage++) promise = promise.then(call.bind(null, "pageForward"));
-              for (; currentPage>index; currentPage--) promise = promise.then(call.bind(null, "pageBackward"));
+              var promise = Promise.resolve({ success: true, paged: true });
+              for (; currentPage < index; currentPage++) promise = promise.then(call.bind(null, "pageForward"));
+              for (; currentPage > index; currentPage--) promise = promise.then(call.bind(null, "pageBackward"));
               return promise
-                .then(function(res) {
+                .then(function (res) {
                   if (!res.success) throw new Error("Failed to flip EPUB page");
-                  return res.paged ? call("getPageText") : {success: true, text: null};
+                  return res.paged ? call("getPageText") : { success: true, text: null };
                 })
-                .then(function(res) {
+                .then(function (res) {
                   if (!res.success) throw new Error("Failed to get EPUB text");
                   return res.text && parseXhtml(res.text);
                 })
             }
             else return Promise.reject(new Error("Bad method"));
           },
-          disconnect: function() {}
+          disconnect: function () { }
         }
         return call("getDocumentInfo")
-          .then(extraAction(function(res) {
+          .then(extraAction(function (res) {
             if (!res.success) throw new Error("Failed to get EPUB document info");
             if (res.lang && !/^[a-z][a-z](-[A-Z][A-Z])?$/.test(res.lang)) res.lang = null;
             if (res.lang) res.detectedLang = res.lang;   //prevent lang detection
@@ -261,21 +261,21 @@ function TabSource(tabId) {
 
     // LibbyApp ---------------------------------------------------------------
     {
-      match: function(url) {
+      match: function (url) {
         return url.startsWith("https://libbyapp.com/open/")
       },
-      validate: function() {
+      validate: function () {
         var perms = {
           permissions: ["webNavigation"],
           origins: ["https://*.read.libbyapp.com/"]
         }
         return hasPermissions(perms)
-          .then(function(has) {
-            if (!has) throw new Error(JSON.stringify({code: "error_add_permissions", perms: perms}))
+          .then(function (has) {
+            if (!has) throw new Error(JSON.stringify({ code: "error_add_permissions", perms: perms }))
           })
       },
-      getFrameId: function(frames) {
-        var frame = frames.find(function(frame) {
+      getFrameId: function (frames) {
+        var frame = frames.find(function (frame) {
           return frame.url && new URL(frame.url).hostname.endsWith(".read.libbyapp.com")
         })
         return frame && frame.frameId
@@ -285,10 +285,10 @@ function TabSource(tabId) {
 
     // default -------------------------------------------------------------------
     {
-      match: function() {
+      match: function () {
         return true;
       },
-      validate: function() {
+      validate: function () {
       }
     }
   ]
@@ -299,87 +299,87 @@ function TabSource(tabId) {
   var waiting = true;
 
   this.ready = tabPromise
-    .then(function(res) {
-      if (!res) throw new Error(JSON.stringify({code: "error_page_unreadable"}));
+    .then(function (res) {
+      if (!res) throw new Error(JSON.stringify({ code: "error_page_unreadable" }));
       tab = res;
-      handler = handlers.find(function(h) {return h.match(tab.url || "")});
+      handler = handlers.find(function (h) { return h.match(tab.url || "") });
       return handler.validate();
     })
-    .then(function() {
+    .then(function () {
       if (handler.getFrameId)
-        return getAllFrames(tab.id).then(handler.getFrameId).then(function(res) {frameId = res});
+        return getAllFrames(tab.id).then(handler.getFrameId).then(function (res) { frameId = res });
     })
-    .then(function() {
+    .then(function () {
       if (handler.connect) return handler.connect();
       return waitForConnect()
-        .then(function(port) {
-      return new Promise(function(fulfill) {
-        peer = new RpcPeer(new ExtensionMessagingPeer(port));
-        peer.onInvoke = function(method, arg0) {
-          if (method == "onReady") fulfill(arg0);
-          else console.error("Unknown method", method);
-        }
-        peer.onDisconnect = function() {
-          peer = null;
-        }
-      })
+        .then(function (port) {
+          return new Promise(function (fulfill) {
+            peer = new RpcPeer(new ExtensionMessagingPeer(port));
+            peer.onInvoke = function (method, arg0) {
+              if (method == "onReady") fulfill(arg0);
+              else console.error("Unknown method", method);
+            }
+            peer.onDisconnect = function () {
+              peer = null;
+            }
+          })
         })
     })
-    .then(extraAction(function(info) {
+    .then(extraAction(function (info) {
       if (info.requireJs) {
-        var tasks = info.requireJs.map(function(file) {return inject.bind(null, file)});
+        var tasks = info.requireJs.map(function (file) { return inject.bind(null, file) });
         return inSequence(tasks);
       }
     }))
-    .finally(function() {
+    .finally(function () {
       waiting = false;
     })
 
-  this.isWaiting = function() {
+  this.isWaiting = function () {
     return waiting;
   }
-  this.getCurrentIndex = function() {
+  this.getCurrentIndex = function () {
     if (!peer) return Promise.resolve(0);
     waiting = true;
-    return peer.invoke("getCurrentIndex").finally(function() {waiting = false});
+    return peer.invoke("getCurrentIndex").finally(function () { waiting = false });
   }
-  this.getTexts = function(index, quietly) {
+  this.getTexts = function (index, quietly) {
     if (!peer) return Promise.resolve(null);
     waiting = true;
     return peer.invoke("getTexts", index, quietly)
-      .then(function(res) {
+      .then(function (res) {
         if (handler.getTexts) return handler.getTexts(tab);
         else return res;
       })
-      .finally(function() {waiting = false})
+      .finally(function () { waiting = false })
   }
-  this.close = function() {
+  this.close = function () {
     if (peer) peer.disconnect();
     return Promise.resolve();
   }
-  this.getUri = function() {
-    return tabPromise.then(function(tab) {return tab && tab.url});
+  this.getUri = function () {
+    return tabPromise.then(function (tab) { return tab && tab.url });
   }
 
   function waitForConnect() {
-    return new Promise(function(fulfill, reject) {
+    return new Promise(function (fulfill, reject) {
       function onConnect(port) {
         if (port.name == "ReadAloudContentScript") {
-          brapi.runtime.onConnect.removeListener(onConnect);
+          browser.runtime.onConnect.removeListener(onConnect);
           clearTimeout(timer);
           fulfill(port);
         }
       }
       function onError(err) {
-        brapi.runtime.onConnect.removeListener(onConnect);
+        browser.runtime.onConnect.removeListener(onConnect);
         clearTimeout(timer);
         reject(err);
       }
       function onTimeout() {
-        brapi.runtime.onConnect.removeListener(onConnect);
+        browser.runtime.onConnect.removeListener(onConnect);
         reject(new Error("Timeout waiting for content script to connect"));
       }
-      brapi.runtime.onConnect.addListener(onConnect);
+      browser.runtime.onConnect.addListener(onConnect);
       injectScripts().catch(onError);
       var timer = setTimeout(onTimeout, 15000);
     })
@@ -387,16 +387,16 @@ function TabSource(tabId) {
   function injectScripts() {
     return inject("js/jquery-3.1.1.min.js")
       .then(inject.bind(null, "js/messaging.js"))
-      .then(function() {
+      .then(function () {
         if (handler.extraScripts) {
-          var tasks = handler.extraScripts.map(function(file) {return inject.bind(null, file)});
+          var tasks = handler.extraScripts.map(function (file) { return inject.bind(null, file) });
           return inSequence(tasks);
         }
       })
       .then(inject.bind(null, "js/content.js"))
   }
   function inject(file) {
-    var details = {file: file, tabId: tab.id};
+    var details = { file: file, tabId: tab.id };
     if (frameId) details.frameId = frameId;
     return executeScript(details);
   }
@@ -408,9 +408,9 @@ function Doc(source, onEnd) {
   var currentIndex;
   var activeSpeech;
   var ready = Promise.resolve(source.getUri())
-    .then(function(uri) {return setState("lastUrl", uri)})
-    .then(function() {return source.ready})
-    .then(function(result) {info = result})
+    .then(function (uri) { return setState("lastUrl", uri) })
+    .then(function () { return source.ready })
+    .then(function (result) { info = result })
   var foundText;
 
   this.close = close;
@@ -426,9 +426,9 @@ function Doc(source, onEnd) {
   //method close
   function close() {
     return ready
-      .catch(function() {})
-      .then(function() {
-        if (activeSpeech) activeSpeech.stop().then(function() {activeSpeech = null});
+      .catch(function () { })
+      .then(function () {
+        if (activeSpeech) activeSpeech.stop().then(function () { activeSpeech = null });
         source.close();
       })
   }
@@ -436,22 +436,22 @@ function Doc(source, onEnd) {
   //method play
   function play() {
     return ready
-      .then(function() {
+      .then(function () {
         if (activeSpeech) return activeSpeech.play();
         else {
           return source.getCurrentIndex()
-            .then(function(index) {currentIndex = index})
-            .then(function() {return readCurrent()})
+            .then(function (index) { currentIndex = index })
+            .then(function () { return readCurrent() })
         }
       })
   }
 
   function readCurrent(rewinded) {
     return source.getTexts(currentIndex)
-      .catch(function() {
+      .catch(function () {
         return null;
       })
-      .then(function(texts) {
+      .then(function (texts) {
         if (texts) {
           if (texts.length) {
             foundText = true;
@@ -463,25 +463,25 @@ function Doc(source, onEnd) {
           }
         }
         else {
-          if (!foundText) throw new Error(JSON.stringify({code: "error_no_text"}))
+          if (!foundText) throw new Error(JSON.stringify({ code: "error_no_text" }))
           if (onEnd) onEnd()
         }
       })
     function read(texts) {
       texts = texts.map(preprocess)
       return Promise.resolve()
-        .then(function() {
+        .then(function () {
           if (info.detectedLang == null)
             return detectLanguage(texts)
-              .then(function(lang) {
+              .then(function (lang) {
                 info.detectedLang = lang || "";
               })
         })
         .then(getSpeech.bind(null, texts))
-        .then(function(speech) {
+        .then(function (speech) {
           if (activeSpeech) return;
           activeSpeech = speech;
-          activeSpeech.onEnd = function(err) {
+          activeSpeech.onEnd = function (err) {
             if (err) {
               if (onEnd) onEnd(err);
             }
@@ -489,7 +489,7 @@ function Doc(source, onEnd) {
               activeSpeech = null;
               currentIndex++;
               readCurrent()
-                .catch(function(err) {
+                .catch(function (err) {
                   if (onEnd) onEnd(err)
                 })
             }
@@ -509,9 +509,9 @@ function Doc(source, onEnd) {
     var maxPages = 10;
     var output = combineTexts("", texts);
     if (output.length < minChars) {
-      return accumulateMore(output, currentIndex+1)
+      return accumulateMore(output, currentIndex + 1)
         .then(detectLanguageOf)
-        .then(extraAction(function() {
+        .then(extraAction(function () {
           //for sources that couldn't flip page silently, flip back to the current page
           return source.getTexts(currentIndex, true);
         }))
@@ -521,15 +521,15 @@ function Doc(source, onEnd) {
     }
 
     function combineTexts(output, texts) {
-      for (var i=0; i<texts.length && output.length<minChars; i++) output += (texts[i] + " ");
+      for (var i = 0; i < texts.length && output.length < minChars; i++) output += (texts[i] + " ");
       return output;
     }
     function accumulateMore(output, index) {
       return source.getTexts(index, true)
-        .then(function(texts) {
+        .then(function (texts) {
           if (!texts) return output;
           output = combineTexts(output, texts);
-          return output.length<minChars && index-currentIndex<maxPages ? accumulateMore(output, index+1) : output;
+          return output.length < minChars && index - currentIndex < maxPages ? accumulateMore(output, index + 1) : output;
         })
     }
   }
@@ -538,54 +538,54 @@ function Doc(source, onEnd) {
     if (text.length < 100) {
       //too little text, use cloud detection for improved accuracy
       return serverDetectLanguage(text)
-        .then(function(result) {
+        .then(function (result) {
           return result || browserDetectLanguage(text)
         })
-        .then(function(lang) {
+        .then(function (lang) {
           //exclude commonly misdetected languages
           return ["cy", "eo"].includes(lang) ? null : lang
         })
     }
     return browserDetectLanguage(text)
-      .then(function(result) {
+      .then(function (result) {
         return result || serverDetectLanguage(text);
       })
   }
 
   function browserDetectLanguage(text) {
-    if (!brapi.i18n.detectLanguage) return Promise.resolve(null);
-    return new Promise(function(fulfill) {
-      brapi.i18n.detectLanguage(text, fulfill);
+    if (!browser.i18n.detectLanguage) return Promise.resolve(null);
+    return new Promise(function (fulfill) {
+      browser.i18n.detectLanguage(text, fulfill);
     })
-    .then(function(result) {
-      if (result) {
-          var list = result.languages.filter(function(item) {return item.language != "und"});
-          list.sort(function(a,b) {return b.percentage-a.percentage});
+      .then(function (result) {
+        if (result) {
+          var list = result.languages.filter(function (item) { return item.language != "und" });
+          list.sort(function (a, b) { return b.percentage - a.percentage });
           return list[0] && list[0].language;
-      }
-      else {
-        return null;
-      }
-    })
+        }
+        else {
+          return null;
+        }
+      })
   }
 
   function serverDetectLanguage(text) {
-      return ajaxPost(config.serviceUrl + "/read-aloud/detect-language", {text: text}, "json")
-        .then(JSON.parse)
-        .then(function(res) {
-          var result = Array.isArray(res) ? res[0] : res
-          if (result && result.language && result.language != "und") return result.language
-          else return null
-        })
-        .catch(function(err) {
-          console.error(err)
-          return null
-        })
+    return ajaxPost(config.serviceUrl + "/read-aloud/detect-language", { text: text }, "json")
+      .then(JSON.parse)
+      .then(function (res) {
+        var result = Array.isArray(res) ? res[0] : res
+        if (result && result.language && result.language != "und") return result.language
+        else return null
+      })
+      .catch(function (err) {
+        console.error(err)
+        return null
+      })
   }
 
   function getSpeech(texts) {
     return getSettings()
-      .then(function(settings) {
+      .then(function (settings) {
         console.log("Declared", info.lang)
         console.log("Detected", info.detectedLang)
         var lang = (!info.detectedLang || info.lang && info.lang.startsWith(info.detectedLang)) ? info.lang : info.detectedLang;
@@ -597,8 +597,8 @@ function Doc(source, onEnd) {
           lang: config.langMap[lang] || lang || 'en-US',
         }
         return getSpeechVoice(settings.voiceName, options.lang)
-          .then(function(voice) {
-            if (!voice) throw new Error(JSON.stringify({code: "error_no_voice", lang: options.lang}));
+          .then(function (voice) {
+            if (!voice) throw new Error(JSON.stringify({ code: "error_no_voice", lang: options.lang }));
             options.voice = voice;
             return new Speech(texts, options);
           })
@@ -608,15 +608,15 @@ function Doc(source, onEnd) {
   //method stop
   function stop() {
     return ready
-      .then(function() {
-        if (activeSpeech) return activeSpeech.stop().then(function() {activeSpeech = null});
+      .then(function () {
+        if (activeSpeech) return activeSpeech.stop().then(function () { activeSpeech = null });
       })
   }
 
   //method pause
   function pause() {
     return ready
-      .then(function() {
+      .then(function () {
         if (activeSpeech) return activeSpeech.pause();
       })
   }
@@ -639,7 +639,7 @@ function Doc(source, onEnd) {
   }
 
   function forwardPage() {
-    return stop().then(function() {currentIndex++; readCurrent()});
+    return stop().then(function () { currentIndex++; readCurrent() });
   }
 
   //method rewind
@@ -649,7 +649,7 @@ function Doc(source, onEnd) {
   }
 
   function rewindPage() {
-    return stop().then(function() {currentIndex--; readCurrent(true)});
+    return stop().then(function () { currentIndex--; readCurrent(true) });
   }
 
   function seek(n) {

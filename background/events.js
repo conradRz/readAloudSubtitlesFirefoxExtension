@@ -36,7 +36,7 @@ var handlers = {
   },
 }
 
-brapi.runtime.onMessage.addListener(
+browser.runtime.onMessage.addListener(
   function (request, sender, sendResponse) {
     var handler = handlers[request.method];
     if (handler) {
@@ -88,8 +88,8 @@ function execCommand(command) {
   else if (command == "rewind") rewind();
 }
 
-if (brapi.commands)
-  brapi.commands.onCommand.addListener(function (command) {
+if (browser.commands)
+  browser.commands.onCommand.addListener(function (command) {
     execCommand(command)
   })
 
@@ -97,14 +97,14 @@ if (brapi.commands)
 /**
  * chrome.ttsEngine handlers
  */
-if (brapi.ttsEngine) (function () {
-  brapi.ttsEngine.onSpeak.addListener(function (utterance, options, onEvent) {
+if (browser.ttsEngine) (function () {
+  browser.ttsEngine.onSpeak.addListener(function (utterance, options, onEvent) {
     options = Object.assign({}, options, { voice: { voiceName: options.voiceName } });
     remoteTtsEngine.speak(utterance, options, onEvent);
   });
-  brapi.ttsEngine.onStop.addListener(remoteTtsEngine.stop);
-  brapi.ttsEngine.onPause.addListener(remoteTtsEngine.pause);
-  brapi.ttsEngine.onResume.addListener(remoteTtsEngine.resume);
+  browser.ttsEngine.onStop.addListener(remoteTtsEngine.stop);
+  browser.ttsEngine.onPause.addListener(remoteTtsEngine.pause);
+  browser.ttsEngine.onResume.addListener(remoteTtsEngine.resume);
 })()
 
 
@@ -218,7 +218,7 @@ function reportError(err) {
 }
 
 function reportIssue(url, comment) {
-  var manifest = brapi.runtime.getManifest();
+  var manifest = browser.runtime.getManifest();
   return getSettings()
     .then(function (settings) {
       if (url) settings.url = url;
@@ -235,19 +235,19 @@ function authWavenet() {
   createTab("https://cloud.google.com/text-to-speech/#put-text-to-speech-into-action", true)
     .then(function (tab) {
       addRequestListener();
-      brapi.tabs.onRemoved.addListener(onTabRemoved);
+      browser.tabs.onRemoved.addListener(onTabRemoved);
       return showInstructions();
 
       function addRequestListener() {
-        brapi.webRequest.onBeforeRequest.addListener(onRequest, {
+        browser.webRequest.onBeforeRequest.addListener(onRequest, {
           urls: ["https://cxl-services.appspot.com/proxy*"],
           tabId: tab.id
         })
       }
       function onTabRemoved(tabId) {
         if (tabId == tab.id) {
-          brapi.tabs.onRemoved.removeListener(onTabRemoved);
-          brapi.webRequest.onBeforeRequest.removeListener(onRequest);
+          browser.tabs.onRemoved.removeListener(onTabRemoved);
+          browser.webRequest.onBeforeRequest.removeListener(onRequest);
         }
       }
       function onRequest(details) {
@@ -295,8 +295,8 @@ function authWavenet() {
 
 function authGoogleTranslate() {
   console.info("Installing GoogleTranslate XHR hook")
-  brapi.webRequest.onBeforeSendHeaders.removeListener(googleTranslateXhrHook)
-  brapi.webRequest.onBeforeSendHeaders.addListener(googleTranslateXhrHook, {
+  browser.webRequest.onBeforeSendHeaders.removeListener(googleTranslateXhrHook)
+  browser.webRequest.onBeforeSendHeaders.addListener(googleTranslateXhrHook, {
     urls: config.gtranslatePerms.origins,
     types: ["xmlhttprequest"]
   }, [

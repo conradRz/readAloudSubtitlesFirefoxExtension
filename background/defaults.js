@@ -1,5 +1,3 @@
-var brapi = browser;
-
 polyfills();
 
 var config = {
@@ -253,25 +251,25 @@ function parseUrl(url) {
  */
 function getSettings(names) {
   return new Promise(function (fulfill) {
-    brapi.storage.local.get(names || ["voiceName", "rate", "pitch", "volume", "showHighlighting", "languages", "highlightFontSize", "highlightWindowSize", "preferredVoices"], fulfill);
+    browser.storage.local.get(names || ["voiceName", "rate", "pitch", "volume", "showHighlighting", "languages", "highlightFontSize", "highlightWindowSize", "preferredVoices"], fulfill);
   });
 }
 
 function updateSettings(items) {
   return new Promise(function (fulfill) {
-    brapi.storage.local.set(items, fulfill);
+    browser.storage.local.set(items, fulfill);
   });
 }
 
 function clearSettings(names) {
   return new Promise(function (fulfill) {
-    brapi.storage.local.remove(names || ["voiceName", "rate", "pitch", "volume", "showHighlighting", "languages", "highlightFontSize", "highlightWindowSize", "preferredVoices"], fulfill);
+    browser.storage.local.remove(names || ["voiceName", "rate", "pitch", "volume", "showHighlighting", "languages", "highlightFontSize", "highlightWindowSize", "preferredVoices"], fulfill);
   });
 }
 
 function getState(key) {
   return new Promise(function (fulfill) {
-    brapi.storage.local.get(key, function (items) {
+    browser.storage.local.get(key, function (items) {
       fulfill(items[key]);
     });
   });
@@ -281,7 +279,7 @@ function setState(key, value) {
   var items = {};
   items[key] = value;
   return new Promise(function (fulfill) {
-    brapi.storage.local.set(items, fulfill);
+    browser.storage.local.set(items, fulfill);
   });
 }
 
@@ -412,8 +410,8 @@ function findVoiceByLang(voices, lang) {
  */
 function executeFile(file) {
   return new Promise(function (fulfill, reject) {
-    brapi.tabs.executeScript({ file: file }, function (result) {
-      if (brapi.runtime.lastError) reject(new Error(brapi.runtime.lastError.message));
+    browser.tabs.executeScript({ file: file }, function (result) {
+      if (browser.runtime.lastError) reject(new Error(browser.runtime.lastError.message));
       else fulfill(result);
     });
   });
@@ -424,8 +422,8 @@ function executeScript(details) {
   var tabId = details.tabId;
   delete details.tabId;
   return new Promise(function (fulfill, reject) {
-    brapi.tabs.executeScript(tabId, details, function (result) {
-      if (brapi.runtime.lastError) reject(new Error(brapi.runtime.lastError.message));
+    browser.tabs.executeScript(tabId, details, function (result) {
+      if (browser.runtime.lastError) reject(new Error(browser.runtime.lastError.message));
       else fulfill(result);
     });
   });
@@ -433,8 +431,8 @@ function executeScript(details) {
 
 function insertCSS(file) {
   return new Promise(function (fulfill, reject) {
-    brapi.tabs.insertCSS({ file: file }, function (result) {
-      if (brapi.runtime.lastError) reject(new Error(brapi.runtime.lastError.message));
+    browser.tabs.insertCSS({ file: file }, function (result) {
+      if (browser.runtime.lastError) reject(new Error(browser.runtime.lastError.message));
       else fulfill(result);
     })
   });
@@ -442,7 +440,7 @@ function insertCSS(file) {
 
 function getActiveTab() {
   return new Promise(function (fulfill) {
-    brapi.tabs.query({ active: true, lastFocusedWindow: true }, function (tabs) {
+    browser.tabs.query({ active: true, lastFocusedWindow: true }, function (tabs) {
       fulfill(tabs[0]);
     })
   })
@@ -450,34 +448,34 @@ function getActiveTab() {
 
 function getCurrentTab() {
   return new Promise(function (fulfill, reject) {
-    brapi.tabs.getCurrent(function (tab) {
+    browser.tabs.getCurrent(function (tab) {
       if (tab) fulfill(tab)
-      else reject(brapi.runtime.lastError || new Error("Could not get current tab"))
+      else reject(browser.runtime.lastError || new Error("Could not get current tab"))
     })
   })
 }
 
 function getTab(tabId) {
   return new Promise(function (fulfill) {
-    brapi.tabs.get(tabId, fulfill)
+    browser.tabs.get(tabId, fulfill)
   })
 }
 
 function setTabUrl(tabId, url) {
   return new Promise(function (fulfill) {
-    brapi.tabs.update(tabId, { url: url }, fulfill);
+    browser.tabs.update(tabId, { url: url }, fulfill);
   })
 }
 
 function createTab(url, waitForLoad) {
   return new Promise(function (fulfill) {
-    brapi.tabs.create({ url: url }, function (tab) {
+    browser.tabs.create({ url: url }, function (tab) {
       if (!waitForLoad) fulfill(tab);
-      else brapi.tabs.onUpdated.addListener(onUpdated);
+      else browser.tabs.onUpdated.addListener(onUpdated);
 
       function onUpdated(tabId, changeInfo) {
         if (changeInfo.status == "complete" && tabId == tab.id) {
-          brapi.tabs.onUpdated.removeListener(onUpdated);
+          browser.tabs.onUpdated.removeListener(onUpdated);
           fulfill(tab);
         }
       }
@@ -487,34 +485,34 @@ function createTab(url, waitForLoad) {
 
 function updateTab(tabId, details) {
   return new Promise(function (fulfill, reject) {
-    brapi.tabs.update(tabId, details, function (tab) {
+    browser.tabs.update(tabId, details, function (tab) {
       if (tab) fulfill(tab)
-      else reject(brapi.runtime.lastError || new Error("Could not update tab " + tabId))
+      else reject(browser.runtime.lastError || new Error("Could not update tab " + tabId))
     })
   })
 }
 
 function createWindow(details) {
   return new Promise(function (fulfill, reject) {
-    brapi.windows.create(details, function (window) {
+    browser.windows.create(details, function (window) {
       if (window) fulfill(window)
-      else reject(brapi.runtime.lastError || new Error("Could not create window"))
+      else reject(browser.runtime.lastError || new Error("Could not create window"))
     })
   })
 }
 
 function updateWindow(windowId, details) {
   return new Promise(function (fulfill, reject) {
-    brapi.windows.update(windowId, details, function (window) {
+    browser.windows.update(windowId, details, function (window) {
       if (window) fulfill(window)
-      else reject(brapi.runtime.lastError || new Error("Could not update window " + windowId))
+      else reject(browser.runtime.lastError || new Error("Could not update window " + windowId))
     })
   })
 }
 
 function getBackgroundPage() {
   return new Promise(function (fulfill) {
-    brapi.runtime.getBackgroundPage(fulfill);
+    browser.runtime.getBackgroundPage(fulfill);
   });
 }
 
@@ -567,7 +565,7 @@ function assert(truthy, message) {
 }
 
 function formatError(err) {
-  var message = brapi.i18n && brapi.i18n.getMessage(err.code) || err.code;
+  var message = browser.i18n && browser.i18n.getMessage(err.code) || err.code;
   if (message) {
     message = message
       .replace(/{(\w+)}/g, function (m, p1) { return err[p1] })
@@ -802,7 +800,7 @@ function domReady() {
 function setI18nText() {
   $("[data-i18n]").each(function () {
     var key = $(this).data("i18n");
-    var text = brapi.i18n.getMessage(key);
+    var text = browser.i18n.getMessage(key);
     if ($(this).is("input")) $(this).val(text);
     else $(this).text(text);
   })
@@ -840,7 +838,7 @@ function getHotkeySettingsUrl() {
   switch (getBrowser()) {
     case 'opera': return 'opera://settings/configureCommands';
     case 'chrome': return 'chrome://extensions/configureCommands';
-    default: return brapi.runtime.getURL("shortcuts.html");
+    default: return browser.runtime.getURL("shortcuts.html");
   }
 }
 
@@ -880,19 +878,19 @@ function StateMachine(states) {
 
 function requestPermissions(perms) {
   return new Promise(function (fulfill) {
-    brapi.permissions.request(perms, fulfill);
+    browser.permissions.request(perms, fulfill);
   })
 }
 
 function hasPermissions(perms) {
   return new Promise(function (fulfill) {
-    brapi.permissions.contains(perms, fulfill);
+    browser.permissions.contains(perms, fulfill);
   })
 }
 
 function removePermissions(perms) {
   return new Promise(function (fulfill) {
-    brapi.permissions.remove(perms, fulfill);
+    browser.permissions.remove(perms, fulfill);
   })
 }
 
@@ -905,10 +903,10 @@ function getAuthToken(opts) {
   //Note: Cognito webAuthFlow is always interactive (if user already logged in, it shows button "Sign in as <email>" or  "Continue with Google/Facebook/etc")
   function interactiveLogin() {
     return new Promise(function (fulfill, reject) {
-      if (!brapi.identity || !brapi.identity.launchWebAuthFlow) return fulfill(null);
-      brapi.identity.launchWebAuthFlow({
+      if (!browser.identity || !browser.identity.launchWebAuthFlow) return fulfill(null);
+      browser.identity.launchWebAuthFlow({
         interactive: true,
-        url: config.webAppUrl + "/login.html?returnUrl=" + brapi.identity.getRedirectURL()
+        url: config.webAppUrl + "/login.html?returnUrl=" + browser.identity.getRedirectURL()
       },
         function (responseUrl) {
           if (responseUrl) {
@@ -918,7 +916,7 @@ function getAuthToken(opts) {
             else fulfill(res.token);
           }
           else {
-            if (brapi.runtime.lastError) reject(new Error(brapi.runtime.lastError.message));
+            if (browser.runtime.lastError) reject(new Error(browser.runtime.lastError.message));
             else fulfill(null);
           }
         })
@@ -933,9 +931,9 @@ function clearAuthToken() {
   return clearSettings(["authToken"])
     .then(function () {
       return new Promise(function (fulfill) {
-        brapi.identity.launchWebAuthFlow({
+        browser.identity.launchWebAuthFlow({
           interactive: false,
-          url: config.webAppUrl + "/logout.html?returnUrl=" + brapi.identity.getRedirectURL()
+          url: config.webAppUrl + "/logout.html?returnUrl=" + browser.identity.getRedirectURL()
         },
           function (responseUrl) {
             if (responseUrl) {
@@ -945,7 +943,7 @@ function clearAuthToken() {
               else fulfill();
             }
             else {
-              if (brapi.runtime.lastError) console.warn(new Error(brapi.runtime.lastError.message));
+              if (browser.runtime.lastError) console.warn(new Error(browser.runtime.lastError.message));
               fulfill();
             }
           })
@@ -974,7 +972,7 @@ function isMobileOS() {
 
 function getAllFrames(tabId) {
   return new Promise(function (fulfill) {
-    brapi.webNavigation.getAllFrames({ tabId: tabId }, fulfill);
+    browser.webNavigation.getAllFrames({ tabId: tabId }, fulfill);
   })
 }
 
@@ -982,7 +980,7 @@ function getFrameTexts(tabId, frameId, scripts) {
   return new Promise(function (fulfill, reject) {
     function onConnect(port) {
       if (port.name == "ReadAloudGetTextsScript") {
-        brapi.runtime.onConnect.removeListener(onConnect);
+        browser.runtime.onConnect.removeListener(onConnect);
         var peer = new RpcPeer(new ExtensionMessagingPeer(port));
         peer.onInvoke = function (method, arg0) {
           clearTimeout(timer);
@@ -992,15 +990,15 @@ function getFrameTexts(tabId, frameId, scripts) {
       }
     }
     function onError(err) {
-      brapi.runtime.onConnect.removeListener(onConnect);
+      browser.runtime.onConnect.removeListener(onConnect);
       clearTimeout(timer);
       reject(err);
     }
     function onTimeout() {
-      brapi.runtime.onConnect.removeListener(onConnect);
+      browser.runtime.onConnect.removeListener(onConnect);
       reject(new Error("Timeout waiting for content script to connect"));
     }
-    brapi.runtime.onConnect.addListener(onConnect);
+    browser.runtime.onConnect.addListener(onConnect);
     var tasks = scripts.map(function (file) {
       return executeScript.bind(null, { file: file, tabId: tabId, frameId: frameId });
     })
@@ -1034,7 +1032,7 @@ function promiseTimeout(millis, errorMsg, promise) {
 
 function bgPageInvoke(method, args) {
   return new Promise(function (fulfill, reject) {
-    brapi.runtime.sendMessage({ method: method, args: args }, function (res) {
+    browser.runtime.sendMessage({ method: method, args: args }, function (res) {
       if (res && res.error) reject(new Error(res.error));
       else fulfill(res);
     })
@@ -1043,7 +1041,7 @@ function bgPageInvoke(method, args) {
 
 function detectTabLanguage(tabId) {
   return new Promise(function (fulfill) {
-    brapi.tabs.detectLanguage(tabId, fulfill)
+    browser.tabs.detectLanguage(tabId, fulfill)
   })
     .then(function (lang) {
       if (lang == "und") return undefined
