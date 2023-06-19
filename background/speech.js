@@ -118,10 +118,7 @@ function Speech(texts, options) {
   }
 
   function canPause() {
-    return engine.pause && !(
-      isChromeOSNative(options.voice) ||
-      options.voice.voiceName == "US English Female TTS (by Google)"
-    )
+    return engine.pause;
   }
 
   function pause() {

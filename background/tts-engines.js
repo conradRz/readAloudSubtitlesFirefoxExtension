@@ -158,16 +158,6 @@ function RemoteTtsEngine(serviceUrl) {
       .then(function (token) { authToken = token })
       .then(getUniqueClientId)
       .then(function (id) { clientId = id })
-      .then(function () {
-        if (isPremiumVoice(options.voice) && !options.voice.autoSelect) {
-          if (!authToken) throw new Error(JSON.stringify({ code: "error_login_required" }));
-          return getAccountInfo(authToken)
-            .then(function (account) {
-              if (!account) throw new Error(JSON.stringify({ code: "error_login_required" }));
-              if (!account.balance) throw new Error(JSON.stringify({ code: "error_payment_required" }));
-            })
-        }
-      })
   }
   this.speak = function (utterance, options, onEvent) {
     if (!options.volume) options.volume = 1;

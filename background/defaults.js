@@ -120,36 +120,8 @@ function isGoogleTranslate(voice) {
   return /^GoogleTranslate /.test(voice.voiceName);
 }
 
-function isAmazonCloud(voice) {
-  return /^Amazon /.test(voice.voiceName);
-}
-
-function isMicrosoftCloud(voice) {
-  return /^Microsoft /.test(voice.voiceName) && voice.voiceName.indexOf(' - ') == -1;
-}
-
-function isReadAloudCloud(voice) {
-  return /^ReadAloud /.test(voice.voiceName)
-}
-
-function isAmazonPolly(voice) {
-  return /^AmazonPolly /.test(voice.voiceName);
-}
-
-function isGoogleWavenet(voice) {
-  return /^Google(Standard|Wavenet|Neural2) /.test(voice.voiceName);
-}
-
-function isIbmWatson(voice) {
-  return /^IBM-Watson /.test(voice.voiceName);
-}
-
 function isRemoteVoice(voice) {
-  return isAmazonCloud(voice) || isMicrosoftCloud(voice) || isReadAloudCloud(voice) || isGoogleTranslate(voice) || isGoogleWavenet(voice) || isAmazonPolly(voice) || isIbmWatson(voice);
-}
-
-function isPremiumVoice(voice) {
-  return isAmazonCloud(voice) || isMicrosoftCloud(voice);
+  return isGoogleTranslate(voice);
 }
 
 function getSpeechVoice(voiceName, lang) {
@@ -166,9 +138,7 @@ function getSpeechVoice(voiceName, lang) {
       if (!voice && lang) {
         voice = findVoiceByLang(voices.filter(isGoogleNative), lang)
           || findVoiceByLang(voices.filter(negate(isRemoteVoice)), lang)
-          || findVoiceByLang(voices.filter(isReadAloudCloud), lang)
           || findVoiceByLang(voices.filter(isGoogleTranslate), lang)
-          || findVoiceByLang(voices.filter(negate(isPremiumVoice)), lang)
           || findVoiceByLang(voices, lang);
         if (voice && isRemoteVoice(voice)) voice = Object.assign({ autoSelect: true }, voice);
       }
