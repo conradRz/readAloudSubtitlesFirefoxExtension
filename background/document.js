@@ -407,9 +407,6 @@ function Doc(source, onEnd) {
   this.pause = pause;
   this.getState = getState;
   this.getActiveSpeech = getActiveSpeech;
-  this.forward = forward;
-  this.rewind = rewind;
-  this.seek = seek;
 
   //method close
   function close() {
@@ -618,30 +615,5 @@ function Doc(source, onEnd) {
   //method getActiveSpeech
   function getActiveSpeech() {
     return Promise.resolve(activeSpeech);
-  }
-
-  //method forward
-  function forward() {
-    if (activeSpeech) return activeSpeech.forward().catch(forwardPage);
-    else return Promise.reject(new Error("Can't forward, not active"));
-  }
-
-  function forwardPage() {
-    return stop().then(function () { currentIndex++; readCurrent() });
-  }
-
-  //method rewind
-  function rewind() {
-    if (activeSpeech) return activeSpeech.rewind().catch(rewindPage);
-    else return Promise.reject(new Error("Can't rewind, not active"));
-  }
-
-  function rewindPage() {
-    return stop().then(function () { currentIndex--; readCurrent(true) });
-  }
-
-  function seek(n) {
-    if (activeSpeech) return activeSpeech.seek(n);
-    else return Promise.reject(new Error("Can't seek, not active"));
   }
 }

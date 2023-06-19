@@ -20,9 +20,6 @@ var handlers = {
   stop: stop,
   pause: pause,
   getPlaybackState: getPlaybackState,
-  forward: forward,
-  rewind: rewind,
-  seek: seek,
   reportIssue: reportIssue,
   authWavenet: authWavenet,
   getSpeechPosition: function () {
@@ -143,21 +140,6 @@ function closeDoc() {
     activeDoc = null;
     silenceLoop.pause();
   }
-}
-
-function forward() {
-  if (activeDoc) return activeDoc.forward();
-  else return Promise.reject(new Error("Can't forward, not active"));
-}
-
-function rewind() {
-  if (activeDoc) return activeDoc.rewind();
-  else return Promise.reject(new Error("Can't rewind, not active"));
-}
-
-function seek(n) {
-  if (activeDoc) return activeDoc.seek(n);
-  else return Promise.reject(new Error("Can't seek, not active"));
 }
 
 function handleError(err) {
