@@ -30,7 +30,6 @@
      * @param {number} [opts.tokensTTL=3600]    How long to cache tokens
      */
     function batchExecute(rpcId, payload, opts) {
-        debugger;
         if (!opts) opts = {};
         if (!opts.tld) opts.tld = "com";
         if (!opts.tokensTTL) opts.tokensTTL = 3600;
