@@ -24,12 +24,6 @@ var defaults = {
   volume: 1.0
 };
 
-if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-  document.addEventListener("DOMContentLoaded", function () {
-    document.body.classList.add("dark-mode")
-  })
-}
-
 
 /**
  * HELPERS
@@ -108,10 +102,6 @@ function getVoices() {
     })
 }
 
-function isGoogleNative(voice) {
-  return /^Google\s/.test(voice.voiceName);
-}
-
 function isGoogleTranslate(voice) {
   return /^GoogleTranslate /.test(voice.voiceName);
 }
@@ -132,8 +122,7 @@ function getSpeechVoice(voiceName, lang) {
         if (voiceName) voice = findVoiceByName(voices, voiceName);
       }
       if (!voice && lang) {
-        voice = findVoiceByLang(voices.filter(isGoogleNative), lang)
-          || findVoiceByLang(voices.filter(negate(isRemoteVoice)), lang)
+        voice = findVoiceByLang(voices.filter(negate(isRemoteVoice)), lang)
           || findVoiceByLang(voices.filter(isGoogleTranslate), lang)
           || findVoiceByLang(voices, lang);
         if (voice && isRemoteVoice(voice)) voice = Object.assign({ autoSelect: true }, voice);

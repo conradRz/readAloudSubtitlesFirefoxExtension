@@ -1,7 +1,5 @@
 
 function Speech(texts, options) {
-  options.rate = (options.rate || 1) * (isGoogleNative(options.voice) ? 0.9 : 1);
-
   for (var i = 0; i < texts.length; i++) if (/[\w)]$/.test(texts[i])) texts[i] += '.';
 
   var self = this;
@@ -46,14 +44,9 @@ function Speech(texts, options) {
   function getChunks(text) {
     var isEA = /^zh|ko|ja/.test(options.lang);
     var punctuator = isEA ? new EastAsianPunctuator() : new LatinPunctuator();
-    if (isGoogleNative(options.voice)) {
-      var wordLimit = (/^(de|ru|es|id)/.test(options.lang) ? 32 : 36) * (isEA ? 2 : 1) * options.rate;
-      return new WordBreaker(wordLimit, punctuator).breakText(text);
-    }
-    else {
-      if (isGoogleTranslate(options.voice)) return new CharBreaker(200, punctuator).breakText(text);
-      else return new CharBreaker(750, punctuator, 200).breakText(text);
-    }
+
+    if (isGoogleTranslate(options.voice)) return new CharBreaker(200, punctuator).breakText(text);
+    else return new CharBreaker(750, punctuator, 200).breakText(text);
   }
 
   function getState() {
