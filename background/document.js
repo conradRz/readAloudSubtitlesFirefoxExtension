@@ -25,18 +25,6 @@ function SimpleSource(texts, opts) {
 
 function TabSource(tabId) {
   var handlers = [
-    // Unsupported Sites --------------------------------------------------------
-    {
-      match: function (url) {
-        return config.unsupportedSites.some(function (site) {
-          return (typeof site == "string" && url.startsWith(site)) || (site instanceof RegExp && site.test(url));
-        })
-      },
-      validate: function () {
-        throw new Error(JSON.stringify({ code: "error_page_unreadable" }));
-      }
-    },
-
     // Reader mode --------------------------------------------------------------
     {
       match: function (url) {
