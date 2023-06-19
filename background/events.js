@@ -25,9 +25,6 @@ var handlers = {
   seek: seek,
   reportIssue: reportIssue,
   authWavenet: authWavenet,
-  ibmFetchVoices: function (apiKey, url) {
-    return ibmWatsonTtsEngine.fetchVoices(apiKey, url);
-  },
   getSpeechPosition: function () {
     return getActiveSpeech()
       .then(function (speech) {
