@@ -4,8 +4,6 @@ var playbackError = null;
 var silenceLoop = new Audio("sound/silence.mp3");
 silenceLoop.loop = true;
 
-brapi.runtime.onInstalled.addListener(installContextMenus);
-if (getBrowser() == "firefox") brapi.runtime.onStartup.addListener(installContextMenus);
 
 hasPermissions(config.gtranslatePerms)
   .then(function (granted) {
@@ -59,55 +57,21 @@ brapi.runtime.onMessage.addListener(
 );
 
 
-/**
- * Context menu installer & handlers
- */
-function installContextMenus() {
-  brapi.menus.create({
-    id: "read-selection",
-    title: brapi.i18n.getMessage("context_read_selection"),
-    contexts: ["selection"]
-  });
-  brapi.menus.create({
-    id: "options",
-    title: brapi.i18n.getMessage("options_heading"),
-    contexts: ["browser_action"]
-  })
-}
-
-
 // Listen for messages from content scripts
 browser.runtime.onMessage.addListener((message) => {
   // Access the parameters sent from the content script
   // const { param1, param2 } = info.data;
   debugger;
   const selectionText = message.info.selectionText;
+  const lang = message.info.lang;
 
   stop()
     .then(function () {
-      return undefined
-    })
-    .then(function (lang) {
-      return playText(selectionText, { lang: lang })
+      return playText(selectionText, lang)
     })
     .catch(console.error)
 
 });
-
-
-
-
-brapi.menus.onClicked.addListener(function (info, tab) {
-  stop()
-    .then(function () {
-      if (tab && tab.id != -1) return detectTabLanguage(tab.id)
-      else return undefined
-    })
-    .then(function (lang) {
-      return playText(info.selectionText, { lang: lang })
-    })
-    .catch(console.error)
-})
 
 
 /**

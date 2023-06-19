@@ -167,14 +167,16 @@ const selectCaptionFileForTTS = async (track, selectedLanguageCode = null) => {
                 debugger;
                 const message = {
                   info: {
-                    selectionText: unescapeHTML(matchedText.replace(/\n/g, "").replace(/\\"/g, '"').trim().replace(/[,\.]+$/, '').replace(/\r/g, ""))
+                    selectionText: unescapeHTML(matchedText.replace(/\n/g, "").replace(/\\"/g, '"').trim().replace(/[,\.]+$/, '').replace(/\r/g, "")),
+                    lang: speechSettings.speechVoice.replace("GoogleTranslate_", "")
                   }
                 };
 
                 // Send the message to the background script
                 browser.runtime.sendMessage(message);
 
-
+                // here it would be necessery to somehow set up isSpeechSynthesisInProgress = true, with the right timing, perhaps as as a message from the background script
+                return;
 
 
               } else {
