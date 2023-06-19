@@ -164,10 +164,15 @@ const selectCaptionFileForTTS = async (track, selectedLanguageCode = null) => {
               // if GoogleTranslate voice had been selected
               if (speechSettings.speechVoice.startsWith("GoogleTranslate_")) {
                 // a content script in Firefox cannot make its own web requests. Content scripts are executed in the context of a web page and have limited access to browser APIs. In Firefox extensions, content scripts are primarily used to manipulate the DOM of a webpage and interact with the content on the page. They do not have direct access to browser APIs like XMLHttpRequest or the fetch API to make web requests. If you need to make web requests from within your extension, you should do so from the background script or a dedicated script running in the extension's background context. The background script has full access to the browser APIs and can make web requests using methods such as XMLHttpRequest or the fetch API.
+                debugger;
+                const message = {
+                  info: {
+                    selectionText: unescapeHTML(matchedText.replace(/\n/g, "").replace(/\\"/g, '"').trim().replace(/[,\.]+$/, '').replace(/\r/g, ""))
+                  }
+                };
 
-
-
-
+                // Send the message to the background script
+                browser.runtime.sendMessage(message);
 
 
 

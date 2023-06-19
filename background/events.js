@@ -8,7 +8,7 @@ brapi.runtime.onInstalled.addListener(installContextMenus);
 if (getBrowser() == "firefox") brapi.runtime.onStartup.addListener(installContextMenus);
 
 hasPermissions(config.gtranslatePerms)
-  .then(function(granted) {
+  .then(function (granted) {
     if (granted) authGoogleTranslate()
   })
 
@@ -27,33 +27,33 @@ var handlers = {
   seek: seek,
   reportIssue: reportIssue,
   authWavenet: authWavenet,
-  ibmFetchVoices: function(apiKey, url) {
+  ibmFetchVoices: function (apiKey, url) {
     return ibmWatsonTtsEngine.fetchVoices(apiKey, url);
   },
-  getSpeechPosition: function() {
+  getSpeechPosition: function () {
     return getActiveSpeech()
-      .then(function(speech) {
+      .then(function (speech) {
         return speech && speech.getPosition();
       })
   },
-  getPlaybackError: function() {
-    if (playbackError) return {message: playbackError.message}
+  getPlaybackError: function () {
+    if (playbackError) return { message: playbackError.message }
   },
 }
 
 brapi.runtime.onMessage.addListener(
-  function(request, sender, sendResponse) {
+  function (request, sender, sendResponse) {
     var handler = handlers[request.method];
     if (handler) {
       Promise.resolve(handler.apply(null, request.args))
         .then(sendResponse)
-        .catch(function(err) {
-          sendResponse({error: err.message});
+        .catch(function (err) {
+          sendResponse({ error: err.message });
         })
       return true;
     }
     else {
-      sendResponse({error: "BAD_METHOD"});
+      sendResponse({ error: "BAD_METHOD" });
     }
   }
 );
@@ -75,19 +75,38 @@ function installContextMenus() {
   })
 }
 
-brapi.menus.onClicked.addListener(function(info, tab) {
-  if (info.menuItemId == "read-selection")
-    stop()
-      .then(function() {
-        if (tab && tab.id != -1) return detectTabLanguage(tab.id)
-        else return undefined
-      })
-      .then(function(lang) {
-        return playText(info.selectionText, {lang: lang})
-      })
-      .catch(console.error)
-  else if (info.menuItemId == "options")
-    createTab(brapi.runtime.getURL("options.html"))
+
+// Listen for messages from content scripts
+browser.runtime.onMessage.addListener((message) => {
+  // Access the parameters sent from the content script
+  // const { param1, param2 } = info.data;
+  debugger;
+  const selectionText = message.info.selectionText;
+
+  stop()
+    .then(function () {
+      return undefined
+    })
+    .then(function (lang) {
+      return playText(selectionText, { lang: lang })
+    })
+    .catch(console.error)
+
+});
+
+
+
+
+brapi.menus.onClicked.addListener(function (info, tab) {
+  stop()
+    .then(function () {
+      if (tab && tab.id != -1) return detectTabLanguage(tab.id)
+      else return undefined
+    })
+    .then(function (lang) {
+      return playText(info.selectionText, { lang: lang })
+    })
+    .catch(console.error)
 })
 
 
@@ -97,7 +116,7 @@ brapi.menus.onClicked.addListener(function(info, tab) {
 function execCommand(command) {
   if (command == "play") {
     getPlaybackState()
-      .then(function(state) {
+      .then(function (state) {
         if (state == "PLAYING") return pause();
         else if (state == "STOPPED" || state == "PAUSED") return playTab()
       })
@@ -109,17 +128,17 @@ function execCommand(command) {
 }
 
 if (brapi.commands)
-brapi.commands.onCommand.addListener(function(command) {
-  execCommand(command)
-})
+  brapi.commands.onCommand.addListener(function (command) {
+    execCommand(command)
+  })
 
 
 /**
  * chrome.ttsEngine handlers
  */
-if (brapi.ttsEngine) (function() {
-  brapi.ttsEngine.onSpeak.addListener(function(utterance, options, onEvent) {
-    options = Object.assign({}, options, {voice: {voiceName: options.voiceName}});
+if (brapi.ttsEngine) (function () {
+  brapi.ttsEngine.onSpeak.addListener(function (utterance, options, onEvent) {
+    options = Object.assign({}, options, { voice: { voiceName: options.voiceName } });
     remoteTtsEngine.speak(utterance, options, onEvent);
   });
   brapi.ttsEngine.onStop.addListener(remoteTtsEngine.stop);
@@ -136,12 +155,12 @@ function playText(text, opts) {
   opts = opts || {}
   playbackError = null
   if (!activeDoc) {
-    openDoc(new SimpleSource(text.split(/(?:\r?\n){2,}/), {lang: opts.lang}), function(err) {
+    openDoc(new SimpleSource(text.split(/(?:\r?\n){2,}/), { lang: opts.lang }), function (err) {
       if (err) playbackError = err
     })
   }
   return activeDoc.play()
-    .catch(function(err) {
+    .catch(function (err) {
       handleError(err);
       closeDoc();
       throw err;
@@ -151,12 +170,12 @@ function playText(text, opts) {
 function playTab(tabId) {
   playbackError = null
   if (!activeDoc) {
-    openDoc(new TabSource(tabId), function(err) {
+    openDoc(new TabSource(tabId), function (err) {
       if (err) playbackError = err
     })
   }
   return activeDoc.play()
-    .catch(function(err) {
+    .catch(function (err) {
       handleError(err);
       closeDoc();
       throw err;
@@ -188,7 +207,7 @@ function getActiveSpeech() {
 }
 
 function openDoc(source, onEnd) {
-  activeDoc = new Doc(source, function(err) {
+  activeDoc = new Doc(source, function (err) {
     handleError(err);
     closeDoc();
     if (typeof onEnd == "function") onEnd(err);
@@ -232,7 +251,7 @@ function reportError(err) {
     var details = err.stack;
     if (!details.startsWith(err.name)) details = err.name + ": " + err.message + "\n" + details;
     getState("lastUrl")
-      .then(function(url) {return reportIssue(url, details)})
+      .then(function (url) { return reportIssue(url, details) })
       .catch(console.error)
   }
 }
@@ -240,7 +259,7 @@ function reportError(err) {
 function reportIssue(url, comment) {
   var manifest = brapi.runtime.getManifest();
   return getSettings()
-    .then(function(settings) {
+    .then(function (settings) {
       if (url) settings.url = url;
       settings.version = manifest.version;
       settings.userAgent = navigator.userAgent;
@@ -253,7 +272,7 @@ function reportIssue(url, comment) {
 
 function authWavenet() {
   createTab("https://cloud.google.com/text-to-speech/#put-text-to-speech-into-action", true)
-    .then(function(tab) {
+    .then(function (tab) {
       addRequestListener();
       brapi.tabs.onRemoved.addListener(onTabRemoved);
       return showInstructions();
@@ -274,7 +293,7 @@ function authWavenet() {
         var parser = parseUrl(details.url);
         var qs = parser.search ? parseQueryString(parser.search) : {};
         if (qs.token) {
-          updateSettings({gcpToken: qs.token});
+          updateSettings({ gcpToken: qs.token });
           showSuccess();
         }
       }
@@ -296,7 +315,7 @@ function authWavenet() {
             "elem.innerHTML = 'Please click the blue SPEAK-IT button, then check the I-AM-NOT-A-ROBOT checkbox.'",
             "document.body.appendChild(elem)",
           ]
-          .join(";\n")
+            .join(";\n")
         })
       }
       function showSuccess() {
@@ -307,7 +326,7 @@ function authWavenet() {
             "elem.style.backgroundColor = '#0d0'",
             "elem.innerHTML = 'Successful, you can now use Google Wavenet voices. You may close this tab.'"
           ]
-          .join(";\n")
+            .join(";\n")
         })
       }
     })
@@ -325,7 +344,7 @@ function authGoogleTranslate() {
 }
 
 function googleTranslateXhrHook(details) {
-  var header = details.requestHeaders.find(function(h) {return h.name == "Sec-Fetch-Site"})
+  var header = details.requestHeaders.find(function (h) { return h.name == "Sec-Fetch-Site" })
   if (header && header.value == "cross-site") header.value = "none"
   return {
     requestHeaders: details.requestHeaders
