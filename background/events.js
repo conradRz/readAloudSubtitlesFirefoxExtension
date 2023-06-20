@@ -36,12 +36,10 @@ browser.runtime.onMessage.addListener((message) => {
   // Access the parameters sent from the content script
   // const { param1, param2 } = info.data;
   debugger;
-  const selectionText = message.info.selectionText;
-  const lang = message.info.lang;
 
   stop()
     .then(function () {
-      return playText(selectionText, lang)
+      return playText(message.info.selectionText, message.info.lang)
     })
     .catch(console.error)
 
