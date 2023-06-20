@@ -154,7 +154,6 @@ const selectCaptionFileForTTS = async (track, selectedLanguageCode = null) => {
 
           //only assign utterance.voice if speechSettings.speechVoice is not empty, that is other voice than the environment default had been selected
           // && voices && voices.length > 0 checks as once a youtube ad caused "Uncaught TypeError: Cannot read properties of undefined (reading 'find')"
-          debugger;
           if (voices && voices.length > 0) {
             if (speechSettings.speechVoice !== null) { //there was some selection
 
