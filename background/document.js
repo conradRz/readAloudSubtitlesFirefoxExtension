@@ -331,7 +331,6 @@ function Doc(source, onEnd) {
         console.log("Chosen", lang)
         var options = {
           rate: settings.rate || defaults.rate,
-          pitch: settings.pitch || defaults.pitch,
           volume: settings.volume || defaults.volume,
           lang: config.langMap[lang] || lang || 'en-US',
         }

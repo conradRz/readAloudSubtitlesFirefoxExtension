@@ -20,7 +20,6 @@ var config = {
 
 var defaults = {
   rate: 1.0,
-  pitch: 1.0,
   volume: 1.0
 };
 
@@ -54,7 +53,7 @@ function parseUrl(url) {
  */
 function getSettings(names) {
   return new Promise(function (fulfill) {
-    browser.storage.local.get(names || ["voiceName", "rate", "pitch", "volume", "languages", "preferredVoices"], fulfill);
+    browser.storage.local.get(names || ["voiceName", "rate", "volume", "languages", "preferredVoices"], fulfill);
   });
 }
 
@@ -66,7 +65,7 @@ function updateSettings(items) {
 
 function clearSettings(names) {
   return new Promise(function (fulfill) {
-    browser.storage.local.remove(names || ["voiceName", "rate", "pitch", "volume", "languages", "preferredVoices"], fulfill);
+    browser.storage.local.remove(names || ["voiceName", "rate", "volume", "languages", "preferredVoices"], fulfill);
   });
 }
 

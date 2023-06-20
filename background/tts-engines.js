@@ -11,7 +11,6 @@ interface Options {
   }
   lang: string
   rate?: number
-  pitch?: number
   volume?: number
 }
 
@@ -40,7 +39,6 @@ function BrowserTtsEngine() {
       voiceName: options.voice.voiceName,
       lang: options.lang,
       rate: options.rate,
-      pitch: options.pitch,
       volume: options.volume,
       requiredEventTypes: ["start", "end"],
       desiredEventTypes: ["start", "end", "error"],
@@ -68,7 +66,6 @@ function WebSpeechEngine() {
     utter.text = text;
     utter.voice = options.voice;
     if (options.lang) utter.lang = options.lang;
-    if (options.pitch) utter.pitch = options.pitch;
     if (options.rate) utter.rate = options.rate;
     if (options.volume) utter.volume = options.volume;
     utter.onstart = onEvent.bind(null, { type: 'start', charIndex: 0 });
