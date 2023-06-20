@@ -4,9 +4,6 @@ var playbackError = null;
 var silenceLoop = new Audio("sound/silence.mp3");
 silenceLoop.loop = true;
 
-
-authGoogleTranslate()
-
 /**
  * IPC handlers
  */
@@ -107,29 +104,4 @@ function closeDoc() {
     activeDoc = null;
     silenceLoop.pause();
   }
-}
-
-function authGoogleTranslate() {
-  console.info("Installing GoogleTranslate XHR hook")
-  browser.webRequest.onBeforeSendHeaders.removeListener(googleTranslateXhrHook)
-  browser.webRequest.onBeforeSendHeaders.addListener(googleTranslateXhrHook, {
-    urls: config.gtranslatePerms.origins,
-    types: ["xmlhttprequest"]
-  }, [
-    "blocking", "requestHeaders"
-  ])
-}
-
-function googleTranslateXhrHook(details) {
-  var header = details.requestHeaders.find(function (h) { return h.name == "Sec-Fetch-Site" })
-  if (header && header.value == "cross-site") header.value = "none"
-  return {
-    requestHeaders: details.requestHeaders
-  }
-}
-
-function userGestureActivate() {
-  var audio = document.createElement("AUDIO");
-  audio.src = "data:audio/wav;base64,UklGRjIAAABXQVZFZm10IBIAAAABAAEAQB8AAEAfAAABAAgAAABmYWN0BAAAAAAAAABkYXRhAAAAAA==";
-  audio.play();
 }
