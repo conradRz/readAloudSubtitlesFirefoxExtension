@@ -36,46 +36,8 @@ function TabSource(tabId) {
   ]
 
 
-  var tabPromise = tabId ? getTab(tabId) : getActiveTab();
-  var tab, handler, frameId, peer;
+  var tab, handler, peer;
   var waiting = true;
-
-  this.ready = tabPromise
-    .then(function (res) {
-      if (!res) throw new Error(JSON.stringify({ code: "error_page_unreadable" }));
-      tab = res;
-      handler = handlers.find(function (h) { return h.match(tab.url || "") });
-      return handler.validate();
-    })
-    .then(function () {
-      if (handler.getFrameId)
-        return getAllFrames(tab.id).then(handler.getFrameId).then(function (res) { frameId = res });
-    })
-    .then(function () {
-      if (handler.connect) return handler.connect();
-      return waitForConnect()
-        .then(function (port) {
-          return new Promise(function (fulfill) {
-            peer = new RpcPeer(new ExtensionMessagingPeer(port));
-            peer.onInvoke = function (method, arg0) {
-              if (method == "onReady") fulfill(arg0);
-              else console.error("Unknown method", method);
-            }
-            peer.onDisconnect = function () {
-              peer = null;
-            }
-          })
-        })
-    })
-    .then(extraAction(function (info) {
-      if (info.requireJs) {
-        var tasks = info.requireJs.map(function (file) { return inject.bind(null, file) });
-        return inSequence(tasks);
-      }
-    }))
-    .finally(function () {
-      waiting = false;
-    })
 
   this.isWaiting = function () {
     return waiting;
@@ -101,46 +63,6 @@ function TabSource(tabId) {
   }
   this.getUri = function () {
     return tabPromise.then(function (tab) { return tab && tab.url });
-  }
-
-  function waitForConnect() {
-    return new Promise(function (fulfill, reject) {
-      function onConnect(port) {
-        if (port.name == "ReadAloudContentScript") {
-          browser.runtime.onConnect.removeListener(onConnect);
-          clearTimeout(timer);
-          fulfill(port);
-        }
-      }
-      function onError(err) {
-        browser.runtime.onConnect.removeListener(onConnect);
-        clearTimeout(timer);
-        reject(err);
-      }
-      function onTimeout() {
-        browser.runtime.onConnect.removeListener(onConnect);
-        reject(new Error("Timeout waiting for content script to connect"));
-      }
-      browser.runtime.onConnect.addListener(onConnect);
-      injectScripts().catch(onError);
-      var timer = setTimeout(onTimeout, 15000);
-    })
-  }
-  function injectScripts() {
-    return inject("js/jquery-3.1.1.min.js")
-      .then(inject.bind(null, "js/messaging.js"))
-      .then(function () {
-        if (handler.extraScripts) {
-          var tasks = handler.extraScripts.map(function (file) { return inject.bind(null, file) });
-          return inSequence(tasks);
-        }
-      })
-      .then(inject.bind(null, "js/content.js"))
-  }
-  function inject(file) {
-    var details = { file: file, tabId: tab.id };
-    if (frameId) details.frameId = frameId;
-    return executeScript(details);
   }
 }
 
