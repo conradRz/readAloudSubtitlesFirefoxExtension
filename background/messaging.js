@@ -8,32 +8,32 @@ interface MessagingPeer {
 */
 function ExtensionMessagingPeer(port) {
   var self = this;
-  this.send = function(msg) {
+  this.send = function (msg) {
     port.postMessage(msg);
   }
-  this.disconnect = function() {
+  this.disconnect = function () {
     port.disconnect();
   }
-  port.onMessage.addListener(function(msg) {
+  port.onMessage.addListener(function (msg) {
     self.onReceive(msg);
   })
-  port.onDisconnect.addListener(function() {
+  port.onDisconnect.addListener(function () {
     if (self.onDisconnect) self.onDisconnect();
   })
 }
 
 function DocumentMessagingPeer(sendPrefix, receivePrefix) {
   var self = this;
-  this.send = function(msg) {
-    document.dispatchEvent(new CustomEvent(sendPrefix+"Message", {detail: JSON.stringify(msg)}));
+  this.send = function (msg) {
+    document.dispatchEvent(new CustomEvent(sendPrefix + "Message", { detail: JSON.stringify(msg) }));
   }
-  this.disconnect = function() {
-    document.dispatchEvent(new CustomEvent(sendPrefix+"Disconnect"));
+  this.disconnect = function () {
+    document.dispatchEvent(new CustomEvent(sendPrefix + "Disconnect"));
   }
-  document.addEventListener(receivePrefix+"Message", function(event) {
+  document.addEventListener(receivePrefix + "Message", function (event) {
     self.onReceive(JSON.parse(event.detail));
   })
-  document.addEventListener(receivePrefix+"Disconnect", function() {
+  document.addEventListener(receivePrefix + "Disconnect", function () {
     if (self.onDisconnect) self.onDisconnect();
   })
 }
@@ -48,33 +48,33 @@ interface RpcPeer {
 */
 function RpcPeer(messagingPeer) {
   var self = this;
-  var pending = {idGen: 0};
-  this.invoke = function() {
+  var pending = { idGen: 0 };
+  this.invoke = function () {
     var id = ++pending.idGen;
     try {
-      messagingPeer.send({type: "request", id: id, args: Array.prototype.slice.call(arguments)});
-      return new Promise(function(fulfill, reject) {
-        pending[id] = {fulfill: fulfill, reject: reject};
+      messagingPeer.send({ type: "request", id: id, args: Array.prototype.slice.call(arguments) });
+      return new Promise(function (fulfill, reject) {
+        pending[id] = { fulfill: fulfill, reject: reject };
       })
     }
     catch (err) {
       return Promise.reject(err);
     }
   }
-  this.disconnect = function() {
+  this.disconnect = function () {
     messagingPeer.disconnect();
   }
-  messagingPeer.onReceive = function(msg) {
+  messagingPeer.onReceive = function (msg) {
     if (msg.type == "request") {
       Promise.resolve()
-        .then(function() {
+        .then(function () {
           return self.onInvoke.apply(self, msg.args);
         })
-        .then(function(result) {
-          messagingPeer.send({type: "response", id: msg.id, result: result});
+        .then(function (result) {
+          messagingPeer.send({ type: "response", id: msg.id, result: result });
         })
-        .catch(function(err) {
-          messagingPeer.send({type: "response", id: msg.id, error: err.message});
+        .catch(function (err) {
+          messagingPeer.send({ type: "response", id: msg.id, error: err.message });
         })
     }
     else if (msg.type == "response") {
@@ -87,7 +87,7 @@ function RpcPeer(messagingPeer) {
     }
     else console.error("Unexpected message.type", msg);
   }
-  messagingPeer.onDisconnect = function() {
+  messagingPeer.onDisconnect = function () {
     if (self.onDisconnect) self.onDisconnect();
   }
 }
