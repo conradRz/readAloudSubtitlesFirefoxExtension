@@ -243,25 +243,38 @@ function Doc(source, onEnd) {
     }
   }
 
-  function getSpeech(texts) {
-    return getSettings()
-      .then(function (settings) {
-        console.log("Declared", info.lang)
-        var lang = info.lang;
-        console.log("Chosen", lang)
-        var options = {
-          rate: settings.rate || defaults.rate,
-          volume: settings.volume || defaults.volume,
-          lang: config.langMap[lang] || lang || 'en-US',
-        }
-        return getSpeechVoice(settings.voiceName, options.lang)
-          .then(function (voice) {
-            if (!voice) throw new Error(JSON.stringify({ code: "error_no_voice", lang: options.lang }));
-            options.voice = voice;
-            return new Speech(texts, options);
-          })
-      })
+  async function getSpeech(texts) {
+    const settings = await getSettings();
+    console.log("Declared", info.lang);
+    var lang = info.lang;
+    console.log("Chosen", lang);
+
+    let options = {};
+    let speechSettings;
+
+    const result = await browser.storage.local.get('speechSettings');
+    if (result.speechSettings) {
+      speechSettings = result.speechSettings;
+      options = {
+        rate: speechSettings.speechSpeed || defaults.rate,
+        volume: speechSettings.speechVolume || defaults.volume,
+        lang: config.langMap[lang] || lang || 'en-US',
+      };
+    } else {
+      options = {
+        rate: settings.rate || defaults.rate,
+        volume: settings.volume || defaults.volume,
+        lang: config.langMap[lang] || lang || 'en-US',
+      };
+    }
+
+    const voice = await getSpeechVoice(settings.voiceName, options.lang);
+    if (!voice) throw new Error(JSON.stringify({ code: "error_no_voice", lang: options.lang }));
+
+    options.voice = voice;
+    return new Speech(texts, options);
   }
+
 
   //method stop
   function stop() {
