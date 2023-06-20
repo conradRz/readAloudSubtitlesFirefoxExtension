@@ -22,51 +22,6 @@ function SimpleSource(texts, opts) {
   }
 }
 
-
-function TabSource(tabId) {
-  var handlers = [
-    // default -------------------------------------------------------------------
-    {
-      match: function () {
-        return true;
-      },
-      validate: function () {
-      }
-    }
-  ]
-
-
-  var tab, handler, peer;
-  var waiting = true;
-
-  this.isWaiting = function () {
-    return waiting;
-  }
-  this.getCurrentIndex = function () {
-    if (!peer) return Promise.resolve(0);
-    waiting = true;
-    return peer.invoke("getCurrentIndex").finally(function () { waiting = false });
-  }
-  this.getTexts = function (index, quietly) {
-    if (!peer) return Promise.resolve(null);
-    waiting = true;
-    return peer.invoke("getTexts", index, quietly)
-      .then(function (res) {
-        if (handler.getTexts) return handler.getTexts(tab);
-        else return res;
-      })
-      .finally(function () { waiting = false })
-  }
-  this.close = function () {
-    if (peer) peer.disconnect();
-    return Promise.resolve();
-  }
-  this.getUri = function () {
-    return tabPromise.then(function (tab) { return tab && tab.url });
-  }
-}
-
-
 function Doc(source, onEnd) {
   var info;
   var currentIndex;
