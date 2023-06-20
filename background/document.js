@@ -255,8 +255,22 @@ function Doc(source, onEnd) {
     const result = await browser.storage.local.get('speechSettings');
     if (result.speechSettings) {
       speechSettings = result.speechSettings;
+
+      // Assuming speechSettings.speechSpeed is within the range of 1.5-3
+      const originalSpeechSpeed = speechSettings.speechSpeed;
+      const minRange1 = 1.5;  // Minimum value of the original range
+      const maxRange1 = 3;    // Maximum value of the original range
+      const minRange2 = 1.3;  // Minimum value of the target range
+      const maxRange2 = 2.5;  // Maximum value of the target range
+
+      // Scale the value to the target range
+      const scaledSpeechSpeed = ((originalSpeechSpeed - minRange1) / (maxRange1 - minRange1)) * (maxRange2 - minRange2) + minRange2;
+
+      // Round the result to one decimal place
+      const roundedSpeechSpeed = Math.round(scaledSpeechSpeed * 10) / 10;
+
       options = {
-        rate: speechSettings.speechSpeed || defaults.rate,
+        rate: roundedSpeechSpeed || defaults.rate,
         volume: speechSettings.speechVolume || defaults.volume,
         lang: config.langMap[lang] || lang || 'en-US',
       };
