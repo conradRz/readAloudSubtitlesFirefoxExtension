@@ -26,7 +26,6 @@ interface Voice {
 interface TtsEngine {
   speak: function(text: string, opts: Options, onEvent: (e:Event) => void): void
   stop: function(): void
-  pause: function(): void
   resume: function(): void
   isSpeaking: function(callback): void
   getVoices: function(): Voice[]
@@ -46,7 +45,6 @@ function BrowserTtsEngine() {
     })
   }
   this.stop = browser.tts.stop;
-  this.pause = browser.tts.pause;
   this.resume = browser.tts.resume;
   this.isSpeaking = browser.tts.isSpeaking;
   this.getVoices = function () {
@@ -78,9 +76,6 @@ function WebSpeechEngine() {
   this.stop = function () {
     if (utter) utter.onend = null;
     speechSynthesis.cancel();
-  }
-  this.pause = function () {
-    speechSynthesis.pause();
   }
   this.resume = function () {
     speechSynthesis.resume();
@@ -159,7 +154,6 @@ function RemoteTtsEngine(serviceUrl) {
   this.speak = function (utterance, options, onEvent) {
     if (!options.volume) options.volume = 1;
     if (!options.rate) options.rate = 1;
-    audio.pause();
     if (!iOS) {
       audio.volume = options.volume;
       audio.defaultPlaybackRate = options.rate;
@@ -197,13 +191,6 @@ function RemoteTtsEngine(serviceUrl) {
   this.isSpeaking = function (callback) {
     callback(isSpeaking);
   }
-  this.pause =
-    this.stop = function () {
-      speakPromise.then(function () {
-        clearTimeout(waitTimer);
-        audio.pause();
-      })
-    }
   this.resume = function () {
     audio.play();
   }
@@ -250,7 +237,6 @@ function GoogleTranslateTtsEngine() {
   this.speak = function (utterance, options, onEvent) {
     if (!options.volume) options.volume = 1;
     if (!options.rate) options.rate = 1;
-    audio.pause();
     audio.volume = options.volume;
     audio.defaultPlaybackRate = options.rate * 1.1;
     audio.onplay = function () {
@@ -284,10 +270,6 @@ function GoogleTranslateTtsEngine() {
   this.isSpeaking = function (callback) {
     callback(isSpeaking);
   };
-  this.pause =
-    this.stop = function () {
-      speakPromise.then(function () { audio.pause() });
-    };
   this.resume = function () {
     audio.play();
   };

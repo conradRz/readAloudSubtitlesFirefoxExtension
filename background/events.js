@@ -11,7 +11,6 @@ var handlers = {
   playText: playText,
   playTab: playTab,
   stop: stop,
-  pause: pause,
   getPlaybackState: getPlaybackState,
   getSpeechPosition: function () {
     return getActiveSpeech()
@@ -75,11 +74,6 @@ function stop() {
   else return Promise.resolve();
 }
 
-function pause() {
-  if (activeDoc) return activeDoc.pause();
-  else return Promise.resolve();
-}
-
 function getPlaybackState() {
   if (activeDoc) return activeDoc.getState();
   else return Promise.resolve("STOPPED");
@@ -102,6 +96,5 @@ function closeDoc() {
   if (activeDoc) {
     activeDoc.close();
     activeDoc = null;
-    silenceLoop.pause();
   }
 }

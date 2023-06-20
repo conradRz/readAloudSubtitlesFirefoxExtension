@@ -4,7 +4,6 @@ function Speech(texts, options) {
 
   var self = this;
   var engine;
-  var pauseDuration = 650 / options.rate;
   var state = "IDLE";
   var index = 0;
   var delayedPlayTimer;
@@ -16,7 +15,6 @@ function Speech(texts, options) {
 
   this.options = options;
   this.play = play;
-  this.pause = pause;
   this.stop = stop;
   this.getState = getState;
   this.getPosition = getPosition;
@@ -54,7 +52,6 @@ function Speech(texts, options) {
     return new Promise(function (fulfill) {
       engine.isSpeaking(function (isSpeaking) {
         if (state == "PLAYING") fulfill(isSpeaking ? "PLAYING" : "LOADING");
-        else fulfill("PAUSED");
       })
     })
   }
@@ -73,11 +70,6 @@ function Speech(texts, options) {
       if (self.onEnd) self.onEnd();
       return Promise.resolve();
     }
-    else if (state == "PAUSED") {
-      state = "PLAYING";
-      engine.resume();
-      return Promise.resolve();
-    }
     else {
       state = new String("PLAYING");
       state.startTime = new Date().getTime();
@@ -86,7 +78,6 @@ function Speech(texts, options) {
           return speak(texts[index],
             function () {
               state = "IDLE";
-              if (engine.setNextStartTime) engine.setNextStartTime(new Date().getTime() + pauseDuration, options);
               index++;
               play()
                 .catch(function (err) {
@@ -108,22 +99,6 @@ function Speech(texts, options) {
     clearTimeout(delayedPlayTimer);
     delayedPlayTimer = setTimeout(function () { stop().then(play) }, 750);
     return Promise.resolve();
-  }
-
-  function canPause() {
-    return engine.pause;
-  }
-
-  function pause() {
-    return ready
-      .then(function () {
-        if (canPause()) {
-          clearTimeout(delayedPlayTimer);
-          engine.pause();
-          state = "PAUSED";
-        }
-        else return stop();
-      })
   }
 
   function stop() {

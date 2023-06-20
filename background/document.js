@@ -158,7 +158,6 @@ function Doc(source, onEnd) {
   this.close = close;
   this.play = play;
   this.stop = stop;
-  this.pause = pause;
   this.getState = getState;
   this.getActiveSpeech = getActiveSpeech;
 
@@ -295,14 +294,6 @@ function Doc(source, onEnd) {
     return ready
       .then(function () {
         if (activeSpeech) return activeSpeech.stop().then(function () { activeSpeech = null });
-      })
-  }
-
-  //method pause
-  function pause() {
-    return ready
-      .then(function () {
-        if (activeSpeech) return activeSpeech.pause();
       })
   }
 
