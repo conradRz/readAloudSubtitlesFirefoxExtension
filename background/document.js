@@ -209,13 +209,13 @@ function Doc(source, onEnd) {
     function read(texts) {
       texts = texts.map(preprocess)
       return Promise.resolve()
-        .then(function () {
-          if (info.detectedLang == null)
-            return detectLanguage(texts)
-              .then(function (lang) {
-                info.detectedLang = lang || "";
-              })
-        })
+        // .then(function () {
+        //   if (info.detectedLang == null)
+        //     return detectLanguage(texts)
+        //       .then(function (lang) {
+        //         info.detectedLang = lang || "";
+        //       })
+        // })
         .then(getSpeech.bind(null, texts))
         .then(function (speech) {
           if (activeSpeech) return;
@@ -326,8 +326,7 @@ function Doc(source, onEnd) {
     return getSettings()
       .then(function (settings) {
         console.log("Declared", info.lang)
-        console.log("Detected", info.detectedLang)
-        var lang = (!info.detectedLang || info.lang && info.lang.startsWith(info.detectedLang)) ? info.lang : info.detectedLang;
+        var lang = info.lang;
         console.log("Chosen", lang)
         var options = {
           rate: settings.rate || defaults.rate,

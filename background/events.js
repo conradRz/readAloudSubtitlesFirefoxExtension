@@ -35,7 +35,6 @@ var handlers = {
 browser.runtime.onMessage.addListener((message) => {
   // Access the parameters sent from the content script
   // const { param1, param2 } = info.data;
-  debugger;
 
   stop()
     .then(function () {
@@ -52,7 +51,7 @@ function playText(text, opts) {
   opts = opts || {}
   playbackError = null
   if (!activeDoc) {
-    openDoc(new SimpleSource(text.split(/(?:\r?\n){2,}/), { lang: opts.lang }), function (err) {
+    openDoc(new SimpleSource(text.split(/(?:\r?\n){2,}/), { lang: opts }), function (err) {
       if (err) playbackError = err
     })
   }
