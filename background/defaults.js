@@ -53,19 +53,13 @@ function parseUrl(url) {
  */
 function getSettings(names) {
   return new Promise(function (fulfill) {
-    browser.storage.local.get(names || ["voiceName", "rate", "volume", "languages"], fulfill);
+    browser.storage.local.get(names || ["voiceName", "rate", "volume"], fulfill);
   });
 }
 
 function updateSettings(items) {
   return new Promise(function (fulfill) {
     browser.storage.local.set(items, fulfill);
-  });
-}
-
-function clearSettings(names) {
-  return new Promise(function (fulfill) {
-    browser.storage.local.remove(names || ["voiceName", "rate", "volume", "languages"], fulfill);
   });
 }
 
