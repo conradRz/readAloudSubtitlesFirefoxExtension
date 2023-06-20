@@ -24,7 +24,7 @@ function Speech(texts, options) {
   this.gotoEnd = gotoEnd;
 
   function pickEngine() {
-    if (isGoogleTranslate(options.voice) && !/\s(Hebrew|Telugu)$/.test(options.voice.voiceName)) {
+    if (isGoogleTranslate() && !/\s(Hebrew|Telugu)$/.test(options.voice.voiceName)) {
       return googleTranslateTtsEngine.ready()
         .then(function () { return googleTranslateTtsEngine })
         .catch(function (err) {
@@ -35,7 +35,7 @@ function Speech(texts, options) {
           return remoteTtsEngine;
         })
     }
-    if (isRemoteVoice(options.voice)) return remoteTtsEngine;
+    if (isRemoteVoice()) return remoteTtsEngine;
     return browserTtsEngine;
   }
 
@@ -43,7 +43,7 @@ function Speech(texts, options) {
     var isEA = /^zh|ko|ja/.test(options.lang);
     var punctuator = isEA ? new EastAsianPunctuator() : new LatinPunctuator();
 
-    if (isGoogleTranslate(options.voice)) return new CharBreaker(200, punctuator).breakText(text);
+    if (isGoogleTranslate()) return new CharBreaker(200, punctuator).breakText(text);
     else return new CharBreaker(750, punctuator, 200).breakText(text);
   }
 

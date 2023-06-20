@@ -4,24 +4,6 @@ var playbackError = null;
 var silenceLoop = new Audio("sound/silence.mp3");
 silenceLoop.loop = true;
 
-/**
- * IPC handlers
- */
-var handlers = {
-  playText: playText,
-  stop: stop,
-  getPlaybackState: getPlaybackState,
-  getSpeechPosition: function () {
-    return getActiveSpeech()
-      .then(function (speech) {
-        return speech && speech.getPosition();
-      })
-  },
-  getPlaybackError: function () {
-    if (playbackError) return { message: playbackError.message }
-  },
-}
-
 // Listen for messages from content scripts
 browser.runtime.onMessage.addListener((message) => {
   stop()

@@ -53,14 +53,6 @@ function updateSettings(items) {
   });
 }
 
-function getState(key) {
-  return new Promise(function (fulfill) {
-    browser.storage.local.get(key, function (items) {
-      fulfill(items[key]);
-    });
-  });
-}
-
 function setState(key, value) {
   var items = {};
   items[key] = value;
@@ -85,11 +77,11 @@ function getVoices() {
     })
 }
 
-function isGoogleTranslate(voice) {
+function isGoogleTranslate() {
   return true;
 }
 
-function isRemoteVoice(voice) {
+function isRemoteVoice() {
   return true;
 }
 
@@ -103,7 +95,7 @@ function getSpeechVoice(voiceName, lang) {
         voice = findVoiceByLang(voices.filter(negate(isRemoteVoice)), lang)
           || findVoiceByLang(voices.filter(isGoogleTranslate), lang)
           || findVoiceByLang(voices, lang);
-        if (voice && isRemoteVoice(voice)) voice = Object.assign({ autoSelect: true }, voice);
+        if (voice && isRemoteVoice()) voice = Object.assign({ autoSelect: true }, voice);
       }
       return voice;
     })
@@ -216,7 +208,7 @@ function ajaxPost(sUrl, oData, sType) {
   })
 }
 
-function objectAssign(target, varArgs) { // .length of function is 2
+function objectAssign(target) { // .length of function is 2
   'use strict';
   if (target == null) throw new TypeError('Cannot convert undefined or null to object');
   var to = Object(target);
@@ -437,12 +429,6 @@ function getAuthToken(opts) {
   function saveToken(token) {
     if (token) return updateSettings({ authToken: token });
   }
-}
-
-function getAllFrames(tabId) {
-  return new Promise(function (fulfill) {
-    browser.webNavigation.getAllFrames({ tabId: tabId }, fulfill);
-  })
 }
 
 function promiseTimeout(millis, errorMsg, promise) {
