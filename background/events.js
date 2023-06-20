@@ -31,24 +31,6 @@ var handlers = {
   },
 }
 
-browser.runtime.onMessage.addListener(
-  function (request, sender, sendResponse) {
-    var handler = handlers[request.method];
-    if (handler) {
-      Promise.resolve(handler.apply(null, request.args))
-        .then(sendResponse)
-        .catch(function (err) {
-          sendResponse({ error: err.message });
-        })
-      return true;
-    }
-    else {
-      sendResponse({ error: "BAD_METHOD" });
-    }
-  }
-);
-
-
 // Listen for messages from content scripts
 browser.runtime.onMessage.addListener((message) => {
   // Access the parameters sent from the content script
