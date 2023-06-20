@@ -26,7 +26,6 @@ interface Voice {
 interface TtsEngine {
   speak: function(text: string, opts: Options, onEvent: (e:Event) => void): void
   stop: function(): void
-  resume: function(): void
   isSpeaking: function(callback): void
   getVoices: function(): Voice[]
 }
@@ -45,7 +44,6 @@ function BrowserTtsEngine() {
     })
   }
   this.stop = browser.tts.stop;
-  this.resume = browser.tts.resume;
   this.isSpeaking = browser.tts.isSpeaking;
   this.getVoices = function () {
     return new Promise(function (fulfill) {
@@ -76,9 +74,6 @@ function WebSpeechEngine() {
   this.stop = function () {
     if (utter) utter.onend = null;
     speechSynthesis.cancel();
-  }
-  this.resume = function () {
-    speechSynthesis.resume();
   }
   this.isSpeaking = function (callback) {
     callback(speechSynthesis.speaking);
@@ -191,9 +186,6 @@ function RemoteTtsEngine(serviceUrl) {
   this.isSpeaking = function (callback) {
     callback(isSpeaking);
   }
-  this.resume = function () {
-    audio.play();
-  }
   this.prefetch = function (utterance, options) {
     if (!iOS) {
       ajaxGet(getAudioUrl(utterance, options.lang, options.voice, true));
@@ -269,9 +261,6 @@ function GoogleTranslateTtsEngine() {
   };
   this.isSpeaking = function (callback) {
     callback(isSpeaking);
-  };
-  this.resume = function () {
-    audio.play();
   };
   this.prefetch = function (utterance, options) {
     getAudioUrl(utterance, options.voice.lang)
