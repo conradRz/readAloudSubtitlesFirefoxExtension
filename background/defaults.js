@@ -156,19 +156,6 @@ function findVoiceByLang(voices, lang) {
   return match.first || match.second || match.third || match.fourth || match.fifth || match.sixth;
 }
 
-
-/**
- * HELPERS
- */
-function executeFile(file) {
-  return new Promise(function (fulfill, reject) {
-    browser.tabs.executeScript({ file: file }, function (result) {
-      if (browser.runtime.lastError) reject(new Error(browser.runtime.lastError.message));
-      else fulfill(result);
-    });
-  });
-}
-
 function executeScript(details) {
   console.log(details);
   var tabId = details.tabId;
@@ -181,28 +168,10 @@ function executeScript(details) {
   });
 }
 
-function insertCSS(file) {
-  return new Promise(function (fulfill, reject) {
-    browser.tabs.insertCSS({ file: file }, function (result) {
-      if (browser.runtime.lastError) reject(new Error(browser.runtime.lastError.message));
-      else fulfill(result);
-    })
-  });
-}
-
 function getActiveTab() {
   return new Promise(function (fulfill) {
     browser.tabs.query({ active: true, lastFocusedWindow: true }, function (tabs) {
       fulfill(tabs[0]);
-    })
-  })
-}
-
-function getCurrentTab() {
-  return new Promise(function (fulfill, reject) {
-    browser.tabs.getCurrent(function (tab) {
-      if (tab) fulfill(tab)
-      else reject(browser.runtime.lastError || new Error("Could not get current tab"))
     })
   })
 }
@@ -219,65 +188,10 @@ function setTabUrl(tabId, url) {
   })
 }
 
-function createTab(url, waitForLoad) {
-  return new Promise(function (fulfill) {
-    browser.tabs.create({ url: url }, function (tab) {
-      if (!waitForLoad) fulfill(tab);
-      else browser.tabs.onUpdated.addListener(onUpdated);
-
-      function onUpdated(tabId, changeInfo) {
-        if (changeInfo.status == "complete" && tabId == tab.id) {
-          browser.tabs.onUpdated.removeListener(onUpdated);
-          fulfill(tab);
-        }
-      }
-    })
-  })
-}
-
-function updateTab(tabId, details) {
-  return new Promise(function (fulfill, reject) {
-    browser.tabs.update(tabId, details, function (tab) {
-      if (tab) fulfill(tab)
-      else reject(browser.runtime.lastError || new Error("Could not update tab " + tabId))
-    })
-  })
-}
-
-function createWindow(details) {
-  return new Promise(function (fulfill, reject) {
-    browser.windows.create(details, function (window) {
-      if (window) fulfill(window)
-      else reject(browser.runtime.lastError || new Error("Could not create window"))
-    })
-  })
-}
-
-function updateWindow(windowId, details) {
-  return new Promise(function (fulfill, reject) {
-    browser.windows.update(windowId, details, function (window) {
-      if (window) fulfill(window)
-      else reject(browser.runtime.lastError || new Error("Could not update window " + windowId))
-    })
-  })
-}
-
-function getBackgroundPage() {
-  return new Promise(function (fulfill) {
-    browser.runtime.getBackgroundPage(fulfill);
-  });
-}
-
 function negate(pred) {
   return function () {
     return !pred.apply(this, arguments);
   }
-}
-
-function spread(f, self) {
-  return function (args) {
-    return f.apply(self, args);
-  };
 }
 
 function extraAction(action) {
@@ -597,37 +511,6 @@ function getAuthToken(opts) {
 function getAllFrames(tabId) {
   return new Promise(function (fulfill) {
     browser.webNavigation.getAllFrames({ tabId: tabId }, fulfill);
-  })
-}
-
-function getFrameTexts(tabId, frameId, scripts) {
-  return new Promise(function (fulfill, reject) {
-    function onConnect(port) {
-      if (port.name == "ReadAloudGetTextsScript") {
-        browser.runtime.onConnect.removeListener(onConnect);
-        var peer = new RpcPeer(new ExtensionMessagingPeer(port));
-        peer.onInvoke = function (method, arg0) {
-          clearTimeout(timer);
-          if (method == "onTexts") fulfill(arg0);
-          else reject(new Error("Unexpected"));
-        }
-      }
-    }
-    function onError(err) {
-      browser.runtime.onConnect.removeListener(onConnect);
-      clearTimeout(timer);
-      reject(err);
-    }
-    function onTimeout() {
-      browser.runtime.onConnect.removeListener(onConnect);
-      reject(new Error("Timeout waiting for content script to connect"));
-    }
-    browser.runtime.onConnect.addListener(onConnect);
-    var tasks = scripts.map(function (file) {
-      return executeScript.bind(null, { file: file, tabId: tabId, frameId: frameId });
-    })
-    inSequence(tasks).catch(onError);
-    var timer = setTimeout(onTimeout, 15000);
   })
 }
 
