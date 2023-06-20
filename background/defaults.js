@@ -157,7 +157,6 @@ function findVoiceByLang(voices, lang) {
 }
 
 function executeScript(details) {
-  console.log(details);
   var tabId = details.tabId;
   delete details.tabId;
   return new Promise(function (fulfill, reject) {

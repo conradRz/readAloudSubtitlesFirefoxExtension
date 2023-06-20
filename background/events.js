@@ -5,11 +5,7 @@ var silenceLoop = new Audio("sound/silence.mp3");
 silenceLoop.loop = true;
 
 
-hasPermissions(config.gtranslatePerms)
-  .then(function (granted) {
-    if (granted) authGoogleTranslate()
-  })
-
+authGoogleTranslate()
 
 /**
  * IPC handlers
@@ -33,9 +29,6 @@ var handlers = {
 
 // Listen for messages from content scripts
 browser.runtime.onMessage.addListener((message) => {
-  // Access the parameters sent from the content script
-  // const { param1, param2 } = info.data;
-
   stop()
     .then(function () {
       return playText(message.info.selectionText, message.info.lang)

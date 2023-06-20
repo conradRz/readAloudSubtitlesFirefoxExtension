@@ -245,9 +245,9 @@ function Doc(source, onEnd) {
 
   async function getSpeech(texts) {
     const settings = await getSettings();
-    console.log("Declared", info.lang);
+    //console.log("Declared", info.lang);
     var lang = info.lang;
-    console.log("Chosen", lang);
+    //console.log("Chosen", lang);
 
     let options = {};
     let speechSettings;
