@@ -9,7 +9,6 @@ silenceLoop.loop = true;
  */
 var handlers = {
   playText: playText,
-  playTab: playTab,
   stop: stop,
   getPlaybackState: getPlaybackState,
   getSpeechPosition: function () {
@@ -41,20 +40,6 @@ function playText(text, opts) {
   playbackError = null
   if (!activeDoc) {
     openDoc(new SimpleSource(text.split(/(?:\r?\n){2,}/), { lang: opts }), function (err) {
-      if (err) playbackError = err
-    })
-  }
-  return activeDoc.play()
-    .catch(function (err) {
-      closeDoc();
-      throw err;
-    })
-}
-
-function playTab(tabId) {
-  playbackError = null
-  if (!activeDoc) {
-    openDoc(new TabSource(tabId), function (err) {
       if (err) playbackError = err
     })
   }

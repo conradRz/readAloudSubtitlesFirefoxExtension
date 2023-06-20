@@ -27,9 +27,6 @@ var defaults = {
 /**
  * HELPERS
  */
-function getQueryString() {
-  return location.search ? parseQueryString(location.search) : {};
-}
 
 function parseQueryString(search) {
   if (search.charAt(0) != '?') throw new Error("Invalid argument");
@@ -40,13 +37,6 @@ function parseQueryString(search) {
   })
   return queryString;
 }
-
-function parseUrl(url) {
-  var parser = document.createElement("A");
-  parser.href = url;
-  return parser;
-}
-
 
 /**
  * SETTINGS
@@ -156,37 +146,6 @@ function findVoiceByLang(voices, lang) {
   return match.first || match.second || match.third || match.fourth || match.fifth || match.sixth;
 }
 
-function executeScript(details) {
-  var tabId = details.tabId;
-  delete details.tabId;
-  return new Promise(function (fulfill, reject) {
-    browser.tabs.executeScript(tabId, details, function (result) {
-      if (browser.runtime.lastError) reject(new Error(browser.runtime.lastError.message));
-      else fulfill(result);
-    });
-  });
-}
-
-function getActiveTab() {
-  return new Promise(function (fulfill) {
-    browser.tabs.query({ active: true, lastFocusedWindow: true }, function (tabs) {
-      fulfill(tabs[0]);
-    })
-  })
-}
-
-function getTab(tabId) {
-  return new Promise(function (fulfill) {
-    browser.tabs.get(tabId, fulfill)
-  })
-}
-
-function setTabUrl(tabId, url) {
-  return new Promise(function (fulfill) {
-    browser.tabs.update(tabId, { url: url }, fulfill);
-  })
-}
-
 function negate(pred) {
   return function () {
     return !pred.apply(this, arguments);
@@ -200,23 +159,6 @@ function extraAction(action) {
   }
 }
 
-function inSequence(tasks) {
-  return tasks.reduce(function (p, task) { return p.then(task) }, Promise.resolve());
-}
-
-function callMethod(name) {
-  var args = Array.prototype.slice.call(arguments, 1);
-  return function (obj) {
-    return obj[name].apply(obj, args);
-  };
-}
-
-function waitMillis(millis) {
-  return new Promise(function (fulfill) {
-    setTimeout(fulfill, millis);
-  });
-}
-
 function parseLang(lang) {
   var tokens = lang.toLowerCase().replace(/_/g, '-').split(/-/, 2);
   return {
@@ -227,16 +169,6 @@ function parseLang(lang) {
 
 function assert(truthy, message) {
   if (!truthy) throw new Error(message || "Assertion failed");
-}
-
-function formatError(err) {
-  var message = browser.i18n && browser.i18n.getMessage(err.code) || err.code;
-  if (message) {
-    message = message
-      .replace(/{(\w+)}/g, function (m, p1) { return err[p1] })
-      .replace(/\[(.*?)\]\((.*?)\)/g, "<a href='#$2'>$1</a>")
-  }
-  return message;
 }
 
 function urlEncode(oData) {
