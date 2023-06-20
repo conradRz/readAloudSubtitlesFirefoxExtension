@@ -3,7 +3,7 @@
   "name": "__MSG_appName__",
   "description": "__MSG_appDesc__",
   "default_locale": "en",
-  "version": "0.1.6.1",
+  "version": "0.1.7",
   "icons": {
     "48": "icon.png"
   },
@@ -19,6 +19,17 @@
       "js": ["content.js"]
     }
   ],
+  "background": {
+    "scripts": [
+      "background/defaults.js",
+      "background/google-translate.js",
+      "background/tts-engines.js",
+      "background/speech.js",
+      "background/document.js",
+      "background/events.js"
+    ],
+    "persistent": true
+  },
   "web_accessible_resources": ["settings.html", "content.js"],
   "options_ui": {
     "page": "settings.html",

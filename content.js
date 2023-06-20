@@ -156,26 +156,51 @@ const selectCaptionFileForTTS = async (track, selectedLanguageCode = null) => {
           // && voices && voices.length > 0 checks as once a youtube ad caused "Uncaught TypeError: Cannot read properties of undefined (reading 'find')"
           if (voices && voices.length > 0) {
             if (speechSettings.speechVoice !== null) { //there was some selection
-              //check if selected voice matches play through voice language?
-              let voice = voices.find((voice) => voice.voiceURI === speechSettings.speechVoice);
-              if (voice && voice.lang.substring(0, 2) === speechSettings.rememberUserLastSelectedAutoTranslateToLanguageCode) {
-                utterance.voice = voice;
-              } else { //now if it doesn't match the language, try to find one which does
-                if (speechSettings.rememberUserLastSelectedAutoTranslateToLanguageCode !== null) {
-                  voice = voices.find(
-                    (voice) =>
-                      voice.lang.substring(0, 2) === speechSettings.rememberUserLastSelectedAutoTranslateToLanguageCode.substring(0, 2)
-                  )
-                }
-                if (voice) {
-                  utterance.voice = voice;
-                  speechSettings.speechVoice = voice.voiceURI;
-                  browser.storage.local.set({ speechSettings: speechSettings });
-                }
-              }
 
-              //if a voice with a matching language is unavailable
-              //here it would make sense to pop up some information message to the user, as otherwise it just tries to read it with English voice, but the underlying text is non-english
+
+
+              /////////////////////////////////////
+              // if GoogleTranslate voice had been selected
+              if (speechSettings.speechVoice.startsWith("GoogleTranslate_")) {
+                // a content script in Firefox cannot make its own web requests. Content scripts are executed in the context of a web page and have limited access to browser APIs. In Firefox extensions, content scripts are primarily used to manipulate the DOM of a webpage and interact with the content on the page. They do not have direct access to browser APIs like XMLHttpRequest or the fetch API to make web requests. If you need to make web requests from within your extension, you should do so from the background script or a dedicated script running in the extension's background context. The background script has full access to the browser APIs and can make web requests using methods such as XMLHttpRequest or the fetch API.
+                const message = {
+                  info: {
+                    selectionText: unescapeHTML(matchedText.replace(/\n/g, "").replace(/\\"/g, '"').trim().replace(/[,\.]+$/, '').replace(/\r/g, "")),
+                    lang: speechSettings.speechVoice.replace("GoogleTranslate_", "")
+                  }
+                };
+
+                // Send the message to the background script
+                browser.runtime.sendMessage(message);
+
+                // here it would be necessery to somehow set up isSpeechSynthesisInProgress = false, with the right timing, perhaps as as a message from the background script, for now the below is just a placeholder for testing
+                isSpeechSynthesisInProgress = false;
+                previousTime = currentTime;
+                return;
+
+
+              } else {
+                //check if selected voice matches play through voice language?
+                let voice = voices.find((voice) => voice.voiceURI === speechSettings.speechVoice);
+                if (voice && voice.lang.substring(0, 2) === speechSettings.rememberUserLastSelectedAutoTranslateToLanguageCode) {
+                  utterance.voice = voice;
+                } else { //now if it doesn't match the language, try to find one which does
+                  if (speechSettings.rememberUserLastSelectedAutoTranslateToLanguageCode !== null) {
+                    voice = voices.find(
+                      (voice) =>
+                        voice.lang.substring(0, 2) === speechSettings.rememberUserLastSelectedAutoTranslateToLanguageCode.substring(0, 2)
+                    )
+                  }
+                  if (voice) {
+                    utterance.voice = voice;
+                    speechSettings.speechVoice = voice.voiceURI;
+                    browser.storage.local.set({ speechSettings: speechSettings });
+                  }
+                }
+
+                //if a voice with a matching language is unavailable
+                //here it would make sense to pop up some information message to the user, as otherwise it just tries to read it with English voice, but the underlying text is non-english
+              }
             }
           }
 
