@@ -9,7 +9,6 @@
   },
   "permissions": [
     "storage",
-    "https://translate.google.com/",
     "webRequest",
     "webRequestBlocking",
     "webNavigation"
