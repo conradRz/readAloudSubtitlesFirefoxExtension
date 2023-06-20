@@ -103,11 +103,11 @@ function getVoices() {
 }
 
 function isGoogleTranslate(voice) {
-  return /^GoogleTranslate /.test(voice.voiceName);
+  return true;
 }
 
 function isRemoteVoice(voice) {
-  return isGoogleTranslate(voice);
+  return true;
 }
 
 function getSpeechVoice(voiceName, lang) {
