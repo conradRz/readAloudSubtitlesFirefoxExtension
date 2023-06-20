@@ -84,7 +84,7 @@ function setState(key, value) {
  * VOICES
  */
 function getVoices() {
-  return getSettings(["awsCreds", "gcpCreds"])
+  return getSettings(["gcpCreds"])
     .then(function (settings) {
       return Promise.all([
         googleTranslateTtsEngine.getVoices(),
