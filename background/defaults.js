@@ -53,7 +53,7 @@ function parseUrl(url) {
  */
 function getSettings(names) {
   return new Promise(function (fulfill) {
-    browser.storage.local.get(names || ["voiceName", "rate", "volume", "languages", "preferredVoices"], fulfill);
+    browser.storage.local.get(names || ["voiceName", "rate", "volume", "languages"], fulfill);
   });
 }
 
@@ -65,7 +65,7 @@ function updateSettings(items) {
 
 function clearSettings(names) {
   return new Promise(function (fulfill) {
-    browser.storage.local.remove(names || ["voiceName", "rate", "volume", "languages", "preferredVoices"], fulfill);
+    browser.storage.local.remove(names || ["voiceName", "rate", "volume", "languages"], fulfill);
   });
 }
 
@@ -110,16 +110,11 @@ function isRemoteVoice(voice) {
 }
 
 function getSpeechVoice(voiceName, lang) {
-  return Promise.all([getVoices(), getSettings(["preferredVoices"])])
+  return Promise.all([getVoices()])
     .then(function (res) {
       var voices = res[0];
-      var preferredVoiceByLang = res[1].preferredVoices || {};
       var voice;
       if (voiceName) voice = findVoiceByName(voices, voiceName);
-      if (!voice && lang) {
-        voiceName = preferredVoiceByLang[lang.split("-")[0]];
-        if (voiceName) voice = findVoiceByName(voices, voiceName);
-      }
       if (!voice && lang) {
         voice = findVoiceByLang(voices.filter(negate(isRemoteVoice)), lang)
           || findVoiceByLang(voices.filter(isGoogleTranslate), lang)
