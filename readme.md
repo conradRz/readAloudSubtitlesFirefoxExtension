@@ -55,8 +55,8 @@ If you find this extension useful and would like to support its development and 
 
 ## Google Translate Voices and Firefox Compatibility
 
-Please note that the Firefox version of the extension does not include Google Translate voices. I might decide to spend hours to implement it on Firefox, in future, although that's not guranteed.
-**Google Translate voices work on Chrome browser wersion of this extension.**
+~~I might decide to spend hours to implement it on Firefox, in future, although that's not guranteed.~~ Please note that the Firefox version of the extension includes Google Translate voices unofficially (they restrict them to Google products..., accessing them programmatically is a work around... I have spent a lot of time implementing just that subfunctionality.
+**Google Translate voices work with normal API call, on Chrome browser wersion of this extension.**
 
 ---
 
