@@ -9,8 +9,6 @@
   },
   "permissions": [
     "activeTab",
-    "menus",
-    "identity",
     "storage",
     "https://translate.google.com/",
     "webRequest",
@@ -31,7 +29,6 @@
   "background": {
     "scripts": [
       "background/defaults.js",
-      "background/messaging.js",
       "background/google-translate.js",
       "background/tts-engines.js",
       "background/speech.js",
