@@ -150,67 +150,97 @@ const selectCaptionFileForTTS = async (track, selectedLanguageCode = null) => {
           subtitlePart = matchedText;
 
           isSpeechSynthesisInProgress = true;
-          let utterance = new SpeechSynthesisUtterance(unescapeHTML(matchedText.replace(/\n/g, "").replace(/\\"/g, '"').trim().replace(/[,\.]+$/, '').replace(/\r/g, ""))); //.replace(/[,\.]+$/, '') trims trailing , and . which makes the subtitle playing smoother in my subjective opinion
 
-          //only assign utterance.voice if speechSettings.speechVoice is not empty, that is other voice than the environment default had been selected
-          // && voices && voices.length > 0 checks as once a youtube ad caused "Uncaught TypeError: Cannot read properties of undefined (reading 'find')"
-          if (voices && voices.length > 0) {
-            if (speechSettings.speechVoice !== null) { //there was some selection
+          let utterance = new SpeechSynthesisUtterance(unescapeHTML(matchedText.replace(/\n/g, "").replace(/\\"/g, '"').trim().replace(/[,\.]+$/, '').replace(/\r/g, "")));
 
-
-
-              /////////////////////////////////////
-              // if GoogleTranslate voice had been selected
-              if (speechSettings.speechVoice.startsWith("GoogleTranslate_")) {
-                // a content script in Firefox cannot make its own web requests. Content scripts are executed in the context of a web page and have limited access to browser APIs. In Firefox extensions, content scripts are primarily used to manipulate the DOM of a webpage and interact with the content on the page. They do not have direct access to browser APIs like XMLHttpRequest or the fetch API to make web requests. If you need to make web requests from within your extension, you should do so from the background script or a dedicated script running in the extension's background context. The background script has full access to the browser APIs and can make web requests using methods such as XMLHttpRequest or the fetch API.
-                const message = {
-                  info: {
-                    selectionText: unescapeHTML(matchedText.replace(/\n/g, "").replace(/\\"/g, '"').trim().replace(/[,\.]+$/, '').replace(/\r/g, "")),
-                    lang: speechSettings.speechVoice.replace("GoogleTranslate_", "")
-                  }
-                };
-
-                // Send the message to the background script
-                browser.runtime.sendMessage(message);
-
-                // here it would be necessery to somehow set up isSpeechSynthesisInProgress = false, with the right timing, perhaps as as a message from the background script, for now the below is just a placeholder for testing
-                isSpeechSynthesisInProgress = false;
-                previousTime = currentTime;
-                return;
-
-
+          if (speechSettings.rememberUserLastSelectedAutoTranslateToLanguageCode !== null) {
+            if (speechSettings.speechVoice && speechSettings.speechVoice.startsWith("GoogleTranslate_")) {
+              const langCode = speechSettings.speechVoice.replace("GoogleTranslate_", "");
+              if (langCode === speechSettings.rememberUserLastSelectedAutoTranslateToLanguageCode) {
+                // Speak with GoogleTranslate_ if language codes match
+                speakWithGoogleVoice(langCode);
               } else {
-                //check if selected voice matches play through voice language?
-                let voice = voices.find((voice) => voice.voiceURI === speechSettings.speechVoice);
-                if (voice && voice.lang.substring(0, 2) === speechSettings.rememberUserLastSelectedAutoTranslateToLanguageCode) {
-                  utterance.voice = voice;
-                } else { //now if it doesn't match the language, try to find one which does
-                  if (speechSettings.rememberUserLastSelectedAutoTranslateToLanguageCode !== null) {
-                    voice = voices.find(
-                      (voice) =>
-                        voice.lang.substring(0, 2) === speechSettings.rememberUserLastSelectedAutoTranslateToLanguageCode.substring(0, 2)
-                    )
-                  }
-                  if (voice) {
-                    utterance.voice = voice;
-                    speechSettings.speechVoice = voice.voiceURI;
-                    browser.storage.local.set({ speechSettings: speechSettings });
-                  }
+                const localVoice = findLocalVoice(speechSettings.rememberUserLastSelectedAutoTranslateToLanguageCode);
+                if (localVoice) {
+                  utterance.voice = localVoice;
+                  updateSettingsAndSpeak(localVoice);
+                } else {
+                  speakWithGoogleVoice(speechSettings.rememberUserLastSelectedAutoTranslateToLanguageCode);
                 }
+              }
+            } else if (!speechSettings.speechVoice) {
+              // default state just after installation, and when the user didn't yet select a voice from a dropdown
+              const langCode = speechSettings.rememberUserLastSelectedAutoTranslateToLanguageCode;
 
-                //if a voice with a matching language is unavailable
-                //here it would make sense to pop up some information message to the user, as otherwise it just tries to read it with English voice, but the underlying text is non-english
+              const localVoice = findLocalVoice(langCode);
+              if (localVoice) {
+                updateSettingsAndSpeak(localVoice);
+              } else {
+                speakWithGoogleVoice(langCode);
+              }
+            } else {
+              const voice = findVoiceByVoiceURI(speechSettings.speechVoice);
+              if (voice && voice.lang.substring(0, 2) === speechSettings.rememberUserLastSelectedAutoTranslateToLanguageCode) {
+                utterance.voice = voice;
+                updateSettingsAndSpeak(voice);
+              } else {
+                const localVoice = findLocalVoice(speechSettings.rememberUserLastSelectedAutoTranslateToLanguageCode);
+                if (localVoice) {
+                  utterance.voice = localVoice;
+                  updateSettingsAndSpeak(localVoice);
+                } else {
+                  speakWithGoogleVoice(speechSettings.rememberUserLastSelectedAutoTranslateToLanguageCode);
+                }
+              }
+            }
+          } else {
+            if (speechSettings.speechVoice !== null) {
+              if (speechSettings.speechVoice.startsWith("GoogleTranslate_")) {
+                const langCode = speechSettings.speechVoice.replace("GoogleTranslate_", "");
+                speakWithGoogleVoice(langCode);
+              } else {
+                const voice = findVoiceByVoiceURI(speechSettings.speechVoice);
+                if (voice) {
+                  utterance.voice = voice;
+                  updateSettingsAndSpeak(voice);
+                }
               }
             }
           }
 
-          utterance.rate = speechSettings.speechSpeed;
-          utterance.volume = speechSettings.speechVolume;
-
-          utterance.onend = () => {
+          function speakWithGoogleVoice(langCode) {
+            const message = {
+              info: {
+                selectionText: utterance.text,
+                lang: langCode
+              }
+            };
+            browser.runtime.sendMessage(message);
+            speechSettings.speechVoice = "GoogleTranslate_" + langCode;
+            browser.storage.local.set({ speechSettings: speechSettings });
             isSpeechSynthesisInProgress = false;
-          };
-          speechSynthesis.speak(utterance);
+          }
+
+          function findLocalVoice(langCode) {
+            return voices.find((voice) => voice.lang.substring(0, 2) === langCode);
+          }
+
+          function findVoiceByVoiceURI(voiceURI) {
+            return voices.find((voice) => voice.voiceURI === voiceURI);
+          }
+
+          function updateSettingsAndSpeak(voice) {
+            if (voice) {
+              utterance.voice = voice;
+            }
+            utterance.rate = speechSettings.speechSpeed;
+            utterance.volume = speechSettings.speechVolume;
+            utterance.onend = () => {
+              isSpeechSynthesisInProgress = false;
+            };
+            speechSynthesis.speak(utterance);
+          }
+
 
         }
       }
