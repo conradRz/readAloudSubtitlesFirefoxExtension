@@ -235,6 +235,10 @@ const selectCaptionFileForTTS = async (track, selectedLanguageCode = null) => {
             }
             utterance.rate = speechSettings.speechSpeed;
             utterance.volume = speechSettings.speechVolume;
+
+            speechSettings.speechVoice = voice.voiceURI;
+            browser.storage.local.set({ speechSettings: speechSettings });
+
             utterance.onend = () => {
               isSpeechSynthesisInProgress = false;
             };
