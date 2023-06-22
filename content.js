@@ -105,6 +105,7 @@ const getParameterByName = (name, url) => {
 }
 
 const selectCaptionFileForTTS = async (track, selectedLanguageCode = null) => {
+
   let url;
 
   // Extract the current language code from the track.baseUrl
@@ -153,24 +154,26 @@ const selectCaptionFileForTTS = async (track, selectedLanguageCode = null) => {
 
           let utterance = new SpeechSynthesisUtterance(unescapeHTML(matchedText.replace(/\n/g, "").replace(/\\"/g, '"').trim().replace(/[,\.]+$/, '').replace(/\r/g, "")));
 
+          let temp = utterance.text;
+
           if (speechSettings.rememberUserLastSelectedAutoTranslateToLanguageCode !== null) {
             if (speechSettings.speechVoice && speechSettings.speechVoice.startsWith("GoogleTranslate_")) {
               const langCode = speechSettings.speechVoice.replace("GoogleTranslate_", "");
-              if (langCode === speechSettings.rememberUserLastSelectedAutoTranslateToLanguageCode) {
+              if (langCode === speechSettings.rememberUserLastSelectedAutoTranslateToLanguageCode.substring(0, 2)) {
                 // Speak with GoogleTranslate_ if language codes match
                 speakWithGoogleVoice(langCode);
               } else {
-                const localVoice = findLocalVoice(speechSettings.rememberUserLastSelectedAutoTranslateToLanguageCode);
+                const localVoice = findLocalVoice(speechSettings.rememberUserLastSelectedAutoTranslateToLanguageCode.substring(0, 2));
                 if (localVoice) {
                   utterance.voice = localVoice;
                   updateSettingsAndSpeak(localVoice);
                 } else {
-                  speakWithGoogleVoice(speechSettings.rememberUserLastSelectedAutoTranslateToLanguageCode);
+                  speakWithGoogleVoice(speechSettings.rememberUserLastSelectedAutoTranslateToLanguageCode.substring(0, 2));
                 }
               }
             } else if (!speechSettings.speechVoice) {
               // default state just after installation, and when the user didn't yet select a voice from a dropdown
-              const langCode = speechSettings.rememberUserLastSelectedAutoTranslateToLanguageCode;
+              const langCode = speechSettings.rememberUserLastSelectedAutoTranslateToLanguageCode.substring(0, 2);
 
               const localVoice = findLocalVoice(langCode);
               if (localVoice) {
@@ -179,17 +182,17 @@ const selectCaptionFileForTTS = async (track, selectedLanguageCode = null) => {
                 speakWithGoogleVoice(langCode);
               }
             } else {
-              const voice = findVoiceByVoiceURI(speechSettings.speechVoice);
-              if (voice && voice.lang.substring(0, 2) === speechSettings.rememberUserLastSelectedAutoTranslateToLanguageCode) {
+              const voice = findVoiceByName(speechSettings.speechVoice);
+              if (voice && voice.lang.substring(0, 2) === speechSettings.rememberUserLastSelectedAutoTranslateToLanguageCode.substring(0, 2)) {
                 utterance.voice = voice;
                 updateSettingsAndSpeak(voice);
               } else {
-                const localVoice = findLocalVoice(speechSettings.rememberUserLastSelectedAutoTranslateToLanguageCode);
+                const localVoice = findLocalVoice(speechSettings.rememberUserLastSelectedAutoTranslateToLanguageCode.substring(0, 2));
                 if (localVoice) {
                   utterance.voice = localVoice;
                   updateSettingsAndSpeak(localVoice);
                 } else {
-                  speakWithGoogleVoice(speechSettings.rememberUserLastSelectedAutoTranslateToLanguageCode);
+                  speakWithGoogleVoice(speechSettings.rememberUserLastSelectedAutoTranslateToLanguageCode.substring(0, 2));
                 }
               }
             }
@@ -199,7 +202,7 @@ const selectCaptionFileForTTS = async (track, selectedLanguageCode = null) => {
                 const langCode = speechSettings.speechVoice.replace("GoogleTranslate_", "");
                 speakWithGoogleVoice(langCode);
               } else {
-                const voice = findVoiceByVoiceURI(speechSettings.speechVoice);
+                const voice = findVoiceByName(speechSettings.speechVoice);
                 if (voice) {
                   utterance.voice = voice;
                   updateSettingsAndSpeak(voice);
@@ -211,7 +214,8 @@ const selectCaptionFileForTTS = async (track, selectedLanguageCode = null) => {
           function speakWithGoogleVoice(langCode) {
             const message = {
               info: {
-                selectionText: utterance.text,
+                //selectionText: utterance.text,
+                selectionText: temp,
                 lang: langCode
               }
             };
@@ -222,7 +226,12 @@ const selectCaptionFileForTTS = async (track, selectedLanguageCode = null) => {
           }
 
           function findLocalVoice(langCode) {
-            return voices.find((voice) => voice.lang.substring(0, 2) === langCode);
+            //cannot be just === langCode due to some codes being more than 2 chars
+            return voices.find((voice) => voice.lang.substring(0, 2) === langCode.substring(0, 2));
+          }
+
+          function findVoiceByName(name) {
+            return voices.find((voice) => voice.name === name);
           }
 
           function findVoiceByVoiceURI(voiceURI) {
@@ -233,10 +242,11 @@ const selectCaptionFileForTTS = async (track, selectedLanguageCode = null) => {
             if (voice) {
               utterance.voice = voice;
             }
+
             utterance.rate = speechSettings.speechSpeed;
             utterance.volume = speechSettings.speechVolume;
 
-            speechSettings.speechVoice = voice.voiceURI;
+            speechSettings.speechVoice = voice.name;
             browser.storage.local.set({ speechSettings: speechSettings });
 
             utterance.onend = () => {
@@ -595,7 +605,7 @@ const createSelectionLink = (track, languageTexts) => {
 
   if (speechSettings.rememberUserLastSelectedAutoTranslateToLanguageCode !== null) {
     for (const language of languages) {
-      if (language.languageCode == speechSettings.rememberUserLastSelectedAutoTranslateToLanguageCode) {
+      if (language.languageCode == speechSettings.rememberUserLastSelectedAutoTranslateToLanguageCode.substring(0, 2)) {
         defaultOption.value = language.languageCode;
         defaultOption.text = language.languageName;
         break;
@@ -626,10 +636,8 @@ const createSelectionLink = (track, languageTexts) => {
     if (checkbox.checked) {
       clearInterval(intervalId);
 
-      if (selectedLanguageCode) {
-        selectCaptionFileForTTS(track, selectedLanguageCode);
-      } else if (speechSettings.rememberUserLastSelectedAutoTranslateToLanguageCode !== null) {
-        selectCaptionFileForTTS(track, speechSettings.rememberUserLastSelectedAutoTranslateToLanguageCode);
+      if (speechSettings.rememberUserLastSelectedAutoTranslateToLanguageCode !== null) {
+        selectCaptionFileForTTS(track, speechSettings.rememberUserLastSelectedAutoTranslateToLanguageCode.substring(0, 2));
       }
       else {
         selectCaptionFileForTTS(track);
@@ -654,7 +662,7 @@ const createSelectionLink = (track, languageTexts) => {
     } else {
       selectedLanguageCode = dropdown.value;
     }
-    speechSettings.rememberUserLastSelectedAutoTranslateToLanguageCode = selectedLanguageCode;
+    speechSettings.rememberUserLastSelectedAutoTranslateToLanguageCode = selectedLanguageCode.substring(0, 2);
     browser.storage.local.set({ speechSettings: speechSettings });
 
     checkbox.checked = true;
@@ -924,3 +932,51 @@ setInterval(function () {
     }
   }
 }, 200)
+
+// Listen for messages from the settings.js file
+browser.runtime.onMessage.addListener(function (message) {
+  if (message.command === 'updateDropdowns') {
+
+    const speechVoice = message.voice;
+    const dropdowns = document.querySelectorAll('[id^="dropdown_"]');
+
+    let languageCode;
+
+    if (speechVoice.startsWith("GoogleTranslate_")) {
+      languageCode = speechVoice.replace("GoogleTranslate_", "");
+      speechSettings.rememberUserLastSelectedAutoTranslateToLanguageCode = languageCode.substring(0, 2);
+      speechSettings.speechVoice = speechVoice;
+    } else {
+      languageCode = voices.find((voice) => voice.name === speechVoice);
+      speechSettings.rememberUserLastSelectedAutoTranslateToLanguageCode = languageCode.lang.substring(0, 2);
+      speechSettings.speechVoice = languageCode.name;
+      debugger;
+    }
+
+    dropdowns.forEach(function (dropdown) {
+      // Find the option with the matching languageCode
+      // option.value has to be .substring(0, 2) due to Chinese code having more chars than that
+      const selectedOption = Array.from(dropdown.options).find(option => option.value.substring(0, 2) === speechSettings.rememberUserLastSelectedAutoTranslateToLanguageCode.substring(0, 2));
+
+      // Set the selectedIndex of the dropdown to the index of the selected option
+      if (selectedOption) {
+        dropdown.selectedIndex = selectedOption.index;
+      }
+
+      // Assuming the checkbox was created as a sibling of the dropdown within the same container
+      const container = dropdown.parentNode;
+      const checkbox = container.querySelector('input[type="checkbox"]');
+      if (checkbox) {
+        // Reselect the checkbox if it was previously selected
+        const isChecked = checkbox.checked;
+        checkbox.checked = false; // Uncheck the checkbox first
+        checkbox.checked = isChecked; // Recheck the checkbox to trigger the 'change' event
+        if (isChecked) {
+          // Triggering the 'change' event on the checkbox was intentially not done here, due to a slightly different code needed
+          const event = new Event('change');
+          checkbox.dispatchEvent(event);
+        }
+      }
+    });
+  }
+});

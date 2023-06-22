@@ -42,15 +42,33 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Function to handle TTS voice change
     function handleTTSvoiceChange(event) {
-        // Perform actions with the volume value
-        speechSettings.speechVoice = event.target.value;
-        //saveSpeechSettings();
+        const selectedVoiceURI = event.target.value;
+        let selectedVoiceName;
 
-        const speechVoice = speechSettings.speechVoice;
-        // Update the dropdowns in the content.js file
-        browser.tabs.query({ active: true, currentWindow: true }, function (tabs) {
-            browser.tabs.sendMessage(tabs[0].id, { command: 'updateDropdowns', voice: speechVoice });
+        voices.forEach(voice => {
+            if (voice.voiceURI === selectedVoiceURI) {
+                selectedVoiceName = voice.name;
+            }
         });
+
+        if (selectedVoiceName) {
+            speechSettings.speechVoice = selectedVoiceName;
+            // saveSpeechSettings();
+
+            const speechVoice = speechSettings.speechVoice;
+            // Update the dropdowns in the content.js file
+            browser.tabs.query({ active: true, currentWindow: true }, function (tabs) {
+                browser.tabs.sendMessage(tabs[0].id, { command: 'updateDropdowns', voice: speechVoice });
+            });
+        } else { // for GoogleTranslate voices
+            speechSettings.speechVoice = event.target.value;
+
+            const speechVoice = speechSettings.speechVoice;
+            // Update the dropdowns in the content.js file
+            browser.tabs.query({ active: true, currentWindow: true }, function (tabs) {
+                browser.tabs.sendMessage(tabs[0].id, { command: 'updateDropdowns', voice: speechVoice });
+            });
+        }
     }
 
     // Function to save the speech settings in extension storage
@@ -162,7 +180,20 @@ document.addEventListener('DOMContentLoaded', () => {
                     // Retrieve the stored speechSettings from extension storage
                     browser.storage.local.get('speechSettings', result => {
                         if (result.speechSettings && result.speechSettings.speechVoice) {
-                            select.value = result.speechSettings.speechVoice;
+                            const selectedVoiceName = result.speechSettings.speechVoice;
+                            let selectedVoiceURI;
+
+                            voices.forEach(voice => {
+                                if (voice.name === selectedVoiceName) {
+                                    selectedVoiceURI = voice.voiceURI;
+                                }
+                            });
+
+                            if (selectedVoiceURI) {
+                                select.value = selectedVoiceURI;
+                            } else { //to handle GoogleTranslate voices
+                                select.value = result.speechSettings.speechVoice;
+                            }
                         }
                     });
                 })
