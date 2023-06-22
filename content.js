@@ -469,8 +469,8 @@ const createSelectionLink = (track, languageTexts) => {
     { languageCode: "my", languageName: "Burmese" },
     { languageCode: "ca", languageName: "Catalan" },
     { languageCode: "ceb", languageName: "Cebuano" },
-    { languageCode: "zh-Hans", languageName: "Chinese (Simplified)" },
-    { languageCode: "zh-Hant", languageName: "Chinese (Traditional)" },
+    { languageCode: "zh", languageName: "Chinese (Simplified)" },
+    { languageCode: "zh", languageName: "Chinese (Traditional)" },
     { languageCode: "co", languageName: "Corsican" },
     { languageCode: "hr", languageName: "Croatian" },
     { languageCode: "cs", languageName: "Czech" },
@@ -600,7 +600,6 @@ const createSelectionLink = (track, languageTexts) => {
 
   const defaultOption = document.createElement('option');
 
-  const userLanguage = extractLanguageCode(navigator.language);
   const texts = languageTexts[userLanguage] || languageTexts['en']; // Fallback to English if user language is not define
 
   if (speechSettings.rememberUserLastSelectedAutoTranslateToLanguageCode !== null) {
@@ -950,12 +949,11 @@ browser.runtime.onMessage.addListener(function (message) {
       languageCode = voices.find((voice) => voice.name === speechVoice);
       speechSettings.rememberUserLastSelectedAutoTranslateToLanguageCode = extractLanguageCode(languageCode.lang);
       speechSettings.speechVoice = languageCode.name;
-      debugger;
     }
 
     dropdowns.forEach(function (dropdown) {
       // Find the option with the matching languageCode
-      const selectedOption = Array.from(dropdown.options).find(option => extractLanguageCode(option.value) === extractLanguageCode(speechSettings.rememberUserLastSelectedAutoTranslateToLanguageCode));
+      const selectedOption = Array.from(dropdown.options).find(option => option.value === extractLanguageCode(speechSettings.rememberUserLastSelectedAutoTranslateToLanguageCode));
 
       // Set the selectedIndex of the dropdown to the index of the selected option
       if (selectedOption) {
