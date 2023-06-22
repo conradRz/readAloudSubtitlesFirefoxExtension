@@ -241,9 +241,7 @@ function getUniqueClientId() {
 }
 
 function hasPermissions(perms) {
-  return new Promise(function (fulfill) {
-    browser.permissions.contains(perms, fulfill);
-  })
+  return Promise.resolve(true);
 }
 
 function getAuthToken(opts) {
