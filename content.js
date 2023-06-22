@@ -600,6 +600,7 @@ const createSelectionLink = (track, languageTexts) => {
 
   const defaultOption = document.createElement('option');
 
+  const userLanguage = extractLanguageCode(navigator.language);
   const texts = languageTexts[userLanguage] || languageTexts['en']; // Fallback to English if user language is not define
 
   if (speechSettings.rememberUserLastSelectedAutoTranslateToLanguageCode !== null) {
