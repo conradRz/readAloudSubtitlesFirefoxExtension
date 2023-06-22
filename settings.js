@@ -45,6 +45,12 @@ document.addEventListener('DOMContentLoaded', () => {
         // Perform actions with the volume value
         speechSettings.speechVoice = event.target.value;
         saveSpeechSettings();
+
+        const speechVoice = speechSettings.speechVoice;
+        // Update the dropdowns in the content.js file
+        browser.tabs.query({ active: true, currentWindow: true }, function (tabs) {
+            browser.tabs.sendMessage(tabs[0].id, { command: 'updateDropdowns', voice: speechVoice });
+        });
     }
 
     // Function to save the speech settings in extension storage
