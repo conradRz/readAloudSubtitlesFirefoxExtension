@@ -105,7 +105,6 @@ function Speech(texts, options) {
     return ready
       .then(function () {
         clearTimeout(delayedPlayTimer);
-        engine.stop();
         state = "IDLE";
       })
   }
