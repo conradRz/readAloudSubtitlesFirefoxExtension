@@ -159,21 +159,21 @@ const selectCaptionFileForTTS = async (track, selectedLanguageCode = null) => {
           if (speechSettings.rememberUserLastSelectedAutoTranslateToLanguageCode !== null) {
             if (speechSettings.speechVoice && speechSettings.speechVoice.startsWith("GoogleTranslate_")) {
               const langCode = speechSettings.speechVoice.replace("GoogleTranslate_", "");
-              if (langCode === speechSettings.rememberUserLastSelectedAutoTranslateToLanguageCode.substring(0, 2)) {
+              if (langCode === extractLanguageCode(speechSettings.rememberUserLastSelectedAutoTranslateToLanguageCode)) {
                 // Speak with GoogleTranslate_ if language codes match
                 speakWithGoogleVoice(langCode);
               } else {
-                const localVoice = findLocalVoice(speechSettings.rememberUserLastSelectedAutoTranslateToLanguageCode.substring(0, 2));
+                const localVoice = findLocalVoice(extractLanguageCode(speechSettings.rememberUserLastSelectedAutoTranslateToLanguageCode));
                 if (localVoice) {
                   utterance.voice = localVoice;
                   updateSettingsAndSpeak(localVoice);
                 } else {
-                  speakWithGoogleVoice(speechSettings.rememberUserLastSelectedAutoTranslateToLanguageCode.substring(0, 2));
+                  speakWithGoogleVoice(extractLanguageCode(speechSettings.rememberUserLastSelectedAutoTranslateToLanguageCode));
                 }
               }
             } else if (!speechSettings.speechVoice) {
               // default state just after installation, and when the user didn't yet select a voice from a dropdown
-              const langCode = speechSettings.rememberUserLastSelectedAutoTranslateToLanguageCode.substring(0, 2);
+              const langCode = extractLanguageCode(speechSettings.rememberUserLastSelectedAutoTranslateToLanguageCode);
 
               const localVoice = findLocalVoice(langCode);
               if (localVoice) {
@@ -183,16 +183,16 @@ const selectCaptionFileForTTS = async (track, selectedLanguageCode = null) => {
               }
             } else {
               const voice = findVoiceByName(speechSettings.speechVoice);
-              if (voice && voice.lang.substring(0, 2) === speechSettings.rememberUserLastSelectedAutoTranslateToLanguageCode.substring(0, 2)) {
+              if (voice && extractLanguageCode(voice.lang) === extractLanguageCode(speechSettings.rememberUserLastSelectedAutoTranslateToLanguageCode)) {
                 utterance.voice = voice;
                 updateSettingsAndSpeak(voice);
               } else {
-                const localVoice = findLocalVoice(speechSettings.rememberUserLastSelectedAutoTranslateToLanguageCode.substring(0, 2));
+                const localVoice = findLocalVoice(extractLanguageCode(speechSettings.rememberUserLastSelectedAutoTranslateToLanguageCode));
                 if (localVoice) {
                   utterance.voice = localVoice;
                   updateSettingsAndSpeak(localVoice);
                 } else {
-                  speakWithGoogleVoice(speechSettings.rememberUserLastSelectedAutoTranslateToLanguageCode.substring(0, 2));
+                  speakWithGoogleVoice(extractLanguageCode(speechSettings.rememberUserLastSelectedAutoTranslateToLanguageCode));
                 }
               }
             }
@@ -227,7 +227,7 @@ const selectCaptionFileForTTS = async (track, selectedLanguageCode = null) => {
 
           function findLocalVoice(langCode) {
             //cannot be just === langCode due to some codes being more than 2 chars
-            return voices.find((voice) => voice.lang.substring(0, 2) === langCode.substring(0, 2));
+            return voices.find((voice) => extractLanguageCode(voice.lang) === extractLanguageCode(langCode));
           }
 
           function findVoiceByName(name) {
@@ -342,7 +342,7 @@ const buildGui = captionTracks => {
 
   removeIfAlreadyExists()
 
-  const userLanguage = navigator.language.substring(0, 2);
+  const userLanguage = extractLanguageCode(navigator.language);
   const texts = languageTexts[userLanguage] || languageTexts['en']; // Fallback to English if user language is not defined
 
   const container = createOutterContainer(texts.subtitleFileDownload, CONTAINER_ID);
@@ -600,12 +600,12 @@ const createSelectionLink = (track, languageTexts) => {
 
   const defaultOption = document.createElement('option');
 
-  const userLanguage = navigator.language.substring(0, 2);
+  const userLanguage = extractLanguageCode(navigator.language);
   const texts = languageTexts[userLanguage] || languageTexts['en']; // Fallback to English if user language is not define
 
   if (speechSettings.rememberUserLastSelectedAutoTranslateToLanguageCode !== null) {
     for (const language of languages) {
-      if (language.languageCode == speechSettings.rememberUserLastSelectedAutoTranslateToLanguageCode.substring(0, 2)) {
+      if (language.languageCode == extractLanguageCode(speechSettings.rememberUserLastSelectedAutoTranslateToLanguageCode)) {
         defaultOption.value = language.languageCode;
         defaultOption.text = language.languageName;
         break;
@@ -637,7 +637,7 @@ const createSelectionLink = (track, languageTexts) => {
       clearInterval(intervalId);
 
       if (speechSettings.rememberUserLastSelectedAutoTranslateToLanguageCode !== null) {
-        selectCaptionFileForTTS(track, speechSettings.rememberUserLastSelectedAutoTranslateToLanguageCode.substring(0, 2));
+        selectCaptionFileForTTS(track, extractLanguageCode(speechSettings.rememberUserLastSelectedAutoTranslateToLanguageCode));
       }
       else {
         selectCaptionFileForTTS(track);
@@ -662,7 +662,7 @@ const createSelectionLink = (track, languageTexts) => {
     } else {
       selectedLanguageCode = dropdown.value;
     }
-    speechSettings.rememberUserLastSelectedAutoTranslateToLanguageCode = selectedLanguageCode.substring(0, 2);
+    speechSettings.rememberUserLastSelectedAutoTranslateToLanguageCode = extractLanguageCode(selectedLanguageCode);
     browser.storage.local.set({ speechSettings: speechSettings });
 
     checkbox.checked = true;
@@ -931,7 +931,7 @@ setInterval(function () {
       }
     }
   }
-}, 200)
+}, 500)
 
 // Listen for messages from the settings.js file
 browser.runtime.onMessage.addListener(function (message) {
@@ -944,19 +944,18 @@ browser.runtime.onMessage.addListener(function (message) {
 
     if (speechVoice.startsWith("GoogleTranslate_")) {
       languageCode = speechVoice.replace("GoogleTranslate_", "");
-      speechSettings.rememberUserLastSelectedAutoTranslateToLanguageCode = languageCode.substring(0, 2);
+      speechSettings.rememberUserLastSelectedAutoTranslateToLanguageCode = extractLanguageCode(languageCode);
       speechSettings.speechVoice = speechVoice;
     } else {
       languageCode = voices.find((voice) => voice.name === speechVoice);
-      speechSettings.rememberUserLastSelectedAutoTranslateToLanguageCode = languageCode.lang.substring(0, 2);
+      speechSettings.rememberUserLastSelectedAutoTranslateToLanguageCode = extractLanguageCode(languageCode.lang);
       speechSettings.speechVoice = languageCode.name;
       debugger;
     }
 
     dropdowns.forEach(function (dropdown) {
       // Find the option with the matching languageCode
-      // option.value has to be .substring(0, 2) due to Chinese code having more chars than that
-      const selectedOption = Array.from(dropdown.options).find(option => option.value.substring(0, 2) === speechSettings.rememberUserLastSelectedAutoTranslateToLanguageCode.substring(0, 2));
+      const selectedOption = Array.from(dropdown.options).find(option => extractLanguageCode(option.value) === extractLanguageCode(speechSettings.rememberUserLastSelectedAutoTranslateToLanguageCode));
 
       // Set the selectedIndex of the dropdown to the index of the selected option
       if (selectedOption) {
@@ -980,3 +979,28 @@ browser.runtime.onMessage.addListener(function (message) {
     });
   }
 });
+
+// Use a precompiled regular expression: Since the regular expression is used repeatedly, it can be precompiled outside the function to improve performance. This avoids compiling the regular expression each time the function is called.
+const regex = /^([a-z]{2})(?:-[A-Za-z]{2})?$/;
+const qualifierRegex = /^([a-z]{2})(?:-[A-Za-z]+)/;
+
+function extractLanguageCode(text) {
+  const matches = text.match(regex);
+  if (matches) {
+    return matches[1];
+  }
+
+  // Extract language code from text containing qualifiers
+  const qualifierMatches = text.match(qualifierRegex);
+  if (qualifierMatches) {
+    return qualifierMatches[1];
+  }
+
+  // Handle cases where additional qualifiers are present
+  const hyphenIndex = text.indexOf("-");
+  if (hyphenIndex !== -1) {
+    return text.slice(0, hyphenIndex);
+  }
+
+  return text;
+}
