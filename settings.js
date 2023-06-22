@@ -42,34 +42,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Function to handle TTS voice change
     function handleTTSvoiceChange(event) {
-        const selectedVoiceURI = event.target.value;
-        let selectedVoiceName;
+        speechSettings.speechVoice = event.target.value;
 
-        voices.forEach(voice => {
-            if (voice.voiceURI === selectedVoiceURI) {
-                selectedVoiceName = voice.name;
-            }
+        const speechVoice = speechSettings.speechVoice;
+        // Update the dropdowns in the content.js file
+        browser.tabs.query({ active: true, currentWindow: true }, function (tabs) {
+            browser.tabs.sendMessage(tabs[0].id, { command: 'updateDropdowns', voice: speechVoice });
         });
-
-        if (selectedVoiceName) {
-            speechSettings.speechVoice = selectedVoiceName;
-            // saveSpeechSettings();
-
-            const speechVoice = speechSettings.speechVoice;
-            // Update the dropdowns in the content.js file
-            browser.tabs.query({ active: true, currentWindow: true }, function (tabs) {
-                browser.tabs.sendMessage(tabs[0].id, { command: 'updateDropdowns', voice: speechVoice });
-            });
-        } else { // for GoogleTranslate voices
-            speechSettings.speechVoice = event.target.value;
-
-            const speechVoice = speechSettings.speechVoice;
-            // Update the dropdowns in the content.js file
-            browser.tabs.query({ active: true, currentWindow: true }, function (tabs) {
-                browser.tabs.sendMessage(tabs[0].id, { command: 'updateDropdowns', voice: speechVoice });
-            });
-        }
     }
+
 
     // Function to save the speech settings in extension storage
     function saveSpeechSettings() {
@@ -106,7 +87,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     voices.forEach(voice => {
                         const option = document.createElement('option');
                         option.text = voice.name;
-                        option.value = voice.voiceURI;
+                        option.value = voice.name;
                         select.add(option);
                     });
 
@@ -180,20 +161,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     // Retrieve the stored speechSettings from extension storage
                     browser.storage.local.get('speechSettings', result => {
                         if (result.speechSettings && result.speechSettings.speechVoice) {
-                            const selectedVoiceName = result.speechSettings.speechVoice;
-                            let selectedVoiceURI;
-
-                            voices.forEach(voice => {
-                                if (voice.name === selectedVoiceName) {
-                                    selectedVoiceURI = voice.voiceURI;
-                                }
-                            });
-
-                            if (selectedVoiceURI) {
-                                select.value = selectedVoiceURI;
-                            } else { //to handle GoogleTranslate voices
-                                select.value = result.speechSettings.speechVoice;
-                            }
+                            select.value = result.speechSettings.speechVoice;
                         }
                     });
                 })
