@@ -43,6 +43,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Function to handle TTS voice change
     function handleTTSvoiceChange(event) {
         speechSettings.speechVoice = event.target.value;
+        saveSpeechSettings();
 
         const speechVoice = speechSettings.speechVoice;
         // Update the dropdowns in the content.js file
@@ -87,7 +88,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     voices.forEach(voice => {
                         const option = document.createElement('option');
                         option.text = voice.name;
-                        option.value = voice.name;
+                        option.value = voice.voiceURI;
                         select.add(option);
                     });
 
