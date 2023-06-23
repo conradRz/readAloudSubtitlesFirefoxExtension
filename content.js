@@ -948,7 +948,7 @@ browser.runtime.onMessage.addListener(function (message) {
         checkbox.checked = false; // Uncheck the checkbox first
         checkbox.checked = isChecked; // Recheck the checkbox to trigger the 'change' event
         if (isChecked) {
-          // Triggering the 'change' event on the checkbox was intentially not done here, due to a slightly different code needed
+          // Trigger the 'change' event on the checkbox. I had to do it that way, as checkbox.checked = isChecked wasn't triggering an event
           const event = new Event('change');
           checkbox.dispatchEvent(event);
         }
