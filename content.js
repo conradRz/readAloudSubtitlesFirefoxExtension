@@ -929,51 +929,49 @@ setInterval(function () {
 
 // Listen for messages from the settings.js file
 browser.runtime.onMessage.addListener(function (message) {
-  if (message.command === 'updateDropdowns') {
-    clearInterval(intervalId);
+  clearInterval(intervalId);
 
-    const speechVoice = message.voice;
-    const dropdowns = document.querySelectorAll('[id^="dropdown_"]');
+  const speechVoice = message.voice;
+  const dropdowns = document.querySelectorAll('[id^="dropdown_"]');
 
-    const isGoogleTranslate_Voice = speechVoice.startsWith("GoogleTranslate_");
+  const isGoogleTranslate_Voice = speechVoice.startsWith("GoogleTranslate_");
 
-    let languageCode;
+  let languageCode;
+
+  if (isGoogleTranslate_Voice) {
+    languageCode = speechVoice.replace("GoogleTranslate_", "");
+    speechSettings.rememberUserLastSelectedAutoTranslateToLanguageCode = speechVoice.replace("GoogleTranslate_", "");
+  } else {
+    languageCode = voices.find((voice) => voice.voiceURI === speechVoice);
+    speechSettings.rememberUserLastSelectedAutoTranslateToLanguageCode = languageCode.lang.substring(0, 2);
+  }
+
+  dropdowns.forEach(function (dropdown) {
+    let selectedOption;
 
     if (isGoogleTranslate_Voice) {
-      languageCode = speechVoice.replace("GoogleTranslate_", "");
-      speechSettings.rememberUserLastSelectedAutoTranslateToLanguageCode = speechVoice.replace("GoogleTranslate_", "");
+      selectedOption = Array.from(dropdown.options).find(option => option.value.substring(0, 2) === languageCode);
     } else {
-      languageCode = voices.find((voice) => voice.voiceURI === speechVoice);
-      speechSettings.rememberUserLastSelectedAutoTranslateToLanguageCode = languageCode.lang.substring(0, 2);
+      // Find the option with the matching languageCode
+      // option.value has to be .substring(0, 2) due to Chinese code having more chars than that
+      selectedOption = Array.from(dropdown.options).find(option => option.value.substring(0, 2) === languageCode.lang.substring(0, 2));
     }
 
-    dropdowns.forEach(function (dropdown) {
-      let selectedOption;
+    // Set the selectedIndex of the dropdown to the index of the selected option
+    if (selectedOption) {
+      dropdown.selectedIndex = selectedOption.index;
+    }
 
-      if (isGoogleTranslate_Voice) {
-        selectedOption = Array.from(dropdown.options).find(option => option.value.substring(0, 2) === languageCode);
-      } else {
-        // Find the option with the matching languageCode
-        // option.value has to be .substring(0, 2) due to Chinese code having more chars than that
-        selectedOption = Array.from(dropdown.options).find(option => option.value.substring(0, 2) === languageCode.lang.substring(0, 2));
+    // Assuming the checkbox was created as a sibling of the dropdown within the same container
+    const container = dropdown.parentNode;
+    const checkbox = container.querySelector('input[type="checkbox"]');
+    if (checkbox) {
+      if (checkbox.checked) { //checks if it was checked
+        // Trigger the 'change' event on the checkbox. I had to do it that way, as checkbox.checked = isChecked wasn't triggering an event - checked with the debugger!
+        const event = new Event('change');
+        checkbox.dispatchEvent(event);
       }
+    }
+  });
 
-      // Set the selectedIndex of the dropdown to the index of the selected option
-      if (selectedOption) {
-        dropdown.selectedIndex = selectedOption.index;
-      }
-
-      // Assuming the checkbox was created as a sibling of the dropdown within the same container
-      const container = dropdown.parentNode;
-      const checkbox = container.querySelector('input[type="checkbox"]');
-      if (checkbox) {
-        // Reselect the checkbox if it was previously selected
-        if (checkbox.checked) { //checks if it was checked
-          // Trigger the 'change' event on the checkbox. I had to do it that way, as checkbox.checked = isChecked wasn't triggering an event
-          const event = new Event('change');
-          checkbox.dispatchEvent(event);
-        }
-      }
-    });
-  }
 });
