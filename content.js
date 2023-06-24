@@ -193,14 +193,13 @@ const selectCaptionFileForTTS = async (track, selectedLanguageCode = null) => {
 
           let utterance = new SpeechSynthesisUtterance(unescapeHTML(matchedText.replace(/\n/g, "").replace(/\\"/g, '"').trim().replace(/[,\.]+$/, '').replace(/\r/g, "")));
 
-          if (speechSettings.rememberUserLastSelectedAutoTranslateToLanguageCode !== null) {
-            const langCode = speechSettings.rememberUserLastSelectedAutoTranslateToLanguageCode;
-            const voice = findVoiceByVoiceURI(speechSettings.speechVoice);
-            const localVoice = findLocalVoice(langCode);
+          const langCode = speechSettings.rememberUserLastSelectedAutoTranslateToLanguageCode;
+          const voice = findVoiceByVoiceURI(speechSettings.speechVoice);
+          const localVoice = findLocalVoice(langCode);
 
+          if (langCode !== null) {
             if (speechSettings.speechVoice && speechSettings.speechVoice.startsWith("GoogleTranslate_")) {
               const voiceLangCode = speechSettings.speechVoice.replace("GoogleTranslate_", "");
-
               if (voiceLangCode === langCode || !localVoice) {
                 speakWithGoogleVoice(langCode, utterance);
               } else {
@@ -208,23 +207,18 @@ const selectCaptionFileForTTS = async (track, selectedLanguageCode = null) => {
               }
             } else if (!speechSettings.speechVoice && localVoice) {
               updateSettingsAndSpeak(localVoice, utterance);
-            } else if (voice && voice.lang.substring(0, 2) === langCode) {
+            } else if (voice && voice.lang.startsWith(langCode)) {
               updateSettingsAndSpeak(voice, utterance);
             } else if (localVoice) {
               updateSettingsAndSpeak(localVoice, utterance);
             } else {
               speakWithGoogleVoice(langCode, utterance);
             }
-          } else if (speechSettings.speechVoice !== null) {
-            if (speechSettings.speechVoice.startsWith("GoogleTranslate_")) {
-              const langCode = speechSettings.speechVoice.replace("GoogleTranslate_", "");
-              speakWithGoogleVoice(langCode, utterance);
-            } else {
-              const voice = findVoiceByVoiceURI(speechSettings.speechVoice);
-              if (voice) {
-                updateSettingsAndSpeak(voice, utterance);
-              }
-            }
+          } else if (speechSettings.speechVoice !== null && speechSettings.speechVoice.startsWith("GoogleTranslate_")) {
+            const langCode = speechSettings.speechVoice.replace("GoogleTranslate_", "");
+            speakWithGoogleVoice(langCode, utterance);
+          } else if (voice) {
+            updateSettingsAndSpeak(voice, utterance);
           }
         }
       }
