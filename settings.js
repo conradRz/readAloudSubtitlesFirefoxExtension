@@ -47,7 +47,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Update the dropdowns in the content.js file
         browser.tabs.query({ active: true, currentWindow: true }, function (tabs) {
-            browser.tabs.sendMessage(tabs[0].id, { command: 'updateDropdowns', voice: speechSettings.speechVoice });
+            browser.tabs.sendMessage(tabs[0].id, { voice: speechSettings.speechVoice });
         });
     }
 
