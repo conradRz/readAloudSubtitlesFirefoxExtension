@@ -1,8 +1,6 @@
 
 var activeDoc;
 var playbackError = null;
-var silenceLoop = new Audio("sound/silence.mp3");
-silenceLoop.loop = true;
 
 // Listen for messages from content scripts
 browser.runtime.onMessage.addListener((message) => {
@@ -56,7 +54,6 @@ function openDoc(source, onEnd) {
     closeDoc();
     if (typeof onEnd == "function") onEnd(err);
   })
-  silenceLoop.play();
 }
 
 function closeDoc() {

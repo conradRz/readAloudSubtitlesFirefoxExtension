@@ -104,25 +104,26 @@ const getParameterByName = (name, url) => {
   return decodeURIComponent(results[2].replace(/\+/g, ' '));
 }
 
-const selectCaptionFileForTTS = async (track, selectedLanguageCode = null) => {
-
-  let url;
-
+const assignUrl = (track, selectedLanguageCode) => {
   // Extract the current language code from the track.baseUrl
   const urlLanguageCode = getParameterByName('lang', track.baseUrl);
 
   if (selectedLanguageCode && urlLanguageCode === selectedLanguageCode) {
-    url = track.baseUrl;
+    return track.baseUrl;
   }
   // The selectedLanguageCode does not contain the ":" character, which would never be a language code, but an EN or translated version of "Auto translate to:"
   else if (selectedLanguageCode && selectedLanguageCode.indexOf(":") === -1) {
     // Code for handling selected language code
-    url = track.baseUrl + '&tlang=' + selectedLanguageCode;
+    return track.baseUrl + '&tlang=' + selectedLanguageCode;
   } else {
     // Code for handling the default case
-    url = track.baseUrl;
+    return track.baseUrl;
   }
+}
 
+const selectCaptionFileForTTS = async (track, selectedLanguageCode = null) => {
+
+  const url = assignUrl(track, selectedLanguageCode)
   const xml = await fetch(url).then(resp => resp.text());
 
   if (xml) {
