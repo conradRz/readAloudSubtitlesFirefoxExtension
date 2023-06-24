@@ -195,38 +195,27 @@ const selectCaptionFileForTTS = async (track, selectedLanguageCode = null) => {
 
           if (speechSettings.rememberUserLastSelectedAutoTranslateToLanguageCode !== null) {
             const langCode = speechSettings.rememberUserLastSelectedAutoTranslateToLanguageCode;
+            const voice = findVoiceByVoiceURI(speechSettings.speechVoice);
+            const localVoice = findLocalVoice(langCode);
 
             if (speechSettings.speechVoice && speechSettings.speechVoice.startsWith("GoogleTranslate_")) {
               const voiceLangCode = speechSettings.speechVoice.replace("GoogleTranslate_", "");
+
               if (voiceLangCode === langCode) {
                 speakWithGoogleVoice(langCode, utterance);
-              } else {
-                const localVoice = findLocalVoice(langCode);
-                if (localVoice) {
-                  updateSettingsAndSpeak(localVoice, utterance);
-                } else {
-                  speakWithGoogleVoice(langCode, utterance);
-                }
-              }
-            } else if (!speechSettings.speechVoice) {
-              const localVoice = findLocalVoice(langCode);
-              if (localVoice) {
+              } else if (localVoice) {
                 updateSettingsAndSpeak(localVoice, utterance);
               } else {
                 speakWithGoogleVoice(langCode, utterance);
               }
+            } else if (!speechSettings.speechVoice && localVoice) {
+              updateSettingsAndSpeak(localVoice, utterance);
+            } else if (voice && voice.lang.substring(0, 2) === langCode) {
+              updateSettingsAndSpeak(voice, utterance);
+            } else if (localVoice) {
+              updateSettingsAndSpeak(localVoice, utterance);
             } else {
-              const voice = findVoiceByVoiceURI(speechSettings.speechVoice);
-              if (voice && voice.lang.substring(0, 2) === langCode) {
-                updateSettingsAndSpeak(voice, utterance);
-              } else {
-                const localVoice = findLocalVoice(langCode);
-                if (localVoice) {
-                  updateSettingsAndSpeak(localVoice, utterance);
-                } else {
-                  speakWithGoogleVoice(langCode, utterance);
-                }
-              }
+              speakWithGoogleVoice(langCode, utterance);
             }
           } else if (speechSettings.speechVoice !== null) {
             if (speechSettings.speechVoice.startsWith("GoogleTranslate_")) {
@@ -239,6 +228,7 @@ const selectCaptionFileForTTS = async (track, selectedLanguageCode = null) => {
               }
             }
           }
+
 
         }
       }
