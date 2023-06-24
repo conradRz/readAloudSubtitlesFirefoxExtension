@@ -215,8 +215,7 @@ const selectCaptionFileForTTS = async (track, selectedLanguageCode = null) => {
               speakWithGoogleVoice(langCode, utterance);
             }
           } else if (speechSettings.speechVoice !== null && speechSettings.speechVoice.startsWith("GoogleTranslate_")) {
-            const langCode = speechSettings.speechVoice.replace("GoogleTranslate_", "");
-            speakWithGoogleVoice(langCode, utterance);
+            speakWithGoogleVoice(speechSettings.speechVoice.replace("GoogleTranslate_", ""), utterance);
           } else if (voice) {
             updateSettingsAndSpeak(voice, utterance);
           }
