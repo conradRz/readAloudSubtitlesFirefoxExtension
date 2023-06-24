@@ -925,7 +925,7 @@ setInterval(function () {
       }
     }
   }
-}, 500)
+}, 1000)
 
 // Listen for messages from the settings.js file
 browser.runtime.onMessage.addListener(function (message) {
