@@ -226,9 +226,6 @@ const selectCaptionFileForTTS = async (track, selectedLanguageCode = null) => {
               }
             }
           }
-
-
-
         }
       }
       previousTime = currentTime;
