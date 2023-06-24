@@ -144,9 +144,7 @@ const speakWithGoogleVoice = (langCode, utterance) => {
 }
 
 const updateSettingsAndSpeak = (voice, utterance) => {
-  if (voice) {
-    utterance.voice = voice;
-  }
+  utterance.voice = voice;
 
   utterance.rate = speechSettings.speechSpeed;
   utterance.volume = speechSettings.speechVolume;
@@ -657,7 +655,6 @@ const createSelectionLink = (track, languageTexts) => {
       selectedLanguageCode = dropdown.value;
     }
     speechSettings.rememberUserLastSelectedAutoTranslateToLanguageCode = selectedLanguageCode;
-    browser.storage.local.set({ speechSettings: speechSettings });
 
     checkbox.checked = true;
 
