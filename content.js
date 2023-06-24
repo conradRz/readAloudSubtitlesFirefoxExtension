@@ -897,13 +897,28 @@ browser.runtime.onMessage.addListener(function (message) {
     const speechVoice = message.voice;
     const dropdowns = document.querySelectorAll('[id^="dropdown_"]');
 
-    let languageCode = voices.find((voice) => voice.voiceURI === speechVoice);
-    speechSettings.rememberUserLastSelectedAutoTranslateToLanguageCode = languageCode.lang.substring(0, 2);
+    let languageCode;
+
+    if (speechVoice.startsWith("GoogleTranslate_")) {
+      languageCode = speechVoice.replace("GoogleTranslate_", "");
+      speechSettings.rememberUserLastSelectedAutoTranslateToLanguageCode = speechVoice.replace("GoogleTranslate_", "");
+    } else {
+      languageCode = voices.find((voice) => voice.voiceURI === speechVoice);
+      speechSettings.rememberUserLastSelectedAutoTranslateToLanguageCode = languageCode.lang.substring(0, 2);
+    }
 
     dropdowns.forEach(function (dropdown) {
-      // Find the option with the matching languageCode
-      // option.value has to be .substring(0, 2) due to Chinese code having more chars than that
-      const selectedOption = Array.from(dropdown.options).find(option => option.value.substring(0, 2) === languageCode.lang.substring(0, 2));
+      let selectedOption;
+
+      if (speechVoice.startsWith("GoogleTranslate_")) {
+        if (Array.from(dropdown.options).find(option => option.value.substring(0, 2) === languageCode)) {
+          selectedOption = Array.from(dropdown.options).find(option => option.value.substring(0, 2) === languageCode);
+        }
+      } else {
+        // Find the option with the matching languageCode
+        // option.value has to be .substring(0, 2) due to Chinese code having more chars than that
+        selectedOption = Array.from(dropdown.options).find(option => option.value.substring(0, 2) === languageCode.lang.substring(0, 2));
+      }
 
       // Set the selectedIndex of the dropdown to the index of the selected option
       if (selectedOption) {
