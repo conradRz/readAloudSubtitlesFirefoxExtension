@@ -614,6 +614,8 @@ const createSelectionLink = (track, languageTexts) => {
 
   // Change event listener for the dropdown
   dropdown.addEventListener('change', () => {
+    clearInterval(intervalId);
+
     if (dropdown.value === '') {
       selectedLanguageCode = null;
     } else {
@@ -625,7 +627,6 @@ const createSelectionLink = (track, languageTexts) => {
     checkbox.checked = true;
 
     //below is important, as `checkbox.checked = true` doesn't trigger even listener for some reason
-    clearInterval(intervalId);
     selectCaptionFileForTTS(track, selectedLanguageCode);
 
   });
@@ -893,13 +894,16 @@ setInterval(function () {
 // Listen for messages from the settings.js file
 browser.runtime.onMessage.addListener(function (message) {
   if (message.command === 'updateDropdowns') {
+    clearInterval(intervalId);
 
     const speechVoice = message.voice;
     const dropdowns = document.querySelectorAll('[id^="dropdown_"]');
 
+    const isGoogleTranslate_Voice = speechVoice.startsWith("GoogleTranslate_");
+
     let languageCode;
 
-    if (speechVoice.startsWith("GoogleTranslate_")) {
+    if (isGoogleTranslate_Voice) {
       languageCode = speechVoice.replace("GoogleTranslate_", "");
       speechSettings.rememberUserLastSelectedAutoTranslateToLanguageCode = speechVoice.replace("GoogleTranslate_", "");
     } else {
@@ -910,10 +914,8 @@ browser.runtime.onMessage.addListener(function (message) {
     dropdowns.forEach(function (dropdown) {
       let selectedOption;
 
-      if (speechVoice.startsWith("GoogleTranslate_")) {
-        if (Array.from(dropdown.options).find(option => option.value.substring(0, 2) === languageCode)) {
-          selectedOption = Array.from(dropdown.options).find(option => option.value.substring(0, 2) === languageCode);
-        }
+      if (isGoogleTranslate_Voice) {
+        selectedOption = Array.from(dropdown.options).find(option => option.value.substring(0, 2) === languageCode);
       } else {
         // Find the option with the matching languageCode
         // option.value has to be .substring(0, 2) due to Chinese code having more chars than that
