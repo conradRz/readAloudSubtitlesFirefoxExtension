@@ -968,10 +968,7 @@ browser.runtime.onMessage.addListener(function (message) {
       const checkbox = container.querySelector('input[type="checkbox"]');
       if (checkbox) {
         // Reselect the checkbox if it was previously selected
-        const isChecked = checkbox.checked;
-        checkbox.checked = false; // Uncheck the checkbox first
-        checkbox.checked = isChecked; // Recheck the checkbox to trigger the 'change' event
-        if (isChecked) {
+        if (checkbox.checked) { //checks if it was checked
           // Trigger the 'change' event on the checkbox. I had to do it that way, as checkbox.checked = isChecked wasn't triggering an event
           const event = new Event('change');
           checkbox.dispatchEvent(event);
