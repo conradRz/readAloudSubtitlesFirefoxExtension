@@ -121,6 +121,47 @@ const assignUrl = (track, selectedLanguageCode) => {
   }
 }
 
+const findLocalVoice = (langCode) => {
+  //cannot be just === langCode due to some codes being more than 2 chars
+  return voices.find((voice) => voice.lang.substring(0, 2) === langCode.substring(0, 2));
+}
+
+const findVoiceByVoiceURI = (voiceURI) => {
+  return voices.find((voice) => voice.voiceURI === voiceURI);
+}
+
+const speakWithGoogleVoice = (langCode, utterance) => {
+  const message = {
+    info: {
+      selectionText: utterance.text,
+      lang: langCode
+    }
+  };
+  browser.runtime.sendMessage(message);
+  speechSettings.speechVoice = "GoogleTranslate_" + langCode;
+  browser.storage.local.set({ speechSettings: speechSettings });
+  isSpeechSynthesisInProgress = false;
+}
+
+const updateSettingsAndSpeak = (voice, utterance) => {
+  if (voice) {
+    utterance.voice = voice;
+  }
+
+  utterance.rate = speechSettings.speechSpeed;
+  utterance.volume = speechSettings.speechVolume;
+
+  speechSettings.speechVoice = voice.voiceURI;
+  browser.storage.local.set({ speechSettings: speechSettings });
+
+  utterance.onend = () => {
+    isSpeechSynthesisInProgress = false;
+  };
+  speechSynthesis.speak(utterance);
+}
+
+let isSpeechSynthesisInProgress = false;
+
 const selectCaptionFileForTTS = async (track, selectedLanguageCode = null) => {
 
   const url = assignUrl(track, selectedLanguageCode)
@@ -130,7 +171,7 @@ const selectCaptionFileForTTS = async (track, selectedLanguageCode = null) => {
     const xmlDoc = new DOMParser().parseFromString(xml, 'text/xml');
     const textElements = xmlDoc.getElementsByTagName('text');
 
-    let isSpeechSynthesisInProgress = false;
+    isSpeechSynthesisInProgress = false;
     let subtitlePart = '';
     let previousTime = NaN;
 
@@ -159,14 +200,13 @@ const selectCaptionFileForTTS = async (track, selectedLanguageCode = null) => {
               const langCode = speechSettings.speechVoice.replace("GoogleTranslate_", "");
               if (langCode === speechSettings.rememberUserLastSelectedAutoTranslateToLanguageCode) {
                 // Speak with GoogleTranslate_ if language codes match
-                speakWithGoogleVoice(langCode);
+                speakWithGoogleVoice(langCode, utterance);
               } else {
                 const localVoice = findLocalVoice(speechSettings.rememberUserLastSelectedAutoTranslateToLanguageCode);
                 if (localVoice) {
-                  utterance.voice = localVoice;
-                  updateSettingsAndSpeak(localVoice);
+                  updateSettingsAndSpeak(localVoice, utterance);
                 } else {
-                  speakWithGoogleVoice(speechSettings.rememberUserLastSelectedAutoTranslateToLanguageCode);
+                  speakWithGoogleVoice(speechSettings.rememberUserLastSelectedAutoTranslateToLanguageCode, utterance);
                 }
               }
             } else if (!speechSettings.speechVoice) {
@@ -175,22 +215,20 @@ const selectCaptionFileForTTS = async (track, selectedLanguageCode = null) => {
 
               const localVoice = findLocalVoice(langCode);
               if (localVoice) {
-                updateSettingsAndSpeak(localVoice);
+                updateSettingsAndSpeak(localVoice, utterance);
               } else {
-                speakWithGoogleVoice(langCode);
+                speakWithGoogleVoice(langCode, utterance);
               }
             } else {
               const voice = findVoiceByVoiceURI(speechSettings.speechVoice);
               if (voice && voice.lang.substring(0, 2) === speechSettings.rememberUserLastSelectedAutoTranslateToLanguageCode) {
-                utterance.voice = voice;
-                updateSettingsAndSpeak(voice);
+                updateSettingsAndSpeak(voice, utterance);
               } else {
                 const localVoice = findLocalVoice(speechSettings.rememberUserLastSelectedAutoTranslateToLanguageCode);
                 if (localVoice) {
-                  utterance.voice = localVoice;
-                  updateSettingsAndSpeak(localVoice);
+                  updateSettingsAndSpeak(localVoice, utterance);
                 } else {
-                  speakWithGoogleVoice(speechSettings.rememberUserLastSelectedAutoTranslateToLanguageCode);
+                  speakWithGoogleVoice(speechSettings.rememberUserLastSelectedAutoTranslateToLanguageCode, utterance);
                 }
               }
             }
@@ -198,54 +236,14 @@ const selectCaptionFileForTTS = async (track, selectedLanguageCode = null) => {
             if (speechSettings.speechVoice !== null) {
               if (speechSettings.speechVoice.startsWith("GoogleTranslate_")) {
                 const langCode = speechSettings.speechVoice.replace("GoogleTranslate_", "");
-                speakWithGoogleVoice(langCode);
+                speakWithGoogleVoice(langCode, utterance);
               } else {
                 const voice = findVoiceByVoiceURI(speechSettings.speechVoice);
                 if (voice) {
-                  utterance.voice = voice;
-                  updateSettingsAndSpeak(voice);
+                  updateSettingsAndSpeak(voice, utterance);
                 }
               }
             }
-          }
-
-          function speakWithGoogleVoice(langCode) {
-            const message = {
-              info: {
-                selectionText: utterance.text,
-                lang: langCode
-              }
-            };
-            browser.runtime.sendMessage(message);
-            speechSettings.speechVoice = "GoogleTranslate_" + langCode;
-            browser.storage.local.set({ speechSettings: speechSettings });
-            isSpeechSynthesisInProgress = false;
-          }
-
-          function findLocalVoice(langCode) {
-            //cannot be just === langCode due to some codes being more than 2 chars
-            return voices.find((voice) => voice.lang.substring(0, 2) === langCode.substring(0, 2));
-          }
-
-          function findVoiceByVoiceURI(voiceURI) {
-            return voices.find((voice) => voice.voiceURI === voiceURI);
-          }
-
-          function updateSettingsAndSpeak(voice) {
-            if (voice) {
-              utterance.voice = voice;
-            }
-
-            utterance.rate = speechSettings.speechSpeed;
-            utterance.volume = speechSettings.speechVolume;
-
-            speechSettings.speechVoice = voice.voiceURI;
-            browser.storage.local.set({ speechSettings: speechSettings });
-
-            utterance.onend = () => {
-              isSpeechSynthesisInProgress = false;
-            };
-            speechSynthesis.speak(utterance);
           }
         }
       }
