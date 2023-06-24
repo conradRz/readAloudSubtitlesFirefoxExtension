@@ -228,19 +228,18 @@ const selectCaptionFileForTTS = async (track, selectedLanguageCode = null) => {
                 }
               }
             }
-          } else {
-            if (speechSettings.speechVoice !== null) {
-              if (speechSettings.speechVoice.startsWith("GoogleTranslate_")) {
-                const langCode = speechSettings.speechVoice.replace("GoogleTranslate_", "");
-                speakWithGoogleVoice(langCode, utterance);
-              } else {
-                const voice = findVoiceByVoiceURI(speechSettings.speechVoice);
-                if (voice) {
-                  updateSettingsAndSpeak(voice, utterance);
-                }
+          } else if (speechSettings.speechVoice !== null) {
+            if (speechSettings.speechVoice.startsWith("GoogleTranslate_")) {
+              const langCode = speechSettings.speechVoice.replace("GoogleTranslate_", "");
+              speakWithGoogleVoice(langCode, utterance);
+            } else {
+              const voice = findVoiceByVoiceURI(speechSettings.speechVoice);
+              if (voice) {
+                updateSettingsAndSpeak(voice, utterance);
               }
             }
           }
+
         }
       }
       previousTime = currentTime;
