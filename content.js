@@ -201,12 +201,10 @@ const selectCaptionFileForTTS = async (track, selectedLanguageCode = null) => {
             if (speechSettings.speechVoice && speechSettings.speechVoice.startsWith("GoogleTranslate_")) {
               const voiceLangCode = speechSettings.speechVoice.replace("GoogleTranslate_", "");
 
-              if (voiceLangCode === langCode) {
+              if (voiceLangCode === langCode || !localVoice) {
                 speakWithGoogleVoice(langCode, utterance);
-              } else if (localVoice) {
-                updateSettingsAndSpeak(localVoice, utterance);
               } else {
-                speakWithGoogleVoice(langCode, utterance);
+                updateSettingsAndSpeak(localVoice, utterance);
               }
             } else if (!speechSettings.speechVoice && localVoice) {
               updateSettingsAndSpeak(localVoice, utterance);
@@ -228,6 +226,7 @@ const selectCaptionFileForTTS = async (track, selectedLanguageCode = null) => {
               }
             }
           }
+
 
 
         }
