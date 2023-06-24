@@ -138,102 +138,64 @@ const selectCaptionFileForTTS = async (track, selectedLanguageCode = null) => {
 
           let utterance = new SpeechSynthesisUtterance(unescapeHTML(matchedText.replace(/\n/g, "").replace(/\\"/g, '"').trim().replace(/[,\.]+$/, '').replace(/\r/g, "")));
 
-          let temp = utterance.text;
+          //only assign utterance.voice if speechSettings.speechVoice is not empty, that is other voice than the environment default had been selected
+          // && voices && voices.length > 0 checks as once a youtube ad caused "Uncaught TypeError: Cannot read properties of undefined (reading 'find')"
+          if (voices && voices.length > 0) {
+            if (speechSettings.speechVoice !== null) { //there was some selection
 
-          if (speechSettings.rememberUserLastSelectedAutoTranslateToLanguageCode !== null) {
-            if (speechSettings.speechVoice && speechSettings.speechVoice.startsWith("GoogleTranslate_")) {
-              const langCode = speechSettings.speechVoice.replace("GoogleTranslate_", "");
-              if (langCode === extractLanguageCode(speechSettings.rememberUserLastSelectedAutoTranslateToLanguageCode)) {
-                // Speak with GoogleTranslate_ if language codes match
-                speakWithGoogleVoice(langCode);
-              } else {
-                const localVoice = findLocalVoice(extractLanguageCode(speechSettings.rememberUserLastSelectedAutoTranslateToLanguageCode));
-                if (localVoice) {
-                  utterance.voice = localVoice;
-                  updateSettingsAndSpeak(localVoice);
-                } else {
-                  speakWithGoogleVoice(extractLanguageCode(speechSettings.rememberUserLastSelectedAutoTranslateToLanguageCode));
-                }
-              }
-            } else if (!speechSettings.speechVoice) {
-              // default state just after installation, and when the user didn't yet select a voice from a dropdown
-              const langCode = extractLanguageCode(speechSettings.rememberUserLastSelectedAutoTranslateToLanguageCode);
 
-              const localVoice = findLocalVoice(langCode);
-              if (localVoice) {
-                updateSettingsAndSpeak(localVoice);
-              } else {
-                speakWithGoogleVoice(langCode);
-              }
-            } else {
-              const voice = findVoiceByName(speechSettings.speechVoice);
-              if (voice && extractLanguageCode(voice.lang) === extractLanguageCode(speechSettings.rememberUserLastSelectedAutoTranslateToLanguageCode)) {
-                utterance.voice = voice;
-                updateSettingsAndSpeak(voice);
-              } else {
-                const localVoice = findLocalVoice(extractLanguageCode(speechSettings.rememberUserLastSelectedAutoTranslateToLanguageCode));
-                if (localVoice) {
-                  utterance.voice = localVoice;
-                  updateSettingsAndSpeak(localVoice);
-                } else {
-                  speakWithGoogleVoice(extractLanguageCode(speechSettings.rememberUserLastSelectedAutoTranslateToLanguageCode));
-                }
-              }
-            }
-          } else {
-            if (speechSettings.speechVoice !== null) {
+
+              /////////////////////////////////////
+              // if GoogleTranslate voice had been selected
               if (speechSettings.speechVoice.startsWith("GoogleTranslate_")) {
-                const langCode = speechSettings.speechVoice.replace("GoogleTranslate_", "");
-                speakWithGoogleVoice(langCode);
+                // a content script in Firefox cannot make its own web requests. Content scripts are executed in the context of a web page and have limited access to browser APIs. In Firefox extensions, content scripts are primarily used to manipulate the DOM of a webpage and interact with the content on the page. They do not have direct access to browser APIs like XMLHttpRequest or the fetch API to make web requests. If you need to make web requests from within your extension, you should do so from the background script or a dedicated script running in the extension's background context. The background script has full access to the browser APIs and can make web requests using methods such as XMLHttpRequest or the fetch API.
+                const message = {
+                  info: {
+                    selectionText: unescapeHTML(matchedText.replace(/\n/g, "").replace(/\\"/g, '"').trim().replace(/[,\.]+$/, '').replace(/\r/g, "")),
+                    lang: speechSettings.speechVoice.replace("GoogleTranslate_", "")
+                  }
+                };
+
+                // Send the message to the background script
+                browser.runtime.sendMessage(message);
+                isSpeechSynthesisInProgress = false;
+                previousTime = currentTime;
+                return;
+
+
               } else {
-                const voice = findVoiceByName(speechSettings.speechVoice);
-                if (voice) {
+                //check if selected voice matches play through voice language?
+                let voice = voices.find((voice) => voice.voiceURI === speechSettings.speechVoice);
+                if (voice && voice.lang.substring(0, 2) === speechSettings.rememberUserLastSelectedAutoTranslateToLanguageCode) {
                   utterance.voice = voice;
-                  updateSettingsAndSpeak(voice);
+                } else { //now if it doesn't match the language, try to find one which does
+                  if (speechSettings.rememberUserLastSelectedAutoTranslateToLanguageCode !== null) {
+                    voice = voices.find(
+                      (voice) =>
+                        voice.lang.substring(0, 2) === speechSettings.rememberUserLastSelectedAutoTranslateToLanguageCode.substring(0, 2)
+                    )
+                  }
+                  if (voice) {
+                    utterance.voice = voice;
+                    speechSettings.speechVoice = voice.voiceURI;
+                    browser.storage.local.set({ speechSettings: speechSettings });
+                  }
                 }
+
+                //if a voice with a matching language is unavailable
+                //here it would make sense to pop up some information message to the user, as otherwise it just tries to read it with English voice, but the underlying text is non-english
               }
             }
           }
 
-          function speakWithGoogleVoice(langCode) {
-            const message = {
-              info: {
-                //selectionText: utterance.text,
-                selectionText: temp,
-                lang: langCode
-              }
-            };
-            browser.runtime.sendMessage(message);
-            speechSettings.speechVoice = "GoogleTranslate_" + langCode;
-            browser.storage.local.set({ speechSettings: speechSettings });
+          utterance.rate = speechSettings.speechSpeed;
+          utterance.volume = speechSettings.speechVolume;
+
+          utterance.onend = () => {
             isSpeechSynthesisInProgress = false;
-          }
+          };
+          speechSynthesis.speak(utterance);
 
-          function findLocalVoice(langCode) {
-            //cannot be just === langCode due to some codes being more than 2 chars
-            return voices.find((voice) => extractLanguageCode(voice.lang) === extractLanguageCode(langCode));
-          }
-
-          function findVoiceByName(name) {
-            return voices.find((voice) => voice.name === name);
-          }
-
-          function updateSettingsAndSpeak(voice) {
-            if (voice) {
-              utterance.voice = voice;
-            }
-
-            utterance.rate = speechSettings.speechSpeed;
-            utterance.volume = speechSettings.speechVolume;
-
-            speechSettings.speechVoice = voice.name;
-            browser.storage.local.set({ speechSettings: speechSettings });
-
-            utterance.onend = () => {
-              isSpeechSynthesisInProgress = false;
-            };
-            speechSynthesis.speak(utterance);
-          }
         }
       }
       previousTime = currentTime;
@@ -320,7 +282,7 @@ const buildGui = captionTracks => {
 
   removeIfAlreadyExists()
 
-  const userLanguage = extractLanguageCode(navigator.language);
+  const userLanguage = navigator.language.substring(0, 2);
   const texts = languageTexts[userLanguage] || languageTexts['en']; // Fallback to English if user language is not defined
 
   const container = createOutterContainer(texts.subtitleFileDownload, CONTAINER_ID);
@@ -578,12 +540,12 @@ const createSelectionLink = (track, languageTexts) => {
 
   const defaultOption = document.createElement('option');
 
-  const userLanguage = extractLanguageCode(navigator.language);
+  const userLanguage = navigator.language.substring(0, 2);
   const texts = languageTexts[userLanguage] || languageTexts['en']; // Fallback to English if user language is not define
 
   if (speechSettings.rememberUserLastSelectedAutoTranslateToLanguageCode !== null) {
     for (const language of languages) {
-      if (language.languageCode == extractLanguageCode(speechSettings.rememberUserLastSelectedAutoTranslateToLanguageCode)) {
+      if (language.languageCode == speechSettings.rememberUserLastSelectedAutoTranslateToLanguageCode) {
         defaultOption.value = language.languageCode;
         defaultOption.text = language.languageName;
         break;
@@ -614,8 +576,10 @@ const createSelectionLink = (track, languageTexts) => {
     if (checkbox.checked) {
       clearInterval(intervalId);
 
-      if (speechSettings.rememberUserLastSelectedAutoTranslateToLanguageCode !== null) {
-        selectCaptionFileForTTS(track, extractLanguageCode(speechSettings.rememberUserLastSelectedAutoTranslateToLanguageCode));
+      if (selectedLanguageCode) {
+        selectCaptionFileForTTS(track, selectedLanguageCode);
+      } else if (speechSettings.rememberUserLastSelectedAutoTranslateToLanguageCode !== null) {
+        selectCaptionFileForTTS(track, speechSettings.rememberUserLastSelectedAutoTranslateToLanguageCode);
       }
       else {
         selectCaptionFileForTTS(track);
@@ -640,7 +604,7 @@ const createSelectionLink = (track, languageTexts) => {
     } else {
       selectedLanguageCode = dropdown.value;
     }
-    speechSettings.rememberUserLastSelectedAutoTranslateToLanguageCode = extractLanguageCode(selectedLanguageCode);
+    speechSettings.rememberUserLastSelectedAutoTranslateToLanguageCode = selectedLanguageCode;
     browser.storage.local.set({ speechSettings: speechSettings });
 
     checkbox.checked = true;
@@ -910,74 +874,3 @@ setInterval(function () {
     }
   }
 }, 500)
-
-// Listen for messages from the settings.js file
-browser.runtime.onMessage.addListener(function (message) {
-  if (message.command === 'updateDropdowns') {
-
-    const speechVoice = message.voice;
-    const dropdowns = document.querySelectorAll('[id^="dropdown_"]');
-
-    let languageCode;
-
-    if (speechVoice.startsWith("GoogleTranslate_")) {
-      languageCode = speechVoice.replace("GoogleTranslate_", "");
-      speechSettings.rememberUserLastSelectedAutoTranslateToLanguageCode = extractLanguageCode(languageCode);
-      speechSettings.speechVoice = speechVoice;
-    } else {
-      languageCode = voices.find((voice) => voice.name === speechVoice);
-      speechSettings.rememberUserLastSelectedAutoTranslateToLanguageCode = extractLanguageCode(languageCode.lang);
-      speechSettings.speechVoice = languageCode.name;
-    }
-
-    dropdowns.forEach(function (dropdown) {
-      // Find the option with the matching languageCode
-      const selectedOption = Array.from(dropdown.options).find(option => option.value === extractLanguageCode(speechSettings.rememberUserLastSelectedAutoTranslateToLanguageCode));
-
-      // Set the selectedIndex of the dropdown to the index of the selected option
-      if (selectedOption) {
-        dropdown.selectedIndex = selectedOption.index;
-      }
-
-      // Assuming the checkbox was created as a sibling of the dropdown within the same container
-      const container = dropdown.parentNode;
-      const checkbox = container.querySelector('input[type="checkbox"]');
-      if (checkbox) {
-        // Reselect the checkbox if it was previously selected
-        const isChecked = checkbox.checked;
-        checkbox.checked = false; // Uncheck the checkbox first
-        checkbox.checked = isChecked; // Recheck the checkbox to trigger the 'change' event
-        if (isChecked) {
-          // Trigger the 'change' event on the checkbox. I had to do it that way, as checkbox.checked = isChecked wasn't triggering an event
-          const event = new Event('change');
-          checkbox.dispatchEvent(event);
-        }
-      }
-    });
-  }
-});
-
-// Use a precompiled regular expression: Since the regular expression is used repeatedly, it can be precompiled outside the function to improve performance. This avoids compiling the regular expression each time the function is called.
-const regex = /^([a-z]{2})(?:-[A-Za-z]{2})?$/;
-const qualifierRegex = /^([a-z]{2})(?:-[A-Za-z]+)/;
-
-function extractLanguageCode(text) {
-  const matches = text.match(regex);
-  if (matches) {
-    return matches[1];
-  }
-
-  // Extract language code from text containing qualifiers
-  const qualifierMatches = text.match(qualifierRegex);
-  if (qualifierMatches) {
-    return qualifierMatches[1];
-  }
-
-  // Handle cases where additional qualifiers are present
-  const hyphenIndex = text.indexOf("-");
-  if (hyphenIndex !== -1) {
-    return text.slice(0, hyphenIndex);
-  }
-
-  return text;
-}
