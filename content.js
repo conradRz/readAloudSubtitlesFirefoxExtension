@@ -158,6 +158,36 @@ const updateSettingsAndSpeak = (voice, utterance) => {
   speechSynthesis.speak(utterance);
 }
 
+const createSpeechUtterance = (matchedText) => {
+  let utterance = new SpeechSynthesisUtterance(unescapeHTML(matchedText.replace(/\n/g, "").replace(/\\"/g, '"').trim().replace(/[,\.]+$/, '').replace(/\r/g, "")));
+
+  const langCode = speechSettings.rememberUserLastSelectedAutoTranslateToLanguageCode;
+  const voice = findVoiceByVoiceURI(speechSettings.speechVoice);
+  const localVoice = findLocalVoice(langCode);
+
+  if (langCode !== null) {
+    if (speechSettings.speechVoice && speechSettings.speechVoice.startsWith("GoogleTranslate_")) {
+      if (speechSettings.speechVoice.replace("GoogleTranslate_", "") === langCode || !localVoice) {
+        speakWithGoogleVoice(langCode, utterance);
+      } else {
+        updateSettingsAndSpeak(localVoice, utterance);
+      }
+    } else if (!speechSettings.speechVoice && localVoice) {
+      updateSettingsAndSpeak(localVoice, utterance);
+    } else if (voice && voice.lang.startsWith(langCode)) {
+      updateSettingsAndSpeak(voice, utterance);
+    } else if (localVoice) {
+      updateSettingsAndSpeak(localVoice, utterance);
+    } else {
+      speakWithGoogleVoice(langCode, utterance);
+    }
+  } else if (speechSettings.speechVoice !== null && speechSettings.speechVoice.startsWith("GoogleTranslate_")) {
+    speakWithGoogleVoice(speechSettings.speechVoice.replace("GoogleTranslate_", ""), utterance);
+  } else if (voice) {
+    updateSettingsAndSpeak(voice, utterance);
+  }
+}
+
 let isSpeechSynthesisInProgress = false;
 
 const selectCaptionFileForTTS = async (track, selectedLanguageCode = null) => {
@@ -188,37 +218,8 @@ const selectCaptionFileForTTS = async (track, selectedLanguageCode = null) => {
         const matchedText = matchedElement.textContent.trim();
         if (matchedText !== subtitlePart) {
           subtitlePart = matchedText;
-
           isSpeechSynthesisInProgress = true;
-
-          let utterance = new SpeechSynthesisUtterance(unescapeHTML(matchedText.replace(/\n/g, "").replace(/\\"/g, '"').trim().replace(/[,\.]+$/, '').replace(/\r/g, "")));
-
-          const langCode = speechSettings.rememberUserLastSelectedAutoTranslateToLanguageCode;
-          const voice = findVoiceByVoiceURI(speechSettings.speechVoice);
-          const localVoice = findLocalVoice(langCode);
-
-          if (langCode !== null) {
-            if (speechSettings.speechVoice && speechSettings.speechVoice.startsWith("GoogleTranslate_")) {
-              const voiceLangCode = speechSettings.speechVoice.replace("GoogleTranslate_", "");
-              if (voiceLangCode === langCode || !localVoice) {
-                speakWithGoogleVoice(langCode, utterance);
-              } else {
-                updateSettingsAndSpeak(localVoice, utterance);
-              }
-            } else if (!speechSettings.speechVoice && localVoice) {
-              updateSettingsAndSpeak(localVoice, utterance);
-            } else if (voice && voice.lang.startsWith(langCode)) {
-              updateSettingsAndSpeak(voice, utterance);
-            } else if (localVoice) {
-              updateSettingsAndSpeak(localVoice, utterance);
-            } else {
-              speakWithGoogleVoice(langCode, utterance);
-            }
-          } else if (speechSettings.speechVoice !== null && speechSettings.speechVoice.startsWith("GoogleTranslate_")) {
-            speakWithGoogleVoice(speechSettings.speechVoice.replace("GoogleTranslate_", ""), utterance);
-          } else if (voice) {
-            updateSettingsAndSpeak(voice, utterance);
-          }
+          createSpeechUtterance(matchedText);
         }
       }
       previousTime = currentTime;
