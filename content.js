@@ -131,7 +131,7 @@ const assignUrl = (track, selectedLanguageCode) => {
 
 const findLocalVoice = (langCode) => {
   //cannot be just === langCode due to some codes being more than 2 chars
-  return voices.find((voice) => voice.lang.substring(0, 2) === langCode.substring(0, 2));
+  return voices.find((voice) => extractLanguageCode(voice.lang) === extractLanguageCode(langCode));
 }
 
 const findVoiceByVoiceURI = (voiceURI) => {
@@ -928,18 +928,17 @@ browser.runtime.onMessage.addListener(function (message) {
     speechSettings.rememberUserLastSelectedAutoTranslateToLanguageCode = speechVoice.replace("GoogleTranslate_", "");
   } else {
     languageCode = voices.find((voice) => voice.voiceURI === speechVoice);
-    speechSettings.rememberUserLastSelectedAutoTranslateToLanguageCode = languageCode.lang.substring(0, 2);
+    speechSettings.rememberUserLastSelectedAutoTranslateToLanguageCode = extractLanguageCode(languageCode.lang);
   }
 
   dropdowns.forEach(function (dropdown) {
     let selectedOption;
 
     if (isGoogleTranslate_Voice) {
-      selectedOption = Array.from(dropdown.options).find(option => option.value.substring(0, 2) === languageCode);
+      selectedOption = Array.from(dropdown.options).find(option => option.value === extractLanguageCode(languageCode));
     } else {
       // Find the option with the matching languageCode
-      // option.value has to be .substring(0, 2) due to Chinese code having more chars than that
-      selectedOption = Array.from(dropdown.options).find(option => option.value.substring(0, 2) === languageCode.lang.substring(0, 2));
+      selectedOption = Array.from(dropdown.options).find(option => option.value === extractLanguageCode(languageCode.lang));
     }
 
     // Set the selectedIndex of the dropdown to the index of the selected option
@@ -960,3 +959,28 @@ browser.runtime.onMessage.addListener(function (message) {
   });
 
 });
+
+// Use a precompiled regular expression: Since the regular expression is used repeatedly, it can be precompiled outside the function to improve performance. This avoids compiling the regular expression each time the function is called.
+const regex = /^([a-z]{2})(?:-[A-Za-z]{2})?$/;
+const qualifierRegex = /^([a-z]{2})(?:-[A-Za-z]+)/;
+
+function extractLanguageCode(text) {
+  const matches = text.match(regex);
+  if (matches) {
+    return matches[1];
+  }
+
+  // Extract language code from text containing qualifiers
+  const qualifierMatches = text.match(qualifierRegex);
+  if (qualifierMatches) {
+    return qualifierMatches[1];
+  }
+
+  // Handle cases where additional qualifiers are present
+  const hyphenIndex = text.indexOf("-");
+  if (hyphenIndex !== -1) {
+    return text.slice(0, hyphenIndex);
+  }
+
+  return text;
+}
