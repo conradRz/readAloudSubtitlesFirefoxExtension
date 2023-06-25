@@ -680,6 +680,9 @@ const notifyNotFound = () => {
     uk: {
       NoSubtitleAvailableForThisVideo: 'Субтитрів немає для цього відео'
     },
+    ru: {
+      NoSubtitleAvailableForThisVideo: 'Для этого видео нет субтитров'
+    },
     tr: {
       NoSubtitleAvailableForThisVideo: 'Bu video için altyazı mevcut değil'
     },
