@@ -257,7 +257,7 @@ const buildGui = captionTracks => {
       selectSpeechSubtitles: 'Sélectionnez les sous-titres audio à lire avec la vidéo : ',
       AutoTranslateTo: 'Traduire automatiquement vers:'
     },
-    ua: {
+    uk: {
       subtitleFileDownload: 'Завантажити файл субтитрів: ',
       selectSpeechSubtitles: 'Виберіть мову субтитрів для відтворення поряд із відео: ',
       AutoTranslateTo: 'Автоматичний переклад на:'
@@ -670,8 +670,50 @@ const removeIfAlreadyExists = () => {
  * Notify that there is no subtitle.
  */
 const notifyNotFound = () => {
+  const languageTexts = {
+    en: {
+      NoSubtitleAvailableForThisVideo: 'No subtitles provided for this video'
+    },
+    fr: {
+      NoSubtitleAvailableForThisVideo: 'Aucun sous-titre disponible pour cette vidéo'
+    },
+    uk: {
+      NoSubtitleAvailableForThisVideo: 'Субтитрів немає для цього відео'
+    },
+    tr: {
+      NoSubtitleAvailableForThisVideo: 'Bu video için altyazı mevcut değil'
+    },
+    it: {
+      NoSubtitleAvailableForThisVideo: 'Nessun sottotitolo disponibile per questo video'
+    },
+    ko: {
+      NoSubtitleAvailableForThisVideo: '이 비디오에는 자막이 없습니다'
+    },
+    pl: {
+      NoSubtitleAvailableForThisVideo: 'Brak dostępnych napisów dla tego filmu'
+    },
+    pt: {
+      NoSubtitleAvailableForThisVideo: 'Nenhum legenda disponível para este vídeo'
+    },
+    ar: {
+      NoSubtitleAvailableForThisVideo: 'لا توجد ترجمة متاحة لهذا الفيديو'
+    },
+    hi: {
+      NoSubtitleAvailableForThisVideo: 'इस वीडियो के लिए कोई उपशीर्षक उपलब्ध नहीं है'
+    },
+    zh: {
+      NoSubtitleAvailableForThisVideo: '此视频无字幕'
+    },
+    es: {
+      NoSubtitleAvailableForThisVideo: 'No hay subtítulos disponibles para este video'
+    },
+  };
+
+  const userLanguage = navigator.language.substring(0, 2);
+  const text = languageTexts[userLanguage] || languageTexts['en']; // Fallback to English if user language is not defined
+
   removeIfAlreadyExists()
-  const container = createOutterContainer('No subtitle', CONTAINER_ID)
+  const container = createOutterContainer(text.NoSubtitleAvailableForThisVideo, CONTAINER_ID)
   addToCurrentPage(container)
 }
 
