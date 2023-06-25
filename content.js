@@ -59,7 +59,7 @@ let voices;
 const getVoicesWithRetry = (retryCount, interval) => {
   voices = window.speechSynthesis.getVoices();
 
-  if (voices && voices.length > 0) {
+  if (voices?.length > 0) {
     return;
   }
 
@@ -157,7 +157,7 @@ const updateSettingsAndSpeak = (voice, utterance) => {
   utterance.rate = speechSettings.speechSpeed;
   utterance.volume = speechSettings.speechVolume;
 
-  speechSettings.speechVoice = voice.voiceURI;
+  (voice === null) ? speechSettings.speechVoice = voice : speechSettings.speechVoice = voice.voiceURI;
   browser.storage.local.set({ speechSettings: speechSettings });
 
   utterance.onend = () => {
@@ -174,7 +174,7 @@ const createSpeechUtterance = (matchedText) => {
   const localVoice = findLocalVoice(langCode);
 
   if (langCode !== null) {
-    if (speechSettings.speechVoice && speechSettings.speechVoice.startsWith("GoogleTranslate_")) {
+    if (speechSettings?.speechVoice.startsWith("GoogleTranslate_")) {
       if (speechSettings.speechVoice.replace("GoogleTranslate_", "") === langCode || !localVoice) {
         speakWithGoogleVoice(langCode, utterance);
       } else {
@@ -182,7 +182,7 @@ const createSpeechUtterance = (matchedText) => {
       }
     } else if (!speechSettings.speechVoice && localVoice) {
       updateSettingsAndSpeak(localVoice, utterance);
-    } else if (voice && voice.lang.startsWith(langCode)) {
+    } else if (voice?.lang.startsWith(langCode)) {
       updateSettingsAndSpeak(voice, utterance);
     } else if (localVoice) {
       updateSettingsAndSpeak(localVoice, utterance);
@@ -193,6 +193,8 @@ const createSpeechUtterance = (matchedText) => {
     speakWithGoogleVoice(speechSettings.speechVoice.replace("GoogleTranslate_", ""), utterance);
   } else if (voice) {
     updateSettingsAndSpeak(voice, utterance);
+  } else {
+    updateSettingsAndSpeak(null, utterance);
   }
 }
 
@@ -812,7 +814,7 @@ const convertFromTimedToSrtFormat = xml => {
     // Using text.textContent will automatically replace characters like &quot;,
     // use text.childNodes[0].nodeValue not
     // const orginalText = text.textContent
-    const orginalText = (text.childNodes && text.childNodes.length) ? text.childNodes[0].nodeValue : ''
+    const orginalText = (text.childNodes?.length) ? text.childNodes[0].nodeValue : ''
 
     const endTime = startTime + duration
     const normalizedText = orginalText.replace(/\\n/g, '\n').replace(/\\"/g, '"').trim()
@@ -925,7 +927,7 @@ browser.runtime.onMessage.addListener(function (message) {
 
   if (isGoogleTranslate_Voice) {
     languageCode = speechVoice.replace("GoogleTranslate_", "");
-    speechSettings.rememberUserLastSelectedAutoTranslateToLanguageCode = speechVoice.replace("GoogleTranslate_", "");
+    speechSettings.rememberUserLastSelectedAutoTranslateToLanguageCode = languageCode
   } else {
     languageCode = voices.find((voice) => voice.voiceURI === speechVoice);
     speechSettings.rememberUserLastSelectedAutoTranslateToLanguageCode = extractLanguageCode(languageCode.lang);
@@ -949,12 +951,10 @@ browser.runtime.onMessage.addListener(function (message) {
     // Assuming the checkbox was created as a sibling of the dropdown within the same container
     const container = dropdown.parentNode;
     const checkbox = container.querySelector('input[type="checkbox"]');
-    if (checkbox) {
-      if (checkbox.checked) { //checks if it was checked
-        // Trigger the 'change' event on the checkbox. I had to do it that way, as checkbox.checked = isChecked wasn't triggering an event - checked with the debugger!
-        const event = new Event('change');
-        checkbox.dispatchEvent(event);
-      }
+    if (checkbox?.checked) {
+      //checks if it was checked
+      // Trigger the 'change' event on the checkbox. I had to do it that way, as checkbox.checked = isChecked wasn't triggering an event - checked with the debugger!
+      checkbox.dispatchEvent(new Event('change'));
     }
   });
 
@@ -965,6 +965,8 @@ const regex = /^([a-z]{2})(?:-[A-Za-z]{2})?$/;
 const qualifierRegex = /^([a-z]{2})(?:-[A-Za-z]+)/;
 
 function extractLanguageCode(text) {
+  if (text === null) return null;
+
   const matches = text.match(regex);
   if (matches) {
     return matches[1];
