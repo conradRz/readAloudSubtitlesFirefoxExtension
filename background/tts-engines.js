@@ -195,9 +195,6 @@ function GoogleTranslateTtsEngine() {
   var speakPromise;
   this.ready = function () {
     return hasPermissions(config.gtranslatePerms)
-      .then(function (granted) {
-        if (!granted) throw new Error(JSON.stringify({ code: "error_gtranslate_auth_required" }))
-      })
       .then(googleTranslateReady)
   };
   this.speak = function (utterance, options, onEvent) {
