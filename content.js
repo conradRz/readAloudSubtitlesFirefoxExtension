@@ -120,10 +120,13 @@ const assignUrl = (track, selectedLanguageCode) => {
     return track.baseUrl;
   }
   // The selectedLanguageCode does not contain the ":" character, which would never be a language code, but an EN or translated version of "Auto translate to:"
-  else if (selectedLanguageCode && selectedLanguageCode.indexOf(":") === -1) {
+  else if (!selectedLanguageCode?.includes(":")) {
     // Code for handling selected language code
     return track.baseUrl + '&tlang=' + selectedLanguageCode;
   } else {
+    if (selectedLanguageCode?.includes(":")) {
+      speechSettings.rememberUserLastSelectedAutoTranslateToLanguageCode = urlLanguageCode;
+    }
     // Code for handling the default case
     return track.baseUrl;
   }
@@ -174,7 +177,7 @@ const createSpeechUtterance = (matchedText) => {
   const localVoice = findLocalVoice(langCode);
 
   if (langCode !== null) {
-    if (speechSettings?.speechVoice.startsWith("GoogleTranslate_")) {
+    if (speechSettings?.speechVoice?.startsWith("GoogleTranslate_")) {
       if (speechSettings.speechVoice.replace("GoogleTranslate_", "") === langCode || !localVoice) {
         speakWithGoogleVoice(langCode, utterance);
       } else {
@@ -189,7 +192,7 @@ const createSpeechUtterance = (matchedText) => {
     } else {
       speakWithGoogleVoice(langCode, utterance);
     }
-  } else if (speechSettings.speechVoice !== null && speechSettings.speechVoice.startsWith("GoogleTranslate_")) {
+  } else if (speechSettings.speechVoice?.startsWith("GoogleTranslate_")) {
     speakWithGoogleVoice(speechSettings.speechVoice.replace("GoogleTranslate_", ""), utterance);
   } else if (voice) {
     updateSettingsAndSpeak(voice, utterance);
