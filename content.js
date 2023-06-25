@@ -40,9 +40,17 @@ browser.storage.local.get('speechSettings')
   });
 
 browser.storage.onChanged.addListener((changes, area) => {
-  if (area === 'local' && 'speechSettings' in changes) {
-    // Reasign the updated speechSettings array value
-    speechSettings = changes.speechSettings.newValue;
+  if (
+    area === 'local' &&
+    'speechSettings' in changes &&
+    (changes.speechSettings.newValue.speechSpeed !== undefined ||
+      changes.speechSettings.newValue.speechVolume !== undefined)
+  ) {
+    const { speechSpeed, speechVolume } = changes.speechSettings.newValue;
+
+    // Update the local array with the new values
+    speechSettings.speechSpeed = speechSpeed;
+    speechSettings.speechVolume = speechVolume;
   }
 });
 
@@ -905,6 +913,10 @@ browser.runtime.onMessage.addListener(function (message) {
   clearInterval(intervalId);
 
   const speechVoice = message.voice;
+
+  speechSettings.speechVoice = speechVoice;
+  browser.storage.local.set({ speechSettings: speechSettings });
+
   const dropdowns = document.querySelectorAll('[id^="dropdown_"]');
 
   const isGoogleTranslate_Voice = speechVoice.startsWith("GoogleTranslate_");
