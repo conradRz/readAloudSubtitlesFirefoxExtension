@@ -957,7 +957,6 @@ browser.runtime.onMessage.addListener(function (message) {
       checkbox.dispatchEvent(new Event('change'));
     }
   });
-
 });
 
 // Use a precompiled regular expression: Since the regular expression is used repeatedly, it can be precompiled outside the function to improve performance. This avoids compiling the regular expression each time the function is called.
