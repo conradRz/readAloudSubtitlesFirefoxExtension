@@ -185,19 +185,15 @@ const createSpeechUtterance = (matchedText) => {
       }
     } else if (!speechSettings.speechVoice && localVoice) {
       updateSettingsAndSpeak(localVoice, utterance);
-    } else if (voice?.lang.startsWith(langCode)) {
-      updateSettingsAndSpeak(voice, utterance);
-    } else if (localVoice) {
-      updateSettingsAndSpeak(localVoice, utterance);
+    } else if (voice?.lang.startsWith(langCode) || localVoice) {
+      updateSettingsAndSpeak(localVoice || voice, utterance);
     } else {
       speakWithGoogleVoice(langCode, utterance);
     }
   } else if (speechSettings.speechVoice?.startsWith("GoogleTranslate_")) {
     speakWithGoogleVoice(speechSettings.speechVoice.replace("GoogleTranslate_", ""), utterance);
-  } else if (voice) {
-    updateSettingsAndSpeak(voice, utterance);
   } else {
-    updateSettingsAndSpeak(null, utterance);
+    updateSettingsAndSpeak(voice, utterance);
   }
 }
 
@@ -768,22 +764,21 @@ const unescapeHTML = inputText => {
     /&lt;/g,
     /&gt;/g,
     /&#39;/g
-  ]
+  ];
   const UNESCAPE_SEQ = [
     '&',
     '"',
     '<',
     '>',
     '\''
-  ]
-  for (let i = 0; i < ESCAPE_SEQ.length; i++) {
-    inputText = inputText.replace(ESCAPE_SEQ[i], UNESCAPE_SEQ[i])
-  }
+  ];
+  ESCAPE_SEQ.forEach((escapeSeq, index) => {
+    inputText = inputText.replace(escapeSeq, UNESCAPE_SEQ[index]);
+  });
   return inputText
 }
 
 let currentUrl = ''
-
 
 /**
   * This function will be called periodically.
@@ -809,11 +804,7 @@ const checkSubtitle = () => {
   setTimeout(checkSubtitle, 500)
 }
 
-
-const init = () => {
-  setTimeout(checkSubtitle, 0)
-}
-
+checkSubtitle()
 
 /**
  * @return {String}
@@ -833,9 +824,6 @@ const getSubtitleList = async videoId => {
   const arr = regex.exec(html)
   arr == null ? notifyNotFound() : buildGui(JSON.parse(arr[1]));
 }
-
-
-init()
 
 /**
  * Convert from YouTube closed caption format to srt format.
