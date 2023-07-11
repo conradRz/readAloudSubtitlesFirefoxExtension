@@ -105,7 +105,6 @@ function Speech(texts, options) {
     return ready
       .then(function () {
         clearTimeout(delayedPlayTimer);
-        engine.stop();
         state = "IDLE";
       })
   }
@@ -140,6 +139,15 @@ function Speech(texts, options) {
     index = texts.length && texts.length - 1;
   }
 
+  async function queryTabs() {
+    let tabs = await browser.tabs.query({ url: "*://*.youtube.com/*" });
+    const iterableTabs = Array.from(tabs);
+
+    for (const tab of iterableTabs) {
+      browser.tabs.sendMessage(tab.id, { sender: 'speech' });
+    }
+  }
+
   function speak(text, onEnd, onError) {
     var state = "IDLE";
     return new Promise(function (fulfill, reject) {
@@ -151,6 +159,8 @@ function Speech(texts, options) {
           }
         }
         else if (event.type == "end") {
+          queryTabs();
+
           if (state == "IDLE") {
             reject(new Error("TTS engine end event before start event"));
             state = "ERROR";

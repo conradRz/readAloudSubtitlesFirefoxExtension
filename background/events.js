@@ -4,12 +4,7 @@ var playbackError = null;
 
 // Listen for messages from content scripts
 browser.runtime.onMessage.addListener((message) => {
-  stop()
-    .then(function () {
-      return playText(message.info.selectionText, message.info.lang)
-    })
-    .catch(console.error)
-
+  return playText(message.info.selectionText, message.info.lang)
 });
 
 /**
