@@ -56,7 +56,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function handleTTSvoiceChange(event) {
         // Update the dropdowns in the content.js file
         browser.tabs.query({ active: true, currentWindow: true }, function (tabs) {
-            browser.tabs.sendMessage(tabs[0].id, { voice: event.target.value });
+            browser.tabs.sendMessage(tabs[0].id, { sender: 'settings', voice: event.target.value });
         });
     }
 
