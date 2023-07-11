@@ -185,16 +185,34 @@ const createSpeechUtterance = (matchedText) => {
       }
     } else if (!speechSettings.speechVoice && localVoice) {
       updateSettingsAndSpeak(localVoice, utterance);
-    } else if (voice?.lang.startsWith(langCode) || localVoice) {
-      updateSettingsAndSpeak(localVoice || voice, utterance);
+    } else if (voice?.lang.startsWith(langCode)) {
+      updateSettingsAndSpeak(voice, utterance);
+    } else if (localVoice) {
+      updateSettingsAndSpeak(localVoice, utterance);
     } else {
       speakWithGoogleVoice(langCode, utterance);
     }
   } else if (speechSettings.speechVoice?.startsWith("GoogleTranslate_")) {
     speakWithGoogleVoice(speechSettings.speechVoice.replace("GoogleTranslate_", ""), utterance);
-  } else {
+  } else if (voice) {
     updateSettingsAndSpeak(voice, utterance);
+  } else {
+    updateSettingsAndSpeak(null, utterance);
   }
+}
+
+const waitUntilSpeechSynthesisComplete = () => {
+  return new Promise(resolve => {
+    const checkStatus = () => {
+      if (!isSpeechSynthesisInProgress) {
+        resolve();
+      } else {
+        setTimeout(checkStatus, 100); // Check again after 100 milliseconds
+      }
+    };
+
+    checkStatus();
+  });
 }
 
 let isSpeechSynthesisInProgress = false;
@@ -210,28 +228,33 @@ const selectCaptionFileForTTS = async (track, selectedLanguageCode = null) => {
 
     isSpeechSynthesisInProgress = false;
     let subtitlePart = '';
-    let previousTime = NaN;
 
-    const matchXmlTextToCurrentTime = () => {
-      // save resources if the previous subtitle is being spoken. Trying to control the flow by clearInterval would not be a good idea, due to other parts of code also setting the interval; for a reason - tested; better to just return;
-      if (isSpeechSynthesisInProgress) return;
+    const matchXmlTextToCurrentTime = async () => {
+      //this will save computing cycles of iterating over an array when a video is on pause
+      if (document.getElementsByClassName('video-stream')[0].paused) return;
 
       const currentTime = document.getElementsByClassName('video-stream')[0].currentTime + 0.25;
-
-      //this will save computing cycles of iterating over an array when a video is on pause
-      if (previousTime === currentTime) return;
-
       const matchedElement = binarySearch(textElements, currentTime);
 
       if (matchedElement) {
         const matchedText = matchedElement.textContent.trim();
         if (matchedText !== subtitlePart) {
           subtitlePart = matchedText;
+          if (isSpeechSynthesisInProgress) {
+            // previous subtitle is still being spoken, yet the time has come to speak the new subtitle. Therfore put the video on pause
+            document.getElementsByClassName('video-stream')[0].pause();
+
+            // Wait until isSpeechSynthesisInProgress becomes false
+            await waitUntilSpeechSynthesisComplete();
+
+            // resume playback of the video
+            document.getElementsByClassName('video-stream')[0].play();
+
+          }
           isSpeechSynthesisInProgress = true;
           createSpeechUtterance(matchedText);
         }
       }
-      previousTime = currentTime;
     }
 
     clearInterval(intervalId); // Clear previous interval if exists. In order to update the interval, you need to clear the previous interval using clearInterval before setting the new interval. Simply overriding the intervalId variable without clearing the previous interval can lead to multiple intervals running simultaneously, which is likely not the desired behavior.
@@ -781,6 +804,13 @@ const unescapeHTML = inputText => {
 let currentUrl = ''
 
 /**
+ * @return {String}
+ */
+const extractVideoId = () => {
+  return getParameter('v')
+}
+
+/**
   * This function will be called periodically.
   * Check if the URL has changed.
   */
@@ -805,13 +835,6 @@ const checkSubtitle = () => {
 }
 
 checkSubtitle()
-
-/**
- * @return {String}
- */
-const extractVideoId = () => {
-  return getParameter('v')
-}
 
 
 /**
