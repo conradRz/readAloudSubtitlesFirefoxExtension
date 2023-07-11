@@ -151,7 +151,6 @@ const speakWithGoogleVoice = (langCode, utterance) => {
   browser.runtime.sendMessage(message);
   speechSettings.speechVoice = "GoogleTranslate_" + langCode;
   browser.storage.local.set({ speechSettings: speechSettings });
-  isSpeechSynthesisInProgress = false;
 }
 
 const updateSettingsAndSpeak = (voice, utterance) => {
@@ -969,60 +968,68 @@ setInterval(function () {
   }
 }, 1000)
 
-// Listen for messages from the settings.js file
+// Listen for messages from the settings.js and speech.js file
 browser.runtime.onMessage.addListener(function (message) {
-  clearInterval(intervalId);
+  if (message.sender === 'settings') {
+    clearInterval(intervalId);
 
-  const speechVoice = message.voice;
+    const speechVoice = message.voice;
 
-  speechSettings.speechVoice = speechVoice;
-  browser.storage.local.set({ speechSettings: speechSettings });
+    speechSettings.speechVoice = speechVoice;
+    browser.storage.local.set({ speechSettings: speechSettings });
 
-  const dropdowns = document.querySelectorAll('[id^="dropdown_"]');
+    const dropdowns = document.querySelectorAll('[id^="dropdown_"]');
 
-  const isGoogleTranslate_Voice = speechVoice.startsWith("GoogleTranslate_");
+    const isGoogleTranslate_Voice = speechVoice.startsWith("GoogleTranslate_");
 
-  let languageCode;
-
-  if (isGoogleTranslate_Voice) {
-    languageCode = speechVoice.replace("GoogleTranslate_", "");
-    speechSettings.rememberUserLastSelectedAutoTranslateToLanguageCode = languageCode
-  } else {
-    languageCode = voices.find((voice) => voice.voiceURI === speechVoice);
-    speechSettings.rememberUserLastSelectedAutoTranslateToLanguageCode = extractLanguageCode(languageCode.lang);
-  }
-
-  dropdowns.forEach(function (dropdown) {
-    let selectedOption;
+    let languageCode;
 
     if (isGoogleTranslate_Voice) {
-      selectedOption = Array.from(dropdown.options).find(option => option.value === extractLanguageCode(languageCode));
+      languageCode = speechVoice.replace("GoogleTranslate_", "");
+      speechSettings.rememberUserLastSelectedAutoTranslateToLanguageCode = languageCode
     } else {
-      // Find the option with the matching languageCode
-      selectedOption = Array.from(dropdown.options).find(option => option.value === extractLanguageCode(languageCode.lang));
+      languageCode = voices.find((voice) => voice.voiceURI === speechVoice);
+      speechSettings.rememberUserLastSelectedAutoTranslateToLanguageCode = extractLanguageCode(languageCode.lang);
     }
 
-    // Set the selectedIndex of the dropdown to the index of the selected option
-    if (selectedOption) {
-      dropdown.selectedIndex = selectedOption.index;
-    }
+    dropdowns.forEach(function (dropdown) {
+      let selectedOption;
 
-    // Assuming the checkbox was created as a sibling of the dropdown within the same container
-    const container = dropdown.parentNode;
-    const checkbox = container.querySelector('input[type="checkbox"]');
-    if (checkbox?.checked) {
-      //checks if it was checked
-      // Trigger the 'change' event on the checkbox. I had to do it that way, as checkbox.checked = isChecked wasn't triggering an event - checked with the debugger!
-      checkbox.dispatchEvent(new Event('change'));
-    }
-  });
+      if (isGoogleTranslate_Voice) {
+        selectedOption = Array.from(dropdown.options).find(option => option.value === extractLanguageCode(languageCode));
+      } else {
+        // Find the option with the matching languageCode
+        selectedOption = Array.from(dropdown.options).find(option => option.value === extractLanguageCode(languageCode.lang));
+      }
+
+      // Set the selectedIndex of the dropdown to the index of the selected option
+      if (selectedOption) {
+        dropdown.selectedIndex = selectedOption.index;
+      }
+
+      // Assuming the checkbox was created as a sibling of the dropdown within the same container
+      const container = dropdown.parentNode;
+      const checkbox = container.querySelector('input[type="checkbox"]');
+      if (checkbox?.checked) {
+        //checks if it was checked
+        // Trigger the 'change' event on the checkbox. I had to do it that way, as checkbox.checked = isChecked wasn't triggering an event - checked with the debugger!
+        checkbox.dispatchEvent(new Event('change'));
+      }
+    });
+  }
+  if (message.sender === 'speech') {
+    isSpeechSynthesisInProgress = false;
+  }
+
 });
+
+
 
 // Use a precompiled regular expression: Since the regular expression is used repeatedly, it can be precompiled outside the function to improve performance. This avoids compiling the regular expression each time the function is called.
 const regex = /^([a-z]{2})(?:-[A-Za-z]{2})?$/;
 const qualifierRegex = /^([a-z]{2})(?:-[A-Za-z]+)/;
 
-function extractLanguageCode(text) {
+const extractLanguageCode = (text) => {
   if (text === null) return null;
 
   const matches = text.match(regex);
