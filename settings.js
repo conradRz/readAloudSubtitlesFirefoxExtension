@@ -24,7 +24,7 @@ document.addEventListener('DOMContentLoaded', () => {
             } else {
                 // Initialize speechSettings if it doesn't exist in storage
                 speechSettings = {
-                    speechSpeed: 1.6,
+                    speechSpeed: 2.3,
                     speechVolume: 1.0,
                     speechVoice: null
                 };

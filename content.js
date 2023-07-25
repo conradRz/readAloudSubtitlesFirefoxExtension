@@ -26,7 +26,7 @@ browser.storage.local.get('speechSettings')
       speechSettings = result.speechSettings;
     } else {
       speechSettings = {
-        speechSpeed: 1.6,
+        speechSpeed: 2.3,
         speechVolume: 1,
         speechVoice: null,
         rememberUserLastSelectedAutoTranslateToLanguageCode: null
@@ -218,7 +218,7 @@ let isSpeechSynthesisInProgress = false;
 
 const selectCaptionFileForTTS = async (track, selectedLanguageCode = null) => {
 
-  const url = assignUrl(track, selectedLanguageCode)
+  const url = assignUrl(track, selectedLanguageCode).replace('&kind=asr', '');
   const xml = await fetch(url).then(resp => resp.text());
 
   if (xml) {
@@ -230,7 +230,8 @@ const selectCaptionFileForTTS = async (track, selectedLanguageCode = null) => {
 
     const matchXmlTextToCurrentTime = async () => {
       //this will save computing cycles of iterating over an array when a video is on pause
-      if (document.getElementsByClassName('video-stream')[0].paused) return;
+      //commented out, as it was causing a bug
+      //if (document.getElementsByClassName('video-stream')[0].paused) return;
 
       const currentTime = document.getElementsByClassName('video-stream')[0].currentTime + 0.25;
       const matchedElement = binarySearch(textElements, currentTime);
@@ -661,6 +662,17 @@ const createSelectionLink = (track, languageTexts) => {
       selectedLanguageCode = null;
     } else {
       selectedLanguageCode = dropdown.value;
+
+      const dropdowns = document.querySelectorAll('[id^="dropdown_"]');
+
+      // Get the value of the dropdown this was called from
+      const value = dropdown.value;
+
+      // Loop through the other dropdowns using forEach
+      dropdowns.forEach((dropdown) => {
+        // Set the value of the other dropdowns to the value of the first dropdown
+        dropdown.value = value;
+      });
     }
     speechSettings.rememberUserLastSelectedAutoTranslateToLanguageCode = selectedLanguageCode;
 
@@ -1022,7 +1034,6 @@ browser.runtime.onMessage.addListener(function (message) {
   }
 
 });
-
 
 
 // Use a precompiled regular expression: Since the regular expression is used repeatedly, it can be precompiled outside the function to improve performance. This avoids compiling the regular expression each time the function is called.
