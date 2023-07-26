@@ -218,8 +218,13 @@ let isSpeechSynthesisInProgress = false;
 
 const selectCaptionFileForTTS = async (track, selectedLanguageCode = null) => {
 
-  const url = assignUrl(track, selectedLanguageCode).replace('&kind=asr', '');
-  const xml = await fetch(url).then(resp => resp.text());
+  let url = assignUrl(track, selectedLanguageCode).replace('&kind=asr', '');
+  let xml = await fetch(url).then(resp => resp.text());
+
+  if (!xml) {
+    url = assignUrl(track, selectedLanguageCode);
+    xml = await fetch(url).then(resp => resp.text());
+  };
 
   if (xml) {
     const xmlDoc = new DOMParser().parseFromString(xml, 'text/xml');
