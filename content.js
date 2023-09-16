@@ -635,6 +635,8 @@ const createSelectionLink = (track, languageTexts) => {
   // Click event listener for the checkbox
   checkbox.addEventListener('change', () => {
     clearInterval(intervalId);
+    window.speechSynthesis.cancel();
+
     if (checkbox.checked) {
 
       // Retrieve the selected language code from the dropdown
@@ -662,6 +664,7 @@ const createSelectionLink = (track, languageTexts) => {
   // Change event listener for the dropdown
   dropdown.addEventListener('change', () => {
     clearInterval(intervalId);
+    window.speechSynthesis.cancel();
 
     if (dropdown.value === '') {
       selectedLanguageCode = null;
