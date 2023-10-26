@@ -162,9 +162,14 @@ const updateSettingsAndSpeak = (voice, utterance) => {
   (voice === null) ? speechSettings.speechVoice = voice : speechSettings.speechVoice = voice.voiceURI;
   browser.storage.local.set({ speechSettings: speechSettings });
 
-  utterance.onend = () => {
-    isSpeechSynthesisInProgress = false;
+  //this fires right at the stop of an utterance (regrdless if it has a dot at the end or not (so don't be confusted with event.name === 'sentence' - it also never fires when it finds a dot in the middle of an utterance)).
+  //before the code used utterance.onend() which fires after the end of utterance + some pause(!). Measured how long is such a pause compared to the utterance.onboudary - average((1698285598420−1698285596014)/1000,(1698285595876−1698285593813)/1000,(1698285593568−1698285590890)/1000)) = 2.382 333 333 seconds, which is way more than expected. So the below method is superior and causes the video to be paused way less often (lowest speed setting, 1 minute video, presentation - paused once vs 7 times (although those were very short pauses)).
+  utterance.onboundary = function (event) {
+    if (event.name === 'sentence') {
+      isSpeechSynthesisInProgress = false;
+    }
   };
+
   speechSynthesis.speak(utterance);
 }
 
@@ -695,7 +700,7 @@ const createSelectionLink = (track, languageTexts) => {
 
     checkbox.checked = true;
 
-    //below is important, as `checkbox.checked = true` doesn't trigger even listener for some reason
+    //below is important, as `checkbox.checked = true` doesn't trigger event listener for some reason
     selectCaptionFileForTTS(track, selectedLanguageCode);
 
   });
