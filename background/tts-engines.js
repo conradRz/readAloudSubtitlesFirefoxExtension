@@ -109,7 +109,7 @@ function RemoteTtsEngine(serviceUrl) {
   var iOS = !!navigator.platform && /iPad|iPhone|iPod/.test(navigator.platform);
   var audio = document.createElement("AUDIO");
   audio.addEventListener("timeupdate", function () {
-    if (((audio.currentTime + 0.3) >= audio.duration) && !audio.paused) {
+    if (((audio.currentTime + 0.2) >= audio.duration) && !audio.paused) {
       //audio.pause(); //that doesn't work for this purpose
       //but the below does work
       audio.currentTime = audio.duration;
