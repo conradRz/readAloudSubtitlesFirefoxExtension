@@ -169,6 +169,10 @@ const updateSettingsAndSpeak = (voice, utterance) => {
       isSpeechSynthesisInProgress = false;
     }
   };
+  //it seem that some remote voices don't work with utterance.onboundary at all, yet they do work with utterance.onend
+  utterance.onend = () => {
+    isSpeechSynthesisInProgress = false;
+  }
 
   speechSynthesis.speak(utterance);
 }
@@ -252,7 +256,7 @@ const selectCaptionFileForTTS = async (track, selectedLanguageCode = null) => {
       //commented out, as it was causing a bug
       //if (document.getElementsByClassName('video-stream')[0].paused) return;
 
-      const currentTime = document.getElementsByClassName('video-stream')[0].currentTime + 0.25;
+      const currentTime = document.getElementsByClassName('video-stream')[0].currentTime;
       const matchedElement = binarySearch(textElements, currentTime);
 
       if (matchedElement) {
@@ -424,7 +428,6 @@ const createOutterContainer = (text, id) => {
   container.setAttribute('id', id)
   container.style.padding = '5px 5px 5px 0'
   container.style.margin = '5px 0'
-  container.style.color = 'darkgrey'
   container.style.fontSize = '1.4rem'
   container.style.overflowWrap = 'break-word'
   container.style.whiteSpace = 'break-spaces'
@@ -451,11 +454,9 @@ const createDownloadLink = track => {
   // CSS
   link.style.marginLeft = '5px'
   link.style.cursor = 'pointer'
-  link.style.color = 'pink'
-  link.style.textDecoration = 'underline'
-  link.style.background = 'transparent'
-  link.style.border = 'none'
+  link.style.color = 'var(--yt-endpoint-hover-color,var(--yt-spec-call-to-action))'
   link.style.fontSize = '1.4rem'
+  link.style.textDecoration = 'none'
 
   // Click to download
   link.addEventListener('click', () => {
@@ -601,17 +602,15 @@ const createSelectionLink = (track, languageTexts) => {
   label.textContent = track.name.simpleText;
   label.htmlFor = checkbox.id;
   label.style.cursor = 'pointer';
-  label.style.color = 'pink';
-  label.style.textDecoration = 'underline';
   label.style.fontSize = '1.4rem';
+  label.style.color = "var(--yt-formatted-string-bold-color,inherit)"
+  label.style.fontWeight = "var(--yt-formatted-string-bold-font-weight,500)"
+  label.style.lineHeight = "2rem"
 
   const dropdown = document.createElement('select');
   dropdown.id = `dropdown_${track.name.simpleText.replace(/\s/g, '_')}`;
-  dropdown.style.backgroundColor = '#333333';
-  dropdown.style.color = '#ffffff';
-  dropdown.style.border = 'none';
   dropdown.style.cursor = 'pointer';
-  dropdown.style.marginLeft = '5px';
+  dropdown.style.marginLeft = '10px';
 
   const defaultOption = document.createElement('option');
 

@@ -108,6 +108,13 @@ function RemoteTtsEngine(serviceUrl) {
   var manifest = browser.runtime.getManifest();
   var iOS = !!navigator.platform && /iPad|iPhone|iPod/.test(navigator.platform);
   var audio = document.createElement("AUDIO");
+  audio.addEventListener("timeupdate", function () {
+    if (((audio.currentTime + 0.3) >= audio.duration) && !audio.paused) {
+      //audio.pause(); //that doesn't work for this purpose
+      //but the below does work
+      audio.currentTime = audio.duration;
+    }
+  });
   var isSpeaking = false;
   var nextStartTime = 0;
   var waitTimer;
