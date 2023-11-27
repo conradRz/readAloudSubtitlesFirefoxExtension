@@ -7,7 +7,7 @@ It's a unique extension that fills a gap in the "market", as at the time of publ
 
 [Chrome Web Store official link, more voices straight out the box, will work on Edge browser too.](https://chrome.google.com/webstore/detail/youtube-subtitle-reader/nplkdkbfnfheognggghkckpgngbjkahe)
 
-[Firefox Browser Add-ons official link](https://addons.mozilla.org/en-US/firefox/addon/youtube-subtitle-reader/)
+[Firefox Browser Add-ons official link](https://addons.mozilla.org/firefox/addon/youtube-subtitle-reader/)
 
 https://github.com/conradRz/readAloudSubtitlesFirefoxExtension---Chrome-Edge-Opera-browser-version/assets/26015206/66007794-a475-48b5-88ea-da8f73852869
 
