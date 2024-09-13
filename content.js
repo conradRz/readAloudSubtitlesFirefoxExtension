@@ -88,7 +88,7 @@ const binarySearch = (textElements, currentTime) => {
     const el = textElements[mid];
     const nextEl = textElements[mid + 1];
     const elStart = parseFloat(el.getAttribute('start'));
-    const nextElStart = parseFloat(nextEl.getAttribute('start'));
+    const nextElStart = nextEl ? parseFloat(nextEl.getAttribute('start')) : Infinity;
 
     if (currentTime >= elStart && currentTime <= nextElStart) {
       return el;
@@ -178,7 +178,8 @@ const updateSettingsAndSpeak = (voice, utterance) => {
 }
 
 const createSpeechUtterance = (matchedText) => {
-  let utterance = new SpeechSynthesisUtterance(unescapeHTML(matchedText.replace(/\n/g, "").replace(/\\"/g, '"').trim().replace(/[,\.]+$/, '').replace(/\r/g, "")));
+  const cleanedString = matchedText.replace(/<\/?(i|b|u)>/gi, '');
+  const utterance = new SpeechSynthesisUtterance(unescapeHTML(cleanedString.replace(/\n/g, "").replace(/\\"/g, '"').trim().replace(/[,\.]+$/, '').replace(/\r/g, "")));
 
   const langCode = speechSettings.rememberUserLastSelectedAutoTranslateToLanguageCode;
   const voice = findVoiceByVoiceURI(speechSettings.speechVoice);
@@ -993,7 +994,7 @@ setInterval(function () {
     if (ad !== undefined) {
       if (ad.children.length > 0) {
         if (document.getElementsByClassName("ytp-ad-text ytp-ad-preview-text")[0] !== undefined) {
-          vid.playbackRate = 16;
+          vid.playbackRate = 16; //16 is the maximum
           //console.log("Incrementally skipped unskippable ad!")
         }
       }
