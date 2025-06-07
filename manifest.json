@@ -3,7 +3,7 @@
   "name": "__MSG_appName__",
   "description": "__MSG_appDesc__",
   "default_locale": "en",
-  "version": "0.1.7.15",
+  "version": "0.1.7.16",
   "icons": {
     "128": "icon128.png"
   },
@@ -30,7 +30,7 @@
     ],
     "persistent": true
   },
-  "web_accessible_resources": ["settings.html", "content.js"],
+  "web_accessible_resources": ["settings.html", "content.js", "injected.js"],
   "options_ui": {
     "page": "settings.html",
     "browser_style": false

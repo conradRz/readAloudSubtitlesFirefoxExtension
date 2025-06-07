@@ -5,6 +5,23 @@ const CONTAINER_ID2 = 'captionDownloadContainer2'
 // Location to add your HTML
 let insertPosition
 
+let poToken = null
+
+const script = document.createElement('script');
+script.src = chrome.runtime.getURL('injected.js');
+script.onload = () => {
+  console.log('[Content Script] inject.js loaded into page');
+  script.remove();
+};
+(document.head || document.documentElement).appendChild(script);
+
+window.addEventListener('FoundPOT', (event) => {
+  poToken = /** @type {CustomEvent} */(event).detail;
+  console.log('[Content Script] POT value:', poToken);
+});
+
+
+
 /**
  * Download subtitle files.
  * @param {Object} track subtitle object
@@ -112,23 +129,46 @@ const getParameterByName = (name, url) => {
   return decodeURIComponent(results[2].replace(/\+/g, ' '));
 }
 
-const assignUrl = (track, selectedLanguageCode) => {
+async function toggleUntilPoTokenSet() {
+  const captionsButton = document.querySelector('.ytp-subtitles-button');
+  if (!captionsButton) return;
+
+  while (poToken === null) {
+    captionsButton.click();
+    captionsButton.click(); // Toggle captions back to avoid annoying the user
+
+    const startTime = Date.now();
+    // Wait up to 2 seconds, checking every 100 ms if poToken is set
+    while (poToken === null && Date.now() - startTime < 2000) {
+      await new Promise(resolve => setTimeout(resolve, 100));
+    }
+  }
+}
+
+const assignUrl = async (track, selectedLanguageCode) => {
   // Extract the current language code from the track.baseUrl
   const urlLanguageCode = getParameterByName('lang', track.baseUrl);
 
+  if (!poToken) {
+    // If poToken is not set for this insertion of content script, wait until it is set
+    await toggleUntilPoTokenSet();
+  }
+
+  let baseUrl = track.baseUrl + '&pot=' + poToken + '&c=WEB';
+
   if (selectedLanguageCode && urlLanguageCode === selectedLanguageCode) {
-    return track.baseUrl;
+    return baseUrl;
   }
   // The selectedLanguageCode does not contain the ":" character, which would never be a language code, but an EN or translated version of "Auto translate to:"
   else if (!selectedLanguageCode?.includes(":")) {
     // Code for handling selected language code
-    return track.baseUrl + '&tlang=' + selectedLanguageCode;
+    return baseUrl + '&tlang=' + selectedLanguageCode;
   } else {
     if (selectedLanguageCode?.includes(":")) {
       speechSettings.rememberUserLastSelectedAutoTranslateToLanguageCode = urlLanguageCode;
     }
     // Code for handling the default case
-    return track.baseUrl;
+    return baseUrl;
   }
 }
 
@@ -169,7 +209,8 @@ const updateSettingsAndSpeak = (voice, utterance) => {
       isSpeechSynthesisInProgress = false;
     }
   };
-  //it seem that some remote voices don't work with utterance.onboundary at all, yet they do work with utterance.onend
+
+  //it seem that remote google voices don't work with utterance.onboundary at all, yet they do work with utterance.onend
   utterance.onend = () => {
     isSpeechSynthesisInProgress = false;
   }
@@ -228,11 +269,12 @@ let isSpeechSynthesisInProgress = false;
 
 const selectCaptionFileForTTS = async (track, selectedLanguageCode = null) => {
 
-  let url = assignUrl(track, selectedLanguageCode).replace('&kind=asr', '');
+  // this has to be inside () as it returns a promise first not a string
+  let url = (await assignUrl(track, selectedLanguageCode)).replace('&kind=asr', '');
   let xml = await fetch(url).then(resp => resp.text());
 
   if (!xml) {
-    url = assignUrl(track, selectedLanguageCode);
+    url = await assignUrl(track, selectedLanguageCode);
     xml = await fetch(url).then(resp => resp.text());
   };
 
